@@ -1,0 +1,23 @@
+#+STARTUP: showall indent
+#+STARTUP: hidestars
+#+BEGIN_HTML
+---
+---
+layout: default
+title: emacs org mode和jekyll
+excerpt: ???
+---
+#+END_HTML
+
+* branch master on http://georgealbert.github.io
+
+直接用master这种方式，_config.yaml的baseurl为 =""= 。
+
+* jekyll on windows
+
+在 http://jekyllrb.com/docs/installation/ 上看见windows的支持不给力，我还是暴力手写吧，先看看效果。
+#+BEGIN_EXAMPLE
+Running Jekyll on Windows
+While Windows is not officially supported, it is possible to get it running on Windows. Special instructions can be found on our Windows-specific docs page.
+#+END_EXAMPLE
+
