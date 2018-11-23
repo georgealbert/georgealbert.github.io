@@ -1,0 +1,1402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-11-23 周五 16:10 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title></title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Albert" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2017 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org158301e">MTP/MPO链路极性问题大揭秘</a>
+<ul>
+<li><a href="#orgc2e9a8f">什么是跳线的极性？</a></li>
+<li><a href="#orgb29a0e5">MPO/MTP光纤连接器的结构</a></li>
+<li><a href="#org46f3002">三种极性转换的方法介绍</a></li>
+</ul>
+</li>
+<li><a href="#orgeb2e7a4">40GBASE-iSR4 QSFP+ 光模块的发展 2016-8-18 15:56:33 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-22 周四 17:29]</span></span></a>
+<ul>
+<li><a href="#orgca9e195">背景</a></li>
+<li><a href="#orgdece3c0">潜在的机会</a></li>
+<li><a href="#org8dd337e">问题</a></li>
+<li><a href="#org8592257">解决方案</a></li>
+<li><a href="#org7b4304d">总结</a></li>
+</ul>
+</li>
+<li><a href="#org32f8f9e">光模块QSFP+和SFP+的区别</a>
+<ul>
+<li><a href="#org781554b">关于40G QSFP+光模块，你了解多少？</a>
+<ul>
+<li><a href="#org32cea29">40G QSFP+光模块基础知识</a></li>
+<li><a href="#orga813ea6">40G QSFP+光模块的应用</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org183f211">光模块SFP+与SFP、XFP、QSFP、QSFP+的区别 2015-7-27 14:00:46</a>
+<ul>
+<li><a href="#org6f4d766">X2光模块</a></li>
+</ul>
+</li>
+<li><a href="#org8239397">SFP-10G-USR光模块专业扫盲 飞速(FS) vs 10GBase-SR SFP+ 2017-07-19 00:00:00</a>
+<ul>
+<li><a href="#org5dd2843">1、SFP-10G-USR光模块介绍</a></li>
+<li><a href="#orgbae0604">2、SFP-10G-USR光模块参数</a></li>
+<li><a href="#org0974ffe">3、SFP-10G-USR光模块的特点、优势和应用</a></li>
+<li><a href="#org2ff4c9b">5、SFP-10G-USR光模块和OSX010000光模块有哪些区别？</a></li>
+</ul>
+</li>
+<li><a href="#org6330622">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)预端接布线方案 </a>
+<ul>
+<li><a href="#org6bb81bb">数据中心的主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)</a></li>
+<li><a href="#org26b7a5d">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)间的布线</a></li>
+<li><a href="#org32bc910">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)间的布线</a></li>
+<li><a href="#org5176e2f">主干布线</a></li>
+<li><a href="#org5056bb6">水平布线</a></li>
+<li><a href="#org0d93d06">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)的预端接布线解决方案</a></li>
+</ul>
+</li>
+<li><a href="#orgc7622ac">om3与om4光纤有什么区别 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-22 周四 15:06]</span></span></a>
+<ul>
+<li><a href="#orgcbae6a9">OM1 ~ OM4</a></li>
+<li><a href="#orgf20e637">MPO光纤跳线 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-22 周四 15:35]</span></span></a>
+<ul>
+<li><a href="#orgf26f99f">MPO分类</a></li>
+<li><a href="#org1ae4647">连接原则</a></li>
+<li><a href="#org4ba21d0">MPO光纤跳线规格参数</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org8988d61">ST、SC、FC、LC光纤接头区别</a>
+<ul>
+<li><a href="#orga238714">各种光纤接口类型介绍</a>
+<ul>
+<li><a href="#org7964942">光纤连接器</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org41e560b">光纤、光缆传统知识问答</a></li>
+</ul>
+</div>
+</div>
+<p>
+MPO/MTP光纤跳线的基本概况 <a href="http://www.asiapacificcable.com/TechnologyCenter/FiberOpticSolutions/14.html">http://www.asiapacificcable.com/TechnologyCenter/FiberOpticSolutions/14.html</a>
+</p>
+
+<p>
+SFP+光模块如何与交换机搭配使用 <a href="https://www.feisu.com/bbs/t-1806.html">https://www.feisu.com/bbs/t-1806.html</a>
+</p>
+
+<p>
+五种常见的40G QSFP+光模块介绍 <a href="https://jingyan.baidu.com/article/5552ef47f87ab0518ffbc9c4.html">https://jingyan.baidu.com/article/5552ef47f87ab0518ffbc9c4.html</a>
+</p>
+
+<div id="outline-container-org158301e" class="outline-2">
+<h2 id="org158301e">MTP/MPO链路极性问题大揭秘</h2>
+<div class="outline-text-2" id="text-org158301e">
+<p>
+随着数据中心的快速发展，网络通信带宽要求增加，需要高密度布线产品，MTP/MPO作为首选的光纤跳线应用更加广泛，因为一个MTP/MPO多芯接头可以满足8/12/24芯，最多可达144芯的要求。然而在复杂的高密度布线中，如果你没有正确的掌握跳线的极性，那么用MTP/MPO布线的优点将会丢失，本篇教程将向大家介绍三种极性转换的方法，帮助大家正确的配置跳线连接。
+</p>
+</div>
+
+<div id="outline-container-orgc2e9a8f" class="outline-3">
+<h3 id="orgc2e9a8f">什么是跳线的极性？</h3>
+<div class="outline-text-3" id="text-orgc2e9a8f">
+<p>
+我们都知道，一个光纤链路需要两根光纤跳线完成传输，例如，光模块有收发端，需要保证两端互联，在光纤链路中这种收发端的匹配就称之为极性。在一般的布线中，我们用到的是LC、SC的接头，很容易匹配，没有极性问题，但是对于较为复杂的布线，像MPO/MTP布线系统，极性问题就显得很重要了。
+</p>
+
+<p>
+在详细了解每种方法之前，有必要了解MPO/MTP光纤连接器的基本结构。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb29a0e5" class="outline-3">
+<h3 id="orgb29a0e5">MPO/MTP光纤连接器的结构</h3>
+<div class="outline-text-3" id="text-orgb29a0e5">
+<p>
+MPO连接器可用于2-12芯并排光纤的连接，最多可用于两排24芯光纤的同时连接。如下图所示，MPO/MTP光纤连接器包含了光纤、护套、耦合组件、金属环、引脚、防尘帽等，而且引脚部分分为公头和母头两种形式。
+</p>
+
+<p>
+另外，连接器主体的一侧有一个"键"，有"凹凸"之分，用于限制连接头的相对位置，即P1，P2等，通常，在连接器主体侧有一个称为"白点"的标记，用于指定连接器的插入侧。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org46f3002" class="outline-3">
+<h3 id="org46f3002">三种极性转换的方法介绍</h3>
+<div class="outline-text-3" id="text-org46f3002">
+<ol class="org-ol">
+<li>直通型
+直通型MPO主干光缆使用直通线缆，两端分别预接键槽朝上和键槽朝下的MPO连接器，两端的光纤位置对应，如图"p1"对应"F1"。需要注意的是，此方法下跳线需进行翻转，即需要将A到B转换成A到A。</li>
+
+<li>交错型
+这种方法MPO主干光缆使用的是反转线缆，两端预接的都是键槽朝上的MPO连接器，光纤的对应关系为"P1"对应"F12"。在链路的开始和结束处需要两条直连的A到B跳线，不需要进行翻转。</li>
+</ol>
+
+
+<div class="figure">
+<p><img src="network/MPO_B极性.jpg" alt="MPO_B极性.jpg" />
+</p>
+</div>
+
+<ol class="org-ol">
+<li>成对交错型
+成对交错的方法与直通型的方法类似，区别在于，不在跳线上发生成对翻转，而是奇数发送端与偶数端对应，例如"P1"（发送端）与"F2"（接收端）配合。</li>
+</ol>
+
+<p>
+不同的极性方法使用不同种类的MTP主干光缆，MTP/MPO跳线分为MTP/MPO主干跳线和MTP/MPO分支跳线，不同类型、芯数，极性也是不同的，不过，所有的方法都要利用双工跳线完成光纤链路。
+</p>
+
+<p>
+MTP/MPO系统高密度、可拓展的设计可实现成千上万的连接，在组网过程中可以选择合适的MTP/MPO产品比如，MTP/MPO主干光缆、分支跳线、配线盒等来满足日益增长的高速率传输所面临的的极性问题，您可以在飞速(FS)平台上搜索心仪的产品。
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgeb2e7a4" class="outline-2">
+<h2 id="orgeb2e7a4">40GBASE-iSR4 QSFP+ 光模块的发展 2016-8-18 15:56:33 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-22 周四 17:29]</span></span></h2>
+<div class="outline-text-2" id="text-orgeb2e7a4">
+<p>
+目前，40G QSFP+收发模块具有多种优势而被广泛应用于各种光网络中，例如，提供低功耗的高速光/电性能，使用束状光纤电缆和MPO连接器的QSFP+模块端口密度是普通SFP+模块的三倍。此外，功耗降低，从SFP+ 模块的每通道最大1000兆瓦降低到QSFP+模块的每通道最大375兆瓦。
+</p>
+
+<p>
+为了进一步拓展创新的并行光纤收发器，一个新的QSFP+收发器的推出，即40GBASE-iSR4 QSFP+光模块。“i”指的是内部运作的能力。它不仅是40GB以太网兼容，也可操作任何链路距离达100米的OM3多模光纤的10GBASE-SR兼容收发器。本文将围绕这一40GBASE-iSR4 QSFP+收发器的发展过程展开。
+</p>
+
+
+<div class="figure">
+<p><img src="network/QSPF_0.jpg" alt="QSPF_0.jpg" />
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgca9e195" class="outline-3">
+<h3 id="orgca9e195">背景</h3>
+<div class="outline-text-3" id="text-orgca9e195">
+<p>
+通过数据网络的数字信息量的发展速度日益增长。随着云计算增长，服务器虚拟化和网络融合的趋势，迫使今天的网络朝着更有效和更快的方向快速发展着。虚拟化服务器的利用率增加，千兆以太网接入链路已取代10Gbps链路。
+</p>
+
+<p>
+为了跟上切换硬件更高的性能需要，提供足够的I/O（输入/输出）的带宽，许多新的接入交换机已经发展到可以支持连接到下游服务器的48端口10G以太网了，并且可以连接到核心交换机的2或4端口40G以太网。这些互连数据传输的实现，都离不开40G QSFP+收发器，它可以提供足够的带宽，以确保数据转换无阻碍。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgdece3c0" class="outline-3">
+<h3 id="orgdece3c0">潜在的机会</h3>
+<div class="outline-text-3" id="text-orgdece3c0">
+<p>
+40G以太网标准IEEE 802.3ba-2010释放指定的光学和各种物理层链路实现电路要求。40GBASE-SR PMD（物理介质相关）支持4通道并行光纤互连操作与传输距离可达100米OM3多模光纤。四个通道工作在10.3125 Gbps的数据速率是相同的串行比特率，每一个方向的单模光纤传输。
+</p>
+
+<p>
+40GBASE-SR PMD的地址在40Gbps互连的数据中心是被需要的。它利用广泛部署的、低成本的850nm的 <b>VCSEL（垂直腔面发射激光器）技术</b> 。这是硬件厂商利用40GBASE-SR切换4个10G以太网互连的一个机会。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8dd337e" class="outline-3">
+<h3 id="org8dd337e">问题</h3>
+<div class="outline-text-3" id="text-org8dd337e">
+<p>
+40GBASE-SR标准为进一步解决带宽不断增长的需求提供了一个机会。它不定义为向后兼容前面的10G以太网短距离互连标准。虽然40G以太网和10G以太网中包括一个基于VCSEL短距离PMD定义的光链路，却无法保证在每通道10.3125 Gbps互操作（见下图）
+</p>
+
+
+<div class="figure">
+<p><img src="network/QSFP_1.jpg" alt="QSFP_1.jpg" />
+</p>
+</div>
+
+<p>
+下面的分析40GBASE-SR和10GBASE-SR规格告诉为什么互操作不能在规定的操作条件下保证。
+</p>
+
+
+<div class="figure">
+<p><img src="network/QSFP_2.jpg" alt="QSFP_2.jpg" />
+</p>
+</div>
+
+<p>
+从上面的图表中，我们可以看到很多的发射机和接收机的规范标准与10GBASE-SR相等或比40GBASE-SR标准更严格。这并不奇怪，因为40GBASE-SR规范写入覆盖传输链路高达100米，而10GBASE-SR规范是为了满足最大传输链路长度为300米的OM3多模光纤。除距离外，主要规格间隙保证可操作性或防止接收机过载。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8592257" class="outline-3">
+<h3 id="org8592257">解决方案</h3>
+<div class="outline-text-3" id="text-org8592257">
+<p>
+40GBASE-iSR4 QSFP+收发器发布解决过载状态的问题时，连接到10GBASE-SR和40GBASE-SR发射机或接收机。它的目的是完全兼容的40GBASE-SR规范但与输出光功率下最大传输。规定的 <b>最大输出功率</b> 已降低到2.4dBm至1dBm的允许它与10GBASE-SR接收器接口而 <b>不必担心超载。</b>
+</p>
+
+<p>
+VCSEL设计结合优异的激光编程和控制算法 <b>减少模块的最大光输出功率</b> ，而不损害任何模块的高速电光性能。下图表所示是一个完全兼容40GBASE-SR模块，与传统的10GBASE-SR收发器互连。
+</p>
+
+
+<div class="figure">
+<p><img src="network/QSFP_3.jpg" alt="QSFP_3.jpg" />
+</p>
+</div>
+
+
+<div class="figure">
+<p><img src="network/QSPF_4.png" alt="QSPF_4.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7b4304d" class="outline-3">
+<h3 id="org7b4304d">总结</h3>
+<div class="outline-text-3" id="text-org7b4304d">
+<p>
+40GBASE-iSR4 QSFP+模块为用户提供了一种减少指定最大输出功率，增加其交换网络容量的有效解决方案。该QSFP+ iSR4能够支持标准的40G以太网连接到100米OM3光纤和相同距离10GBASE-SR的连接。QSFP+相比标准的SFP +，增加了3倍以上的10G以太网有效端口密度，同时降低了整体功耗。
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org32f8f9e" class="outline-2">
+<h2 id="org32f8f9e">光模块QSFP+和SFP+的区别</h2>
+<div class="outline-text-2" id="text-org32f8f9e">
+<dl class="org-dl">
+<dt>SFP+</dt><dd>10G的光纤模块，10G模块经历了从300Pin，XENPAK，X2，XFP的发展，最终实现了用和SFP一样的尺寸传输10G的信号，这就是SFP+。SFP凭借其小型化低成本等优势满足了设备对光模块高密度的需求，从2002年标准推行了，到2010年已经取代XFP成为10G 市场主流。</dd>
+
+<dt>QSFP+</dt><dd><p>
+Quad Small Form-factor Pluggable Plus四小体积可插入(QSFP +)的解决方案是专为高密度的应用程序。系统组件的包括电磁干扰(EMI)屏蔽,活跃的光缆(AOC)、被动铜电缆组件,活跃的铜电缆组件,光学MTP电缆组件,光学回环,主机连接器,连接器和笼子层叠式集成。
+</p>
+
+<p>
+SFF - 8436的文档指定一个无线电收发机机械形式因素与闭锁机制,host-board electrical-edge连接器和接口。热插拔的收发器集成了4传送和接收通道4。莫仕的QSFP +收发器可以取代4标准SFP +收发器。结果是更大的端口密度和整个系统的成本节约超过传统SFP +产品。QSFP +线缆组件被设计提供叠起来连接器配置在极高密度的需求。这个系统将支持10 G以太网,光纤通道,InfiniBand *,SAS和SONET / SDH标准使用不同的数据率选项。
+</p>
+
+<p>
+包括InfiniBand *单独的数据率(SDR),双数据率(DDR)和四数据率(报告),以太网系统(10 ~ 40 gbp s),光纤通道(8、10 gbp s),SAS(12 gbp s)。 
+</p>
+
+<p>
+QSFP+光模块是为了满足市场对更高密度的高速可插拔解决方案的需求而诞生的，相当于SFP光模块的升级版，QSFP+光模块具备四个10G通道，传输速率可达40Gbps，而SFP光模块只有一个10G通道，传输速率为10Gbps。
+</p>
+
+<p>
+SFP光模块是一种小型可插拔光模块，通常与LC跳线连接。SFP光模块又包含了百兆SFP、千兆SFP、BIDI SFP、CWDM SFP和DWDM SFP，每一款光模块都经过了严格的兼容性测试，确保产品的可靠性、稳定性，全面兼容各品牌交换机等设备。
+</p></dd>
+</dl>
+<p>
+而QSFP+光模块是一种四通道小型可热插拔光模块，支持与MPO和LC光纤跳线连接，相比SFP光模块尺寸更大。
+</p>
+</div>
+
+<div id="outline-container-org781554b" class="outline-3">
+<h3 id="org781554b">关于40G QSFP+光模块，你了解多少？</h3>
+<div class="outline-text-3" id="text-org781554b">
+<p>
+QSFP+光模块是为了满足市场对更高密度的可插拔解决方案而产生的，它相当于采用四通道SFP接口，其传输速率达到了40Gbps，远远超过了SFP光模块，它支持SFF-8436 MSA和IEEE802.3ba 40GBASE-LR4等协议，主要用于交换机，路由器和主机适配器总线。
+</p>
+</div>
+
+<div id="outline-container-org32cea29" class="outline-4">
+<h4 id="org32cea29">40G QSFP+光模块基础知识</h4>
+<div class="outline-text-4" id="text-org32cea29">
+<p>
+40G QSFP+光模块符合SCSI、40G以太网、20G/40G Infiniband等多种标准，它有四个数据传输通道，每个通道的传输速率约为10Gbps，四个通道同时传输可以实现40Gbps的传输速率。这种光模块主要有两种接口：LC和MTP/MPO(如下图)，分别用在单模应用和多模应用。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga813ea6" class="outline-4">
+<h4 id="orga813ea6">40G QSFP+光模块的应用</h4>
+<div class="outline-text-4" id="text-orga813ea6">
+<p>
+　　40G QSFP+光模块有多个类型，包括40GBASE-SR4、40GBASE-LR4、40GBASE-ER4等，本部分将详细介绍这三种光模块以及其应用。
+</p>
+
+<dl class="org-dl">
+<dt>40GBASE-SR4光模块</dt><dd>采用MTP/MPO接口，工作波长是850nm，一般用在多模应用。它和OM3/OM4多模光纤一起使用时的传输距离分别是100m和150m，主要用来实现数据中心内网络设备间的连接。40GBASE-SR4光模块不仅可以利用MTP/MPO光纤跳线实现两个40G网络设备间的连接，而且可以和MTP/MPO转LC光纤跳线一起使用来实现40G网络设备和10G网络设备间的连接。</dd>
+
+<dt>40GBASE-LR4和40GBASE-ER4光模块</dt><dd>采用双工LC接口，一般用在单模应用。这两种光模块有四个相互独立的光信号接收和发射通道，需要利用WDM技术将光信号进行复用和解复用，从而实现光信号在长距离单模光纤上的传输。40GBASE-LR4光模块的传输距离可以达到10 km，而40GBASE-ER4光模块的传输距离则更长。</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org183f211" class="outline-2">
+<h2 id="org183f211">光模块SFP+与SFP、XFP、QSFP、QSFP+的区别 2015-7-27 14:00:46</h2>
+<div class="outline-text-2" id="text-org183f211">
+<p>
+SFP收发器有多种不同的发送和接收类型，用户可以为每个链接选择合适的收发器，以提供基于可用的光纤类型（如多模光纤或单模光纤）能达到的"光学性能"。
+</p>
+
+<ul class="org-ul">
+<li>可用的光学SFP模块一般分为如下类别：
+<ul class="org-ul">
+<li>850纳米波长/550米距离的 MMF (SX)</li>
+<li>1310纳米波长/10公里距离的 SMF (LX)</li>
+<li>1550 纳米波长/40公里距离的XD</li>
+<li>80公里距离的ZX</li>
+<li>120公里距离的EX或EZX</li>
+<li>DWDM</li>
+</ul></li>
+</ul>
+
+<p>
+SFP收发器也提供铜缆接口，使得主要为光纤通信设计的主机设备也能够通过UTP网络线缆通信。也存在波分复用（CWDM）以及单光纤"双向"（1310/1490纳米波长上行/下行）的SFP。 商用SFP收发器能够提供速率达到4.25 G bps。10 Gbps 收发器的几种封装形式为XFP，以及与SFP封装基本一致的新的变种"SFP+"。
+</p>
+
+<p>
+GBIC(Gigabit Interface Converter的缩写)，是将千兆位电信号转换为光信号的接口器件。GBIC设计上可以为热插拔使用。GBIC是一种符合国际标准的可互换产品。采用GBIC接口设计的千兆位交换机由于互换灵活，在市场上占有较大的市场份额。SFP （Small Form-factor Pluggable）可以简单的理解为GBIC的升级版本。
+</p>
+
+<p>
+SFP支持SONET、Gigabit Ethernet、光纤通道（Fiber Channel）以及一些其他通信标准。此标准扩展到了SFP+，能支持10.0 Gbit/s传输速率，包括8 gigabit光纤通道和10GbE。引入了光纤和铜芯版本的SFP+模块版本，与模块的Xenpak、X2或XFP版本相比，SFP+模块将部分电路留在主板实现，而非模块内实现
+</p>
+
+<p>
+10G模块经历了从300Pin，XENPAK，X2，XFP的发展，最终实现了用和SFP一样的尺寸传输10G的信号，这就是SFP+。SFP凭借其小型化低成本等优势满足了设备对光模块高密度的需求，从2002年标准推出，到2010年已经取代XFP成为10G 市场主流。
+</p>
+
+<ul class="org-ul">
+<li>SFP+光模块优点
+<ol class="org-ol">
+<li>SFP+具有比X2和XFP封装更紧凑的外形尺寸(与SFP尺寸相同）；</li>
+<li>可以和同类型的XFP,X2,XENPAK直接连接；</li>
+<li>成本比XFP,X2,XENPAK产品低。</li>
+</ol></li>
+
+<li>SFP+和SFP的区别
+<ol class="org-ol">
+<li>SFP 和SFP+ 外观尺寸相同；</li>
+<li>SFP协议规范：IEEE802.3、SFF-8472 ；</li>
+</ol></li>
+
+<li>SFP+ 和XFP 的区别
+<ol class="org-ol">
+<li>SFP+和XFP都是10G的光纤模块，且与其它类型的10G模块可以互通；</li>
+<li>SFP+比XFP外观尺寸更小；</li>
+<li>因为体积更小SFP+将信号调制功能，串行/解串器、MAC、时钟和数据恢复(CDR)，以及电子色散补偿(EDC)功能从模块移到主板卡上；</li>
+<li>XFP 遵从的协议：XFP MSA协议；</li>
+<li>SFP+遵从的协议：IEEE 802.3ae、SFF-8431、SFF-8432；</li>
+<li>SFP+是更主流的设计。</li>
+<li>SFP+ 协议规范：IEEE 802.3ae、SFF-8431、SFF-8432。</li>
+</ol></li>
+
+<li id="QSFP">Quad Small Form-factor Pluggable
+四通道SPF接口(QSFP)，QSFP是为了满足市场对更高密度的高速可插拔解决方案的需求而诞生的。
+这种4通道的可插拔接口传输速率达到了40Gbps。很多XFP中成熟的关键技术都应用到了该设计中。
+QSFP可以作为一种光纤解决方案，并且速度和密度均优于4通道CX4接口。
+由于可在XFP相同的端口体积下以每通道10Gbps的速度支持四个通道的数据传输，所以QSFP的密度可以达到XFP产品的4倍，SFP+产品的3倍。具有4通道且密度比CX4高的QSFP接口已经被InfiniBand标准所采用。</li>
+
+<li id="QSFP+">Quad Small Form-factor Pluggable Plus
+四小体积可插入(QSFP +)的解决方案是专为高密度的应用程序。系统组件的包括电磁干扰(EMI)屏蔽,活跃的光缆(AOC)、被动铜电缆组件,活跃的铜电缆组件,光学MTP电缆组件,光学回环,主机连接器,连接器和笼子层叠式集成。
+SFF - 8436的文档指定一个无线电收发机机械形式因素与闭锁机制,host-board electrical-edge连接器和接口。热插拔的收发器集成了4传送和接收通道4。莫仕的QSFP +收发器可以取代4标准SFP +收发器。结果是更大的端口密度和整个系统的成本节约超过传统SFP+产品。QSFP+线缆组件被设计提供叠起来连接器配置在极高密度的需求。这个系统将支持10G以太网,光纤通道,InfiniBand *,SAS和SONET / SDH标准使用不同的数据率选项。
+包括InfiniBand *单独的数据率(SDR),双数据率(DDR)和四数据率(报告),以太网系统(10 ~ 40 gbp s),光纤通道(8、10 gbp s),SAS(12 gbp s)。</li>
+</ul>
+</div>
+
+<div id="outline-container-org6f4d766" class="outline-3">
+<h3 id="org6f4d766">X2光模块</h3>
+<div class="outline-text-3" id="text-org6f4d766">
+<p>
+X2光模块是10G光模块中主要的一类封装模块，由XENPAK发展而来。是一种支持热插拔的输入/输出装置，主要用于以太网X2端口的交换机或路由器与网络连结端口。
+</p>
+
+<ul class="org-ul">
+<li>X2光模块历史发展
+X2是从Xenpak标准演进而来的，其内部功能模块与Xenpak以及在电路板上的应用都基本相同，在实现10G以太网光接口的功能方面都是只使用一个模块即可。由于Xenpak光模块安装到电路板上时需要在电路板上操作比较复杂地开槽，且无法实现高密度应用。而经过改进的X2光模块（其体积只有Xenpak的一半左右）可以直接放到电路板上，因此适用于高密度的机架系统和PCI网卡应用。</li>
+
+<li>X2光模块特点及应用
+X2也使用Xenpak电气接口，但有少数地方例外。X2 提供一个4位端口地址的空间，比Xenpak少一位。 X2 还减少了电源引脚的数目，并使底板和电气接地公用。X2保留了Xenpak的4个厂商专用的引脚。在光技术方面，X2支持10GbE（以太网）、 OC192同步光纤网、10GFC（光纤通道）和其他标准。</li>
+</ul>
+
+<p>
+&#x2014; 转自SFP 光纤收发器网
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org8239397" class="outline-2">
+<h2 id="org8239397">SFP-10G-USR光模块专业扫盲 飞速(FS) vs 10GBase-SR SFP+ 2017-07-19 00:00:00</h2>
+<div class="outline-text-2" id="text-org8239397">
+<p>
+<a href="https://www.feisu.com/bbs/e-1647.html">https://www.feisu.com/bbs/e-1647.html</a>
+</p>
+
+<p>
+随着光通信的不断发展，人们对于高速率的需求不断增加，虽然40G和100G以太网发展较快，但是10G短距离光模块依然是数据中心和企业园区应用中最常用的光模块类型。本文中飞速（FS）将详细介绍高性价比的SFP-10G-USR光模块。
+</p>
+
+<p>
+SFP-10G-USR光模块图
+</p>
+</div>
+
+<div id="outline-container-org5dd2843" class="outline-3">
+<h3 id="org5dd2843">1、SFP-10G-USR光模块介绍</h3>
+<div class="outline-text-3" id="text-org5dd2843">
+<p>
+SFP-10G-USR光模块是一款速率是10G的短距离光模块，封装类型是SFP+，和多模光纤一起使用时的传输距离可达300m。此外，这款光模块的接口类型是LC双工，波长是850nm，还具有实时监测光模块运行状态的DOM功能。虽然华为和戴尔都推出了这款光模块，但是国内市场销量较高的依然是兼容华为的SFP-10G-USR光模块。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgbae0604" class="outline-3">
+<h3 id="orgbae0604">2、SFP-10G-USR光模块参数</h3>
+<div class="outline-text-3" id="text-orgbae0604">
+<p>
+光模块型号 	SFP-10G-USR 	封装类型 	SFP+
+中心波长 	850nm 	        速率             10Gbps
+接口         LC双工 	        最大传输距离 	300m
+激光器类型 	VCSEL 850nm 	光纤类型 	MMF
+DOM功能 	支持 	        发射光功率 	-6～-1dBm
+接收灵敏度 	&lt;-11.1dBm 	商业温度 	0～70℃
+</p>
+</div>
+</div>
+
+<div id="outline-container-org0974ffe" class="outline-3">
+<h3 id="org0974ffe">3、SFP-10G-USR光模块的特点、优势和应用</h3>
+<div class="outline-text-3" id="text-org0974ffe">
+<p>
+SFP-10G-USR光模块符合多源协议（MSA）,并且能够和10GBase-SR SFP+光模块完全兼容； SFP-10G-USR光模块具有2个十分实用的功能，即热插拔和DOM功能； SFP-10G-USR光模块以其小型化、低功耗、低成本等优势广泛应用于下一代移动网络、固定接入网、城域网、以及数据中心等领域。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org2ff4c9b" class="outline-3">
+<h3 id="org2ff4c9b">5、SFP-10G-USR光模块和OSX010000光模块有哪些区别？</h3>
+<div class="outline-text-3" id="text-org2ff4c9b">
+<p>
+SFP-10G-USR和OSX010000都是速率是10G，封装形式是SFP+的光模块，那么这两种类型的光模块有什么区别？飞速(FS)总结了它们之间的区别，详情如下：
+</p>
+
+<p>
+(1)波长和激光器类型不同：
+</p>
+
+<p>
+光模块的波长和激光器类型通常都相互对应，例如SFP-10G-USR光模块的波长是850nm，激光器类型是VCSEL 850nm，而OSX010000光模块的波长是1310nm，激光器类型是DFB 1310nm。
+</p>
+
+<p>
+(2)光纤类型和传输距离不同：
+</p>
+
+<p>
+SFP-10G-USR光模块和多模光纤（MMF）一起使用时的传输距离可达300m，是一款高性价比的短距离光模块。OSX010000光模块和单模光纤（SMF）一起使用时的传输距离可达10km，适用于长距离数据传输。
+</p>
+
+<p>
+(3)发射光功率和接收灵敏度不同：
+</p>
+
+<p>
+SFP-10G-USR光模块的发射光功率和接收灵敏度分别是-6～-1dBm和&lt;-11.1dBm，而OSX010000光模块的发射光功率和接收灵敏度分别是-8.2～0.5dBm和&lt;-14.4dBm。
+</p>
+
+<p>
+(4)成本不同：
+</p>
+
+<p>
+SFP-10G-USR光模块的价格是90元，OSX010000光模块的价格是180元，可以看出OSX010000光模块的价格相对而言更高，原因在于它使用了性能卓越的DFB一类激光器。众所周知，光模块中最昂贵的器件就是激光器，如果使用性能优良的激光器，那么光模块的整体价格也会上涨，但是使用效果也会更好。
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6330622" class="outline-2">
+<h2 id="org6330622">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)预端接布线方案 <a href="https://www.feisu.com/bbs/t-643.html">https://www.feisu.com/bbs/t-643.html</a></h2>
+<div class="outline-text-2" id="text-org6330622">
+<p>
+随着大数据和云服务的快速发展，许多企业开始构建自己的数据中心以满足网络业务的需求。预端接光纤布线解决方案目前被认为是实现数据中心高密度布线的理想解决方案。本教程将详细介绍数据中心主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)的预端接布线解决方案。
+</p>
+</div>
+
+<div id="outline-container-org6bb81bb" class="outline-3">
+<h3 id="org6bb81bb">数据中心的主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)</h3>
+<div class="outline-text-3" id="text-org6bb81bb">
+<p>
+数据中心主要由主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)组成，此外，还有接入间、区域配线区(ZDA)等，各个区域的具体情况如下图：
+</p>
+
+
+<div class="figure">
+<p><img src="network/data-center-areas-1024x333.jpg" alt="data-center-areas-1024x333.jpg" />
+</p>
+</div>
+
+<p>
+序号	  名称	                         详情
+1	主配线区(MDA)	主配线区(MDA)只放置路由器、局域网/存储区域网交换机、专用小交换机、多路复用器等核心层设备。
+2	水平配线区(HDA)	水平配线区(HDA)放置局域网/存储区域网交换机等汇聚层设备。
+3	设备配线区(EDA)	设备配线区(EDA)放置局域网/存储区域网交换机、服务器等接入层设备。
+4	区域配线区(ZDA)	区域配线区(ZDA)是接入集中点或临时接入点所在地。
+5	接入间           接入间是运营商电路和分界设备所在地。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org26b7a5d" class="outline-3">
+<h3 id="org26b7a5d">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)间的布线</h3>
+<div class="outline-text-3" id="text-org26b7a5d">
+<p>
+根据TIA-942标准，数据中心的基本网络拓扑结构如下图所示，主要包括一个接入间、一个或多个电信间、一个主配线区(MDA)和多个水平配线区(HDA)和设备配线区(EDA)组成。从下图中的网络拓扑结构可以看出，主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)间的布线主要是主干布线和水平布线，其中，主配线区(MDA)和水平配线区(HDA)之间是主干布线，水平配线区(HDA)和设备配线区(EDA)之间是水平布线。
+</p>
+
+
+<div class="figure">
+<p><img src="network/TIA-942-data-center-topology.jpg" alt="TIA-942-data-center-topology.jpg" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org32bc910" class="outline-3">
+<h3 id="org32bc910">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)间的布线</h3>
+<div class="outline-text-3" id="text-org32bc910">
+<p>
+注意：除了上图的基本网络拓扑结构外，管理者还可以根据具体情况在数据中心使用分布式网络拓扑结构、简化的网络拓扑结构等。
+</p>
+</div>
+</div>
+<div id="outline-container-org5176e2f" class="outline-3">
+<h3 id="org5176e2f">主干布线</h3>
+<div class="outline-text-3" id="text-org5176e2f">
+<p>
+主干布线主要用来实现接入间、主配线区(MDA)和水平配线区(HDA)之间的互连。光缆是主干布线的常用传输媒介，但是有时我们也可以用铜缆来实现短距离互连。它由主干线缆、中间交叉连接和主交叉连接、机械终端连接及主交叉连接使用的软线或跳线组成。通常，主干布线应当可以为建筑物用户服务一个或多个计划周期，每个计划周期为3-10年。
+</p>
+
+<ul class="org-ul">
+<li>主干布线使用的线缆长度要求如下：
+<ol class="org-ol">
+<li>100欧姆语音级非屏蔽双绞线最大长度为800m；</li>
+<li>150欧姆数据级屏蔽双绞线最大长度为90m；</li>
+<li>62.5/125μm多模光纤光缆的最大长度为2000m；</li>
+<li>跳线的长度为3-6 m。</li>
+</ol></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org5056bb6" class="outline-3">
+<h3 id="org5056bb6">水平布线</h3>
+<div class="outline-text-3" id="text-org5056bb6">
+<p>
+水平布线主要用来实现水平配线区(HDA)、区域配线区(ZDA)和设备配线区(EDA)之间的互连。光缆和铜缆都可以用作水平布线的传输介质。水平布线子系统是指从工作区子系统的信息点出发，连接管理子系统的通信中间交叉配线设备的线缆部分，可以在墙壁上、天花板内、地板下和管道内进行布线。
+</p>
+
+<ul class="org-ul">
+<li>水平布线使用的线缆长度要求如下：
+<ol class="org-ol">
+<li>总长度不超过100m；</li>
+<li>信息连线长度小于3m；</li>
+<li>跳线长度小于6m；</li>
+<li>配线架上的跳线和工作区的连线总共不应超过90m。</li>
+</ol></li>
+</ul>
+
+<p>
+主干布线&amp;水平布线
+</p>
+
+
+<div class="figure">
+<p><img src="network/backbone-horizontal-1024x353.jpg" alt="backbone-horizontal-1024x353.jpg" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0d93d06" class="outline-3">
+<h3 id="org0d93d06">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)的预端接布线解决方案</h3>
+<div class="outline-text-3" id="text-org0d93d06">
+<p>
+预端接布线解决方案的主要优点是能够快速实现数据中心的布线和升级，包括预端接线缆产品、配线盒、配线架等，能很好地满足数据中心性能、灵活性和可扩展性的严格要求。下图是主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)的基本预端接布线解决方案：
+</p>
+
+
+<div class="figure">
+<p><img src="network/connection-samples.jpg" alt="connection-samples.jpg" />
+</p>
+</div>
+
+<p>
+相关产品
+</p>
+
+<p>
+   区域	                 预端接布线解决方案
+主配线区(MDA)      4U 机架式 LGX 光纤盒机箱或4U高密度光纤盒机箱
+                  12/24芯MTP/MPO LGX配线盒或HD MTP/MPO配线盒
+                  MPO/MTP –LC分支光纤跳线
+主干布线           12-144芯MPO/MTP主干光缆
+                  MPO/MTP适配器面板
+                  MPO/MTP适配器面板
+水平配线区(HDA)    1/2U光纤配线盒或HD MTP/MPO配线盒
+                 12/24芯MTP/MPO LGX配线盒或HD MTP/MPO配线盒
+                 LC Uniboot光纤跳线
+水平布线          OM3/OM4光缆
+设备配线区(EDA)   1U光纤适配器面板
+                LC Uniboot光纤跳线
+                LC-LC多芯扇出型光纤跳线
+                高速线缆
+</p>
+
+<p>
+注意：上表列出的所有产品都是预端接布线产品，飞速(FS)还供应超六类网络跳线、主干线缆、墙壁插座、配线架等铜缆布线解决方案。
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc7622ac" class="outline-2">
+<h2 id="orgc7622ac">om3与om4光纤有什么区别 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-22 周四 15:06]</span></span></h2>
+<div class="outline-text-2" id="text-orgc7622ac">
+<p>
+OM1、OM2、OM3和OM4光纤之间有什么区别？ <a href="http://www.asiapacificcable.com/TechnologyCenter/FiberOpticSolutions/170.html">http://www.asiapacificcable.com/TechnologyCenter/FiberOpticSolutions/170.html</a>
+</p>
+<dl class="org-dl">
+<dt>OM3和OM4多模光纤之间的真实区别是OM4具有较高的模式带宽</dt><dd>4700 MHz·km，而OM3光纤为2000 MHz·km。这意味着OM4光纤在相同的距离内可传输更多的信息。</dd>
+
+<dt>OM3和OM4多模光纤是局域网中常用的两种光纤</dt><dd>通常用于电信机房之间以及数据中心主网与存储区域网络(SAN)交换机之间的骨干网布线。</dd>
+
+<dt>(no term)</dt><dd>这两种类型的光纤都是激光优化的50/125多模光纤，也就是两者的纤芯直径均为50 µm，包层直径为125 µm，经过特殊包覆，防止纤芯漏光。这两种光纤使用相同的连接器、相同的端接和相同的收发器——垂直腔面发射激光器(VCSEL)，发射波长为850 nm的红外光。</dd>
+
+<dt>(no term)</dt><dd>OM4是为VSCEL激光器传输而开发，并且支持10G/S达550米的连接距离（而OM3是300米）。</dd>
+
+<dt>(no term)</dt><dd>OM4模式的有效带宽比OM3多一倍以上。</dd>
+</dl>
+
+<p>
+<a href="https://www.china.cn/guangxiantiaoxian/3961832004.html">https://www.china.cn/guangxiantiaoxian/3961832004.html</a>
+</p>
+
+<ul class="org-ul">
+<li>由于两者非常相似，并且制造商一般采用相同的浅绿色电缆插头和连接器，很难区分这两种光纤类型。</li>
+</ul>
+
+
+<div class="figure">
+<p><img src="network/OM3_OM4.jpg" alt="OM3_OM4.jpg" />
+</p>
+</div>
+
+<ul class="org-ul">
+<li>OM3和OM4多模光纤的主要区别在于纤芯的内部构造。光纤链路要想正常工作，VCSEL收发器发射的光必须具有足够大的功率，能够到达另一端的接收器。</li>
+</ul>
+
+<p>
+随着以太网设备成本的下降和人们对于网络应用要求的不断提高，万兆以太网的应用已经成为趋势。光纤凭借其质量小、容量大、传输频带宽等特点成为万兆以太 网应用的首选。
+</p>
+</div>
+
+<div id="outline-container-orgcbae6a9" class="outline-3">
+<h3 id="orgcbae6a9">OM1 ~ OM4</h3>
+<div class="outline-text-3" id="text-orgcbae6a9">
+<dl class="org-dl">
+<dt>OM1</dt><dd>850/1300nm满注入带宽在200/500MHz.km以上的50um或62.5um芯径多模光纤。</dd>
+
+<dt>OM2</dt><dd>850/1300nm满注入带宽在500/500MHz.km以上的50um或62.5um芯径多模光纤。</dd>
+
+<dt>OM3和和OM4</dt><dd>850nm激光优化的50um芯径多模光纤，在采用850nm VCSEL的10Gb/s以太网中，OM3光纤传输距离可以达到300m,OM4光纤传输距离可以达到550m。</dd>
+</dl>
+
+
+<div class="figure">
+<p><img src="network/Fiber.JPEG" alt="Fiber.JPEG" />
+</p>
+</div>
+
+<p>
+单模光纤虽然可以满足这一要求，但是需要使用 <b>激光光源</b> (1310nm or 1550nm波长的长波激光) ，相应的光收发器的成本也非常高。而普通的多模光纤只能满足千兆以下的应用，无法满足 高速以太网的要求。经过研究，业界开发出名为 <b>VCSEL</b> 的光源，比传统的LED光源有更好的性能。通过优化改进50/125微米光纤，与VCSEL配套，可以在850纳米波长上支持300米距离光缆主干的10Gb/s的应用，同时在支持千兆应用时，传输距离可以达到900米，而且成本比起普通多模光纤增加不多。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf20e637" class="outline-3">
+<h3 id="orgf20e637">MPO光纤跳线 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-22 周四 15:35]</span></span></h3>
+<div class="outline-text-3" id="text-orgf20e637">
+<p>
+MPO光纤跳线，MPO(Multi-fiberPushOn)连接器为MT系列连接器之一，MT系列的插芯都采用插芯端面上左右两个直径为0.7mm的导引孔与导引针（又叫PIN针）进行精准连接。MPO连接器与光纤光缆加工后可生产出各种形式的MPO跳线。MPO跳线可以有2~12芯设计，最多可以是24芯，目前使用最多的是12芯的MPO连接器。MPO连接器的紧凑设计，使MPO跳线芯数多，体积小。MPO跳线被广泛应用于在布线过程中需要高密度集成光纤线路环境中，FTTX及40/100G QSFP、10G SFP+等收发模块或设备内外部的连接应用。
+</p>
+</div>
+
+<div id="outline-container-orgf26f99f" class="outline-4">
+<h4 id="orgf26f99f">MPO分类</h4>
+<div class="outline-text-4" id="text-orgf26f99f">
+<p>
+MPO光纤跳线分为转接型与非转接型，转接MPO跳线的种类繁多，有带状MPO跳线、束状MPO跳线，通过分支器（圆形或方形）扇出的PO跳线，一般可以转接出2~24芯0.9或2.0光缆分支，连接头类型由客户指定，可选FC，LC，SC，ST等类型，MPO跳线总长度或分支长度及其他要求任由客户选择。各种MPO光纤跳线，MPO转接跳线，MTP类型，MTP万兆跳线，多模万兆跳线，MPO带分支器跳线等形式的MPO跳线产品，皆符合Telcordia-GR-326、IEC标准及Rohs要求。
+MPO光纤跳线的应用企业的不同楼宇之间局域网布线光有源设备中光链路互连通信基站内布线，配线箱内布线居民小区，工业园机房，商业大楼机房内光信号连接楼宇密集布线系统光纤通信系统，有线电视网，电信网络局域网(LANs)、广域网(WANs)、FTTx
+</p>
+
+<p>
+MPO连接器是一种多芯数连接器标准，通常将12芯光纤排为一列，可支持一列或多列光纤在同一个MPO连接器内，标准由IEC 61754-7规范，根据连接器内排放的芯数不同分为一列（12芯），多列（24芯或以上）。
+</p>
+
+<p>
+MPO连接器类型根据IEC 61754-7规定有几个因素来区分：芯数（光纤阵列数 Array Number），公母头（Male-Female），极性（Key），抛光类型（PC 或 APC）。
+</p>
+
+
+<div class="figure">
+<p><img src="network/MPO_male_female.png" alt="MPO_male_female.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1ae4647" class="outline-4">
+<h4 id="org1ae4647">连接原则</h4>
+<div class="outline-text-4" id="text-org1ae4647">
+<p>
+MPO连接原则为：必须为同芯数连接器连接（12芯连12芯，24芯连24芯等）；一个公头（Male）和一个母头（Female）为一对连接；必须为同一种抛光类型连接（PC和PC，APC和APC）。
+MPO连接器的极性通过Key来管理，两种Key被定义：向上（Key Up）和向下（Key Down）。一对MPO连接器通过一个MPO适配器来匹配，MPO适配器有两种类型：A类定义为向上-向下（Key Up/Key Down）和B类定义为向上-向上（Key Up/Key Up）。通过选用A类或B类适配器即可管理光纤极性 [4]  。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org4ba21d0" class="outline-4">
+<h4 id="org4ba21d0">MPO光纤跳线规格参数</h4>
+<div class="outline-text-4" id="text-org4ba21d0">
+<p>
+适用连接器类型 MPO端：MPO或MTP；分支端连接器：FC、LC、SC、ST（客户选择）
+光纤类型 单模 多模（PC）
+工作波长范围 1250~1650nm 850nm,1300nm
+测试波长 1310nm,1550nm 850nm,1300nm
+端面研磨类型 MPO:APC；分支端连接器:UPC或APC MPO:PC；分支端连接器:UPC或APC
+插入损耗IL MPO:典型值≤0.50dB，最大值≤0.70dB
+分支端连接器：典型值≤0.20dB，最大值≤0.30dB
+MPO:典型值≤0.40dB，最大值≤0.50dB
+分支端连接器：典型值≤0.20dB，最大值≤0.30dB
+回波损耗RL MPO:APC≥50dB
+分支端连接器：UPC≥50dB,APC≥60dB 分支端连接器：≥35dB
+适用光缆类型 MPO端：带状光缆、束状光缆；分支端连接器：2.0或0.9mm松套管扇出
+可重复性 ≤0.10dB
+可交换性 ≤0.20dB
+耐久性 MPO：插拔500次，典型变化值≤0.20dB
+分支端连接器：插拔1000次，典型变化值≤0.20dB
+竖直拉力 ≥120N(0.9mm光缆除外)或客户要求
+工作温度 -20℃to+70℃
+存储温度 -40℃to+85℃
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org8988d61" class="outline-2">
+<h2 id="org8988d61">ST、SC、FC、LC光纤接头区别</h2>
+<div class="outline-text-2" id="text-org8988d61">
+<p>
+<a href="http://www.tekway.cn/study1-8.html">http://www.tekway.cn/study1-8.html</a>
+</p>
+
+<p>
+ST、SC、FC光纤接头是早期不同企业开发形成的标准，使用效果一样，各有优缺点。
+</p>
+
+<p>
+ST、SC连接器接头常用于一般网络。ST头插入后旋转半周有一卡口固定，缺点是容易折断；SC连接头直接插拔，使用很方便，缺点是容易掉出来；FC连接头一般电信网络采用，有一螺帽拧到适配器上，优点是牢靠、防灰尘，缺点是安装时间稍长。
+</p>
+
+<p>
+MTRJ 型光纤跳线由两个高精度塑胶成型的连接器和光缆组成。连接器外部件为精密塑胶件，包含推拉式插拔卡紧机构。 适用于在电信和数据网络系统中的室内应用。 
+</p>
+
+<p>
+光纤连接器，也就是接入光模块的光纤接头，也有好多种，且相互之间不可以互用。不是经常接触光纤的人可能会误以为GBIC和SFP模块的光纤连接器是同一种，其实不是的。SFP模块接LC光纤连接器，而GBIC接的是SC光纤光纤连接器。下面对网络工程中几种常用的光纤连接器进行详细的说明：
+</p>
+
+<p>
+① FC型光纤连接器：外部加强方式是采用金属套，紧固方式为螺丝扣。 一般在ODF侧采用(配线架上用的最多)
+</p>
+
+<p>
+② SC型光纤连接器：连接GBIC光模块的连接器，它的外壳呈矩形，紧固方式是采用插拔销闩式，不须旋转。(路由器交换机上用的最多)
+</p>
+
+<p>
+③ ST型光纤连接器：常用于光纤配线架，外壳呈圆形，紧固方式为螺丝扣。(对于10Base-F连接来说，连接器通常是ST类型。常用于光纤配线架)
+</p>
+
+<p>
+④ LC型光纤连接器：连接SFP模块的连接器，它采用操作方便的模块化插孔(RJ)闩锁机理制成。(路由器常用)
+</p>
+
+<p>
+由BELL（贝尔）研究所开发，接头与SC相似，较SC较小。采用操作方便的模块化插孔闩锁，插针和套筒的尺寸为1.25mm，是普通SC、FC所用尺寸的一半。连接SFP光模块，常用于路由器，一定程度上可提高光纤配线架中光纤连接器的密度。
+</p>
+
+<p>
+⑤ MT-RJ：收发一体的方形光纤连接器，一头双纤收发一体 
+</p>
+</div>
+
+<div id="outline-container-orga238714" class="outline-3">
+<h3 id="orga238714">各种光纤接口类型介绍</h3>
+<div class="outline-text-3" id="text-orga238714">
+<ul class="org-ul">
+<li>光纤接头
+
+<ul class="org-ul">
+<li>FC 圆型带螺纹(配线架上用的最多)</li>
+<li>ST 卡接式圆型</li>
+<li>SC 卡接式方型(路由器交换机上用的最多)</li>
+<li>PC 微球面研磨抛光</li>
+<li>APC 呈8度角并做微球面研磨抛光</li>
+<li>MT-RJ 方型,一头双纤收发一体( 华为8850上有用)</li>
+</ul></li>
+
+<li id="光纤模块">一般都支持热插拔
+<dl class="org-dl">
+<dt>GBIC</dt><dd>Giga Bitrate Interface Converter, 使用的光纤接口多为SC或ST型</dd>
+<dt>SFP</dt><dd>小型封装GBIC,使用的光纤为LC型</dd>
+</dl></li>
+
+<li>使用的光纤
+<dl class="org-dl">
+<dt>单模</dt><dd>L ,波长1310nm 单模长距LH 波长1310,1550</dd>
+<dt>多模</dt><dd>SM 波长850nm</dd>
+</dl></li>
+</ul>
+
+<p>
+SX/LH表示可以使用单模或多模光纤
+</p>
+
+<ul class="org-ul">
+<li>在表示尾纤接头的标注中，我们常能见到"FC/PC"，"SC/PC"等，其含义如下
+
+<dl class="org-dl">
+<dt>"/"前面</dt><dd><p>
+表示尾纤的连接器型号
+</p>
+
+<p>
+"SC"接头是标准方型接头，采用工程塑料，具有耐高温，不容易氧化优点。传输设备侧光接口一般用SC接头
+"LC"接头与SC接头形状相似，较SC接头小一些。
+"FC"接头是金属接头，一般在ODF侧采用，金属接头的可插拔次数比塑料要多。
+</p>
+
+<p>
+连接器的品种信号较多，除了上面介绍的三种外，还有MTRJ、ST、MU等，具体的外观参见下图
+</p></dd>
+
+<dt>"/"后面</dt><dd>表明光纤接头截面工艺，即研磨方式。
+<dl class="org-dl">
+<dt>PC</dt><dd>在电信运营商的设备中应用得最为广泛，其接头截面是平的。</dd>
+<dt>UPC</dt><dd>UPC的衰耗比PC要小，一般用于有特殊需求的设备，一些国外厂家ODF架内部跳纤用的就是FC/UPC，主要是为提高ODF设备自身的指标。</dd>
+</dl></dd>
+</dl></li>
+</ul>
+
+<p>
+另外，在广电和早期的CATV中应用较多的是"APC"型号，其尾纤头采用了带倾角的端面，可以改善电视信号的质量，主要原因是电视信号是模拟光调制，当接头耦合面是垂直的时候，反射光沿原路径返回。由于光纤折射率分布的不均匀会再度返回耦合面，此时虽然能量很小但由于模拟信号是无法彻底消除噪声的，所以相当于在原来的清晰信号上叠加了一个带时延的微弱信号，表现在画面上就是重影。尾纤头带倾角可使反射光不沿原路径返回。一般数字信号一般不存在此问题。
+</p>
+</div>
+
+<div id="outline-container-org7964942" class="outline-4">
+<h4 id="org7964942">光纤连接器</h4>
+<div class="outline-text-4" id="text-org7964942">
+<p>
+光纤连接器是光纤与光纤之间进行可拆卸(活动)连接的器件，它是把光纤的两个端面精密对接起来，以使发射光纤输出的光能量能最大限度地耦合到接收光纤中去，并使由于其介入光链路而对系统造成的影响减到最小，这是光纤连接器的基本要求。在一定程度上，光纤连接器也影响了光传输系统的可靠性和各项性能。
+</p>
+
+<p>
+光纤连接器按传输媒介的不同可分为常见的硅基光纤的单模、多模连接器，还有其它如以塑胶等为传输媒介的光纤连接器；按连接头结构形式可分为：FC、SC、ST、LC、D4、DIN、MU、MT等等各种形式。其中，ST连接器通常用于布线设备端，如光纤配线架、光纤模块等；而SC和MT连接器通常用于网络设备端。按光纤端面形状分有FC、PC(包括SPC或UPC)和APC；按光纤芯数划分还有单芯和多芯(如MT-RJ)之分。光纤连接器应用广泛，品种繁多。在实际应用过程中，我们一般按照光纤连接器结构的不同来加以区分。以下是一些目前比较常见的光纤连接器：
+</p>
+
+<p>
+(1)FC型光纤连接器
+</p>
+
+<p>
+这种连接器最早是由日本NTT研制。FC是Ferrule Connector的缩写，表明其外部加强方式是采用金属套，紧固方式为螺丝扣。最早，FC类型的连接器，采用的陶瓷插针的对接端媸瞧矫娼哟シ绞剑‵C)。此类连接器结构简单，操作方便，制作容易，但光纤端面对微尘较为敏感，且容易产生菲涅尔反射，提高回波损耗性能较为困难。后来，对该类型连接器做了改进，采用对接端面呈球面的插针(PC)，而外部结构没有改变，使得插入损耗和回波损耗性能有了较大幅度的提高。
+</p>
+
+<p>
+(2)SC型光纤连接器
+</p>
+
+<p>
+这是一种由日本NTT公司开发的光纤连接器。其外壳呈矩形，所采用的插针与耦合套筒的结构尺寸与FC型完全相同，。其中插针的端面多采用PC或APC型研磨方式；紧固方式是采用插拔销闩式，不需旋转。此类连接器价格低廉，插拔操作方便，介入损耗波动小，抗压强度较高，安装密度高。
+</p>
+
+<p>
+ST和SC接口是光纤连接器的两种类型，对于10Base-F连接来说，连接器通常是ST类型的，对于100Base-FX来说，连接器大部分情况下为SC类型的。ST连接器的芯外露，SC连接器的芯在接头里面。
+</p>
+
+<p>
+(3) 双锥型连接器(Biconic Connector)
+</p>
+
+<p>
+这类光纤连接器中最有代表性的产品由美国贝尔实验室开发研制，它由两个经精密模压成形的端头呈截头圆锥形的圆筒插头和一个内部装有双锥形塑料套筒的耦合组件组成。
+</p>
+
+<p>
+(4) DIN47256型光纤连接器
+</p>
+
+<p>
+这是一种由德国开发的连接器。这种连接器采用的插针和耦合套筒的结构尺寸与FC型相同，端面处理采用PC研磨方式。与FC型连接器相比，其结构要复杂一些，内部金属结构中有控制压力的弹簧，可以避免因插接压力过大而损伤端面。另外，这种连接器的机械精度较高，因而介入损耗值较小。
+</p>
+
+<p>
+(5) MT-RJ型连接器
+</p>
+
+<p>
+MT-RJ起步于NTT开发的MT连接器，带有与RJ-45型LAN电连接器相同的闩锁机构，通过安装于小型套管两侧的导向销对准光纤，为便于与光收发信机相连，连接器端面光纤为双芯(间隔0.75mm)排列设计，是主要用于数据传输的下一代高密度光纤连接器。
+</p>
+
+<p>
+(6) LC型连接器
+</p>
+
+<p>
+LC型连接器是著名Bell(贝尔)研究所研究开发出来的，采用操作方便的模块化插孔(RJ)闩锁机理制成。其所采用的插针和套筒的尺寸是普通SC、FC等所用尺寸的一半，为1.25mm。这样可以提高光纤配线架中光纤连接器的密度。目前，在单模SFF方面，LC类型的连接器实际已经占据了主导地位，在多模方面的应用也增长迅速。
+</p>
+
+<p>
+(7) MU型连接器
+</p>
+
+<p>
+MU(Miniature unit Coupling)连接器是以目前使用最多的SC型连接器为基础，由NTT研制开发出来的世界上最小的单芯光纤连接器，。该连接器采用1.25mm直径的套管和自保持机构，其优势在于能实现高密度安装。利用MU的l.25mm直径的套管，NTT已经开发了MU连接器系列。它们有用于光缆连接的插座型连接器(MU-A系列)；具有自保持机构的底板连接器(MU-B系列)以及用于连接LD／PD模块与插头的简化插座(MU-SR系列)等。随着光纤网络向更大带宽更大容量方向的迅速发展和DWDM技术的广泛应用，对MU型连接器的需求也将迅速增长。
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org41e560b" class="outline-2">
+<h2 id="org41e560b">光纤、光缆传统知识问答</h2>
+<div class="outline-text-2" id="text-org41e560b">
+<ol class="org-ol">
+<li>简述光纤的组成。
+答：光纤由两个基本部分组成：由透明的光学材料制成的芯和包层、涂敷层。</li>
+
+<li>描述光纤线路传输特性的基本参数有哪些？
+答：包括损耗、色散、带宽、截止波长、模场直径等。</li>
+
+<li>产生光纤衰减的原因有什么？
+答：光纤的衰减是指在一根光纤的两个横截面间的光功率的减少，与波长有关。造成衰减的主要原因是散射、吸收以及由于连接器、接头造成的光损耗。</li>
+
+<li>光纤衰减系数是如何定义的？
+答：用稳态中一根均匀光纤单位长度上的衰减（dB/km）来定义。</li>
+
+<li>插入损耗是什么？
+答：是指光传输线路中插入光学部件（如插入连接器或耦合器）所引起的衰减。</li>
+
+<li>光纤的带宽与什么有关？
+答：光纤的带宽指的是：在光纤的传递函数中，光功率的幅值比零频率的幅值降低50%或3dB时的调制频率光纤的带宽近似与其长度成反比宽长度的乘积是一常量。</li>
+
+<li>光纤的色散有几种？与什么有关？
+答：光纤的色散是指一根光纤内群时延的展宽，包括模色散、材料色散及结构色散。取决于光源、光纤两者的特性。</li>
+
+<li>信号在光纤中传播的色散特性怎样描述？
+答：可以用脉冲展宽、光纤的带宽、光纤的色散系数三个物理量来描述。</li>
+
+<li>什么是截止波长？
+答：是指光纤中只能传导基模的最短波长。对于单模光纤，其截止波长必须短于传导光的波长。</li>
+
+<li>光纤的色散对光纤通信系统的性能会产生什么影响？
+答：光纤的色散将使光脉冲在光纤中传输过程中发生展宽。影响误码率的大小，和传输距离的长短，以及系统速率的大小。</li>
+
+<li>什么是背向散射法？
+答：背向散射法是一种沿光纤长度上测量衰减的方法。光纤中的光功率绝大部分为前向传播，但有很少部分朝发光器背向散射。在发光器处利用分光器观察背向散射的时间曲线，从一端不仅能测量接入的均匀光纤的长度和衰减，而且能测出局部的不规则性、断点及在接头和连接器引起的光功率损耗。</li>
+
+<li>光时域反射计（OTDR）的测试原理是什么？有何功能？
+答：OTDR基于光的背向散射与菲涅耳反射原理制作，利用光在光纤中传播时产生的后向散射光来获取衰减的信息，可用于测量光纤衰减、接头损耗、光纤故障点定位以及了解光纤沿长度的损耗分布情况等，是光缆施工、维护及监测中必不可少的工具。其主要指标参数包括：动态范围、灵敏度、分辨率、测量时间和盲区等。</li>
+
+<li><p>
+OTDR的盲区是指什么？对测试会有何影响？在实际测试中对盲区如何处理？
+答：通常将诸如活动连接器、机械接头等特征点产生反射引起的OTDR接收端饱和而带来的一系列“盲点”称为盲区。
+</p>
+
+<p>
+光纤中的盲区分为事件盲区和衰减盲区两种：由于介入活动连接器而引起反射峰，从反射峰的起始点到接收器饱和峰值之间的长度距离，被称为事件盲区；光纤中由于介入活动连接器引起反射峰，从反射峰的起始点到可识别其他事件点之间的距离，被称为衰减盲区。
+</p>
+
+<p>
+对于OTDR来说，盲区越小越好。盲区会随着脉冲展宽的宽度的增加而增大，增加脉冲宽度虽然增加了测量长度，但也增大了测量盲区，所以，在测试光纤时，对OTDR附件的光纤和相邻事件点的测量要使用窄脉冲，光纤远端进行测量时要使用宽脉冲。
+</p></li>
+
+<li>OTDR能否测量不同类型的光纤？
+答：如果使用单模OTDR模块对多模光纤进行测量，或使用一个多模OTDR模块对诸如芯径为62.5mm的单模光纤进行测量，光纤长度的测量结果不会受到影响，但诸如光纤损耗、光接头损耗、回波损耗的结果是不正确的。所以，在测量光纤时，一定要选择与被测光纤相匹配的OTDR进行测量，这样才能得到各项性能指标均正确。</li>
+
+<li>常见光测试仪表中的“1310nm”或“1550nm”指的是什么？
+答：指的是光信号的波长。光纤通信使用的波长范围处于近红外区，波长在800nm～1700nm之间。常将其分为短波长波段和长波长波段，前者指850nm波长，后者指1310nm和1550nm。</li>
+
+<li>在目前商用光纤中，什么波长的光具有最小色散？什么波长的光具有具有最小损耗？
+答：1310nm波长的光具有最小色散，1550nm波长的光具有最小损耗。</li>
+
+<li>根据光纤纤芯折射率的变化情况，光纤如何分类？
+答：可分为阶跃光纤和渐变光纤。阶跃光纤带宽较窄，适用于小容量短距离通信；渐变光纤带宽较宽，适用于中、大容量通信。</li>
+
+<li><p>
+根据光纤中传输光波模式的不同，光纤如何分类？
+答：可分为单模光纤和多模光纤。单模光纤芯径约在1～10μm之间，在给定的工作波长上，只传输单一基模，适于大容量长距离通信系统。多模光纤能传输多个模式的光波，芯径约在50～60μm之间，传输性能比单模光纤差。
+</p>
+
+<p>
+在传送复用保护的电流差动保护时，安装在变电站通信机房的光电转换装置与安装在主控室的保护装置之间多用多模光纤。
+</p></li>
+
+<li>阶跃折射率光纤的数值孔经(NA)有何意义？
+答：数值孔经(NA)表示光纤的收光能力, NA越大，光纤收集光线能力越强。</li>
+
+<li>什么是单模光纤的双折射？
+答：单模光纤中存在两个正交偏振模式,当光纤不完全园柱对称时,两个正交偏振模式并不是简并的,两个正交偏振的模折射率的差的绝对值即为双折射。</li>
+
+<li>最常见的光缆结构有几种？
+答：有层绞式和骨架式两种。</li>
+
+<li>光缆主要由什么组成？
+答：主要由：纤芯、光纤油膏、护套材料、PBT（聚对苯二甲酸丁二醇酯）等材料组成。</li>
+
+<li>光缆的铠装是指什么？
+答：是指在特殊用途的光缆中（如海底光缆等）所使用的保护元件（通常为钢丝或钢带）。铠装都附在光缆的内护套上。</li>
+
+<li>光缆护套用什么材料？
+答：光缆护套或护层通常由聚乙烯（PE）和聚氯乙烯（PVC）材料构成，其作用是保护缆芯不受外界影响。</li>
+
+<li><p>
+列举在电力系统中应用的特殊光缆。
+答：主要有三种特殊光缆：
+</p>
+
+<p>
+地线复合光缆（OPGW），光纤置于钢包铝绞结构的电力线内。OPGW光缆的应用，起到了地线和通信的双功能，有效地提高了电力杆塔的利用率。
+</p>
+
+<p>
+缠绕式光缆（GWWOP），在已有输电线路的地方，将这种光缆缠绕或悬挂在地线上。
+</p>
+
+<p>
+自承式光缆（ADSS），有很强的抗张能力，可直接挂在两座电力杆塔之间，其最大跨距可达1000m。
+</p></li>
+
+<li>OPGW光缆的应用结构有几种？
+答：主要有：1）塑管层绞+ 铝管的结构；2) 中心塑管+ 铝管的结构；3) 铝骨架结构；4) 螺旋铝管结构；5) 单层不锈钢管结构( 中心不锈钢管结构、不锈钢管层绞结构)；6) 复合不锈钢管结构( 中心不锈钢管结构、不锈钢管层绞结构)。</li>
+
+<li>OPGW光缆缆芯外的绞线线材主要由什么组成？
+答：以AA线(铝合金线) 和AS线材(铝包钢线)组成。</li>
+
+<li>要选择OPGW光缆型号，应具备的技术条件有哪些？
+答：1) OPGW光缆的标称抗拉强度(RTS) (kN)；2) OPGW光缆的光纤芯数(SM)；3)短路电流(kA)；4) 短路时间(s)；5) 温度范围(℃)。</li>
+
+<li>光缆的弯曲程度是如何限制的？
+答：光缆弯曲半径应不小于光缆外径的20倍，施工过程中（非静止状态）不小于光缆外径的30倍。</li>
+
+<li>在ADSS光缆工程中，需注意什么？
+答：有三个关键技术：光缆机械设计、悬挂点的确定和配套金具的选择与安装。</li>
+
+<li>光缆金具主要有哪些？
+答：光缆金具是指安装光缆使用的硬件，主要有：耐张线夹，悬垂线夹、防振器等。</li>
+
+<li>光纤连接器有两个最基本的性能参数，分别是什么？
+答：光纤连接器俗称活接头.对于单纤连接器光性能方面的要求，重点是在介入损耗和回波损耗这两个最基本的性能参数上。</li>
+
+<li>常用的光纤连接器有几类？
+答：按照不同的分类方法，光纤连接器可以分为不同的种类，按传输媒介的不同可分为单模光纤连接器和多模光纤连接器；按结构的不同可分为FC、SC、ST、D4、DIN、Biconic、MU、LC、MT等各种型式；按连接器的插针端面可分为FC、PC（UPC）和APC。常用的光纤连接器：FC／PC型光纤连接器、SC型光纤连接器，LC型光纤连接器。</li>
+
+<li>在光纤通信系统中，常见下列物品，请指出其名称。
+AFC、FC 型适配器 ST型适配器 SC型适配器 FC/APC、FC/PC型连接器 SC型连接器 ST型连接器 LC型跳线 MU型跳线 单模或多模跳线</li>
+
+<li>什么是光纤连接器的介入损耗（或称插入损耗）？
+答：是指因连接器的介入而引起传输线路有效功率减小的量值，对于用户来说，该值越小越好。ITU-T规定其值应不大于0.5dB。</li>
+
+<li>什么是光纤连接器的回波损耗（或称反射衰减、回损、回程损耗）？
+答：是衡量从连接器反射回来并沿输入通道返回的输入功率分量的一个量度，其典型值应不小于25dB。</li>
+
+<li>发光二极管和半导体激光器发出的光最突出的差别是什么？
+答：发光二极管产生的光是非相干光，频谱宽；激光器产生的光是相干光，频谱很窄。</li>
+
+<li>发光二极管（LED）和半导体激光器（LD）的工作特性最明显的不同是什么？
+答：LED没有阈值，LD则存在阈值，只有注入电流超过阈值后才会产生激光。</li>
+
+<li>单纵模半导体激光器常用的有哪两种？
+答：DFB激光器和DBR激光器，二者均为分布反馈激光器，其光反馈是由光腔内的分布反馈布拉格光栅提供的。</li>
+
+<li>光接收器件主要有哪两种？
+答：主要有光电二极管（PIN管）和雪崩光电二极管（APD）。</li>
+
+<li>光纤通信系统的噪声产生的因素有哪些？
+答：有由于消光比不合格产生的噪声，光强度随机变化的噪声，时间抖动引起的噪声，接收机的点噪声和热噪声，光纤的模式噪声，色散导致的脉冲展宽产生的噪声，LD的模分配噪声，LD的频率啁啾产生的噪声以及反射产生的噪声。</li>
+
+<li><p>
+目前用于传输网建设的光纤主要有哪些？其主要特点是什么？
+答：主要有三种，即G.652常规单模光纤、G.653色散位移单模光纤和G.655非零色散位移光纤。
+</p>
+
+<p>
+G.652单模光纤在C波段1530～1565nm和L波段1565～1625nm的色散较大，一般为17～22psnm?km，系统速率达到2.5Gbit/s以上时，需要进行色散补偿，在10Gbit/s时系统色散补偿成本较大，它是目前传输网中敷设最为普遍的一种光纤。
+</p>
+
+<p>
+G.653色散位移光纤在C波段和L波段的色散一般为-1～3.5psnm?km，在1550nm是零色散，系统速率可达到20Gbit/s和40Gbit/s，是单波长超长距离传输的最佳光纤。但是，由于其零色散的特性，在采用DWDM扩容时，会出现非线性效应，导致信号串扰，产生四波混频FWM，因此不适合采用DWDM。
+</p>
+
+<p>
+G.655非零色散位移光纤：G.655非零色散位移光纤在C波段的色散为1～6psnm?km，在L波段的色散一般为6～10psnm?km，色散较小，避开了零色散区，既抑制了四波混频FWM，可用于DWDM扩容，也可以开通高速系统。新型的G.655光纤可以使有效面积扩大到一般光纤的1.5～2倍，大有效面积可以降低功率密度，减少光纤的非线性效应。
+</p></li>
+
+<li>什么是光纤的非线性？
+答：是指当入纤光功率超过一定数值后，光纤的折射率将与光功率非线性相关，并产生拉曼散射和布里渊散射，使入射光的频率发生变化。</li>
+
+<li>光纤非线性对传输会产生什么影响？
+答：非线性效应会造成一些额外损耗和干扰，恶化系统的性能。WDM系统光功率较大并且沿光纤传输很长距离，因此产生非线性失真。非线性失真有受激散射和非线性折射两种。其中受激散射有拉曼散射和布里渊散射。以上两种散射使入射光能量降低，造成损耗。在入纤功率较小时可忽略。</li>
+
+<li>什么是PON（无源光网络）？
+答：PON是本地用户接入网中的光纤环路光网络，基于无源光器件，如耦合器、分光器。</li>
+</ol>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Albert</p>
+<p class="date">Created: 2018-11-23 周五 16:10</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
