@@ -6,7 +6,7 @@
 <!-- 2018-11-23 周五 17:17 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Albert's blog</title>
+<title></title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Albert" />
 <style type="text/css">
@@ -229,12 +229,79 @@ for the JavaScript code in this tag.
 </head>
 <body>
 <div id="content">
-<h1 class="title">Albert's blog</h1>
-<ul class="org-ul">
-<li><a href="dig_detail.html">2018-11-23 dig<sub>detail</sub></a></li>
-<li><a href="dns.html">2018-11-23 dns</a></li>
-<li><a href="StructuredCabling.html">2018-11-23 StructuredCabling</a></li>
-</ul>
+<div class="org-src-container">
+<pre class="src src-sh">[albert@node3 ~]$ dig www.albert.com
+
+; &lt;&lt;&gt;&gt; DiG 9.9.4-RedHat-9.9.4-61.el7_5.1 &lt;&lt;&gt;&gt; www.albert.com
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 21564
+<span style="color: #ffff00; font-weight: bold;">;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2</span>
+
+<span style="color: #ffff00; font-weight: bold;">;; OPT PSEUDOSECTION:</span>
+<span style="color: #ffff00; font-weight: bold;">; EDNS: version: 0, flags:; udp: 4096</span>
+<span style="color: #ffff00; font-weight: bold;">;; QUESTION SECTION:</span>
+<span style="color: #ffff00; font-weight: bold;">;www.albert.com.                        IN      A</span>
+
+<span style="color: #ffff00; font-weight: bold;">;; ANSWER SECTION:</span>
+<span style="color: #ffff00; font-weight: bold;">www.albert.com.         18      IN      A       172.16.9.100</span>
+
+<span style="color: #ffff00; font-weight: bold;">;; AUTHORITY SECTION:</span>
+<span style="color: #ffff00; font-weight: bold;">com.                    69158   IN      NS      a.tl-server.net.</span>
+
+<span style="color: #ffff00; font-weight: bold;">;; ADDITIONAL SECTION:</span>
+<span style="color: #ffff00; font-weight: bold;">a.tl-server.net.        69466   IN      A       192.168.56.101</span>
+
+<span style="color: #ffff00; font-weight: bold;">;; Query time: 0 msec</span>
+<span style="color: #ffff00; font-weight: bold;">;; SERVER: 127.0.0.1#53(127.0.0.1)</span>
+<span style="color: #ffff00; font-weight: bold;">;; WHEN: Fri Nov 23 15:46:26 CST 2018</span>
+<span style="color: #ffff00; font-weight: bold;">;; MSG SIZE  rcvd: 104</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">[albert@node3 ~]$ dig www.albert.com +trace
+
+; &lt;&lt;&gt;&gt; DiG 9.9.4-RedHat-9.9.4-61.el7_5.1 &lt;&lt;&gt;&gt; www.albert.com +trace
+;; global options: +cmd
+.                       69113   IN      NS      a.root-server.net.
+;; Received 74 bytes from 127.0.0.1#53(127.0.0.1) <span style="color: #00bfff;">in</span> 2 ms
+
+com.                    86400   IN      NS      a.tl-server.net.
+;; Received 88 bytes from 192.168.56.100#53(a.root-server.net) <span style="color: #00bfff;">in</span> 2 ms
+
+albert.com.             86400   IN      NS      ns1.albert.com.
+;; Received 77 bytes from 192.168.56.101#53(a.tl-server.net) <span style="color: #00bfff;">in</span> 4 ms
+
+www.albert.com.         60      IN      A       172.16.9.100
+albert.com.             30      IN      NS      ns1.albert.com.
+;; Received 93 bytes from 192.168.56.102#53(ns1.albert.com) <span style="color: #00bfff;">in</span> 0 ms
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">[albert@node3 ~]$ dig www.albert.com -t soa
+
+; &lt;&lt;&gt;&gt; DiG 9.9.4-RedHat-9.9.4-61.el7_5.1 &lt;&lt;&gt;&gt; www.albert.com -t soa
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 60986
+<span style="color: #ffff00; font-weight: bold;">;; flags: qr rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1</span>
+
+<span style="color: #ffff00; font-weight: bold;">;; OPT PSEUDOSECTION:</span>
+<span style="color: #ffff00; font-weight: bold;">; EDNS: version: 0, flags:; udp: 4096</span>
+<span style="color: #ffff00; font-weight: bold;">;; QUESTION SECTION:</span>
+<span style="color: #ffff00; font-weight: bold;">;www.albert.com.                        IN      SOA</span>
+
+<span style="color: #ffff00; font-weight: bold;">;; AUTHORITY SECTION:</span>
+<span style="color: #ffff00; font-weight: bold;">albert.com.             30      IN      SOA     ns1.albert.com. mail.albert.com. 2018112301 30 3600 30 10800</span>
+
+<span style="color: #ffff00; font-weight: bold;">;; Query time: 1 msec</span>
+<span style="color: #ffff00; font-weight: bold;">;; SERVER: 127.0.0.1#53(127.0.0.1)</span>
+<span style="color: #ffff00; font-weight: bold;">;; WHEN: Fri Nov 23 15:46:38 CST 2018</span>
+<span style="color: #ffff00; font-weight: bold;">;; MSG SIZE  rcvd: 88</span>
+</pre>
+</div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Albert</p>
