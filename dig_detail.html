@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-11-23 周五 17:17 -->
+<!-- 2018-11-23 周五 18:00 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title></title>
@@ -259,6 +259,9 @@ for the JavaScript code in this tag.
 </pre>
 </div>
 
+<p>
+trace的结果。
+</p>
 <div class="org-src-container">
 <pre class="src src-sh">[albert@node3 ~]$ dig www.albert.com +trace
 
@@ -266,19 +269,26 @@ for the JavaScript code in this tag.
 ;; global options: +cmd
 .                       69113   IN      NS      a.root-server.net.
 ;; Received 74 bytes from 127.0.0.1#53(127.0.0.1) <span style="color: #00bfff;">in</span> 2 ms
+<span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#20174;&#26412;&#26426;(127.0.0.1#53)&#30340;bind&#20013;&#25214;&#21040;&#26681;&#22495;&#30340;DNS server&#65292;&#24320;&#22987;&#36882;&#24402;</span>
 
 com.                    86400   IN      NS      a.tl-server.net.
 ;; Received 88 bytes from 192.168.56.100#53(a.root-server.net) <span style="color: #00bfff;">in</span> 2 ms
+<span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#20174;&#26681;&#22495;&#30340;DNS server(192.168.56.100#53)&#26597;&#35810;&#39030;&#32423;&#22495;&#21517;.com&#30340;DNS server</span>
 
 albert.com.             86400   IN      NS      ns1.albert.com.
 ;; Received 77 bytes from 192.168.56.101#53(a.tl-server.net) <span style="color: #00bfff;">in</span> 4 ms
+<span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#20174;.com&#26435;&#23041;DNS server(192.168.56.101#53)&#26597;&#35810;albert.com&#30340;&#26435;&#23041;DNS server</span>
 
 www.albert.com.         60      IN      A       172.16.9.100
 albert.com.             30      IN      NS      ns1.albert.com.
 ;; Received 93 bytes from 192.168.56.102#53(ns1.albert.com) <span style="color: #00bfff;">in</span> 0 ms
+<span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#20174;albert.com&#26435;&#23041;DNS server(192.168.56.102#53)&#36127;&#36131;&#35299;&#26512;www.albert.com</span>
 </pre>
 </div>
 
+<p>
+查看授权DNS的信息
+</p>
 <div class="org-src-container">
 <pre class="src src-sh">[albert@node3 ~]$ dig www.albert.com -t soa
 
@@ -305,7 +315,7 @@ albert.com.             30      IN      NS      ns1.albert.com.
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Albert</p>
-<p class="date">Created: 2018-11-23 周五 17:17</p>
+<p class="date">Created: 2018-11-23 周五 18:00</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
