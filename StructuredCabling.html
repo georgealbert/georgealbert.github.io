@@ -1,185 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<!-- 2018-11-23 周五 17:28 -->
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title></title>
-<meta name="generator" content="Org mode" />
-<meta name="author" content="Albert" />
-<style type="text/css">
- <!--/*--><![CDATA[/*><!--*/
-  .title  { text-align: center;
-             margin-bottom: .2em; }
-  .subtitle { text-align: center;
-              font-size: medium;
-              font-weight: bold;
-              margin-top:0; }
-  .todo   { font-family: monospace; color: red; }
-  .done   { font-family: monospace; color: green; }
-  .priority { font-family: monospace; color: orange; }
-  .tag    { background-color: #eee; font-family: monospace;
-            padding: 2px; font-size: 80%; font-weight: normal; }
-  .timestamp { color: #bebebe; }
-  .timestamp-kwd { color: #5f9ea0; }
-  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
-  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
-  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
-  .underline { text-decoration: underline; }
-  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
-  p.verse { margin-left: 3%; }
-  pre {
-    border: 1px solid #ccc;
-    box-shadow: 3px 3px 3px #eee;
-    padding: 8pt;
-    font-family: monospace;
-    overflow: auto;
-    margin: 1.2em;
-  }
-  pre.src {
-    position: relative;
-    overflow: visible;
-    padding-top: 1.2em;
-  }
-  pre.src:before {
-    display: none;
-    position: absolute;
-    background-color: white;
-    top: -10px;
-    right: 10px;
-    padding: 3px;
-    border: 1px solid black;
-  }
-  pre.src:hover:before { display: inline;}
-  /* Languages per Org manual */
-  pre.src-asymptote:before { content: 'Asymptote'; }
-  pre.src-awk:before { content: 'Awk'; }
-  pre.src-C:before { content: 'C'; }
-  /* pre.src-C++ doesn't work in CSS */
-  pre.src-clojure:before { content: 'Clojure'; }
-  pre.src-css:before { content: 'CSS'; }
-  pre.src-D:before { content: 'D'; }
-  pre.src-ditaa:before { content: 'ditaa'; }
-  pre.src-dot:before { content: 'Graphviz'; }
-  pre.src-calc:before { content: 'Emacs Calc'; }
-  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
-  pre.src-fortran:before { content: 'Fortran'; }
-  pre.src-gnuplot:before { content: 'gnuplot'; }
-  pre.src-haskell:before { content: 'Haskell'; }
-  pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
-  pre.src-latex:before { content: 'LaTeX'; }
-  pre.src-ledger:before { content: 'Ledger'; }
-  pre.src-lisp:before { content: 'Lisp'; }
-  pre.src-lilypond:before { content: 'Lilypond'; }
-  pre.src-lua:before { content: 'Lua'; }
-  pre.src-matlab:before { content: 'MATLAB'; }
-  pre.src-mscgen:before { content: 'Mscgen'; }
-  pre.src-ocaml:before { content: 'Objective Caml'; }
-  pre.src-octave:before { content: 'Octave'; }
-  pre.src-org:before { content: 'Org mode'; }
-  pre.src-oz:before { content: 'OZ'; }
-  pre.src-plantuml:before { content: 'Plantuml'; }
-  pre.src-processing:before { content: 'Processing.js'; }
-  pre.src-python:before { content: 'Python'; }
-  pre.src-R:before { content: 'R'; }
-  pre.src-ruby:before { content: 'Ruby'; }
-  pre.src-sass:before { content: 'Sass'; }
-  pre.src-scheme:before { content: 'Scheme'; }
-  pre.src-screen:before { content: 'Gnu Screen'; }
-  pre.src-sed:before { content: 'Sed'; }
-  pre.src-sh:before { content: 'shell'; }
-  pre.src-sql:before { content: 'SQL'; }
-  pre.src-sqlite:before { content: 'SQLite'; }
-  /* additional languages in org.el's org-babel-load-languages alist */
-  pre.src-forth:before { content: 'Forth'; }
-  pre.src-io:before { content: 'IO'; }
-  pre.src-J:before { content: 'J'; }
-  pre.src-makefile:before { content: 'Makefile'; }
-  pre.src-maxima:before { content: 'Maxima'; }
-  pre.src-perl:before { content: 'Perl'; }
-  pre.src-picolisp:before { content: 'Pico Lisp'; }
-  pre.src-scala:before { content: 'Scala'; }
-  pre.src-shell:before { content: 'Shell Script'; }
-  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
-  /* additional language identifiers per "defun org-babel-execute"
-       in ob-*.el */
-  pre.src-cpp:before  { content: 'C++'; }
-  pre.src-abc:before  { content: 'ABC'; }
-  pre.src-coq:before  { content: 'Coq'; }
-  pre.src-groovy:before  { content: 'Groovy'; }
-  /* additional language identifiers from org-babel-shell-names in
-     ob-shell.el: ob-shell is the only babel language using a lambda to put
-     the execution function name together. */
-  pre.src-bash:before  { content: 'bash'; }
-  pre.src-csh:before  { content: 'csh'; }
-  pre.src-ash:before  { content: 'ash'; }
-  pre.src-dash:before  { content: 'dash'; }
-  pre.src-ksh:before  { content: 'ksh'; }
-  pre.src-mksh:before  { content: 'mksh'; }
-  pre.src-posh:before  { content: 'posh'; }
-  /* Additional Emacs modes also supported by the LaTeX listings package */
-  pre.src-ada:before { content: 'Ada'; }
-  pre.src-asm:before { content: 'Assembler'; }
-  pre.src-caml:before { content: 'Caml'; }
-  pre.src-delphi:before { content: 'Delphi'; }
-  pre.src-html:before { content: 'HTML'; }
-  pre.src-idl:before { content: 'IDL'; }
-  pre.src-mercury:before { content: 'Mercury'; }
-  pre.src-metapost:before { content: 'MetaPost'; }
-  pre.src-modula-2:before { content: 'Modula-2'; }
-  pre.src-pascal:before { content: 'Pascal'; }
-  pre.src-ps:before { content: 'PostScript'; }
-  pre.src-prolog:before { content: 'Prolog'; }
-  pre.src-simula:before { content: 'Simula'; }
-  pre.src-tcl:before { content: 'tcl'; }
-  pre.src-tex:before { content: 'TeX'; }
-  pre.src-plain-tex:before { content: 'Plain TeX'; }
-  pre.src-verilog:before { content: 'Verilog'; }
-  pre.src-vhdl:before { content: 'VHDL'; }
-  pre.src-xml:before { content: 'XML'; }
-  pre.src-nxml:before { content: 'XML'; }
-  /* add a generic configuration mode; LaTeX export needs an additional
-     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
-  pre.src-conf:before { content: 'Configuration File'; }
-
-  table { border-collapse:collapse; }
-  caption.t-above { caption-side: top; }
-  caption.t-bottom { caption-side: bottom; }
-  td, th { vertical-align:top;  }
-  th.org-right  { text-align: center;  }
-  th.org-left   { text-align: center;   }
-  th.org-center { text-align: center; }
-  td.org-right  { text-align: right;  }
-  td.org-left   { text-align: left;   }
-  td.org-center { text-align: center; }
-  dt { font-weight: bold; }
-  .footpara { display: inline; }
-  .footdef  { margin-bottom: 1em; }
-  .figure { padding: 1em; }
-  .figure p { text-align: center; }
-  .inlinetask {
-    padding: 10px;
-    border: 2px solid gray;
-    margin: 10px;
-    background: #ffffcc;
-  }
-  #org-div-home-and-up
-   { text-align: right; font-size: 70%; white-space: nowrap; }
-  textarea { overflow-x: auto; }
-  .linenr { font-size: smaller }
-  .code-highlighted { background-color: #ffff00; }
-  .org-info-js_info-navigation { border-style: none; }
-  #org-info-js_console-label
-    { font-size: 10px; font-weight: bold; white-space: nowrap; }
-  .org-info-js_search-highlight
-    { background-color: #ffff00; color: #000000; font-weight: bold; }
-  .org-svg { width: 90%; }
-  /*]]>*/-->
-</style>
-<link rel="stylesheet" type="text/css" href="home.css" />
+<!-- 2018-11-24 周六 00:10 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>综合布线</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="main.css" />
 <script type="text/javascript">
 /*
 @licstart  The following is the entire license notice for the
@@ -229,84 +56,7 @@ for the JavaScript code in this tag.
 </head>
 <body>
 <div id="content">
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#org158301e">MTP/MPO链路极性问题大揭秘</a>
-<ul>
-<li><a href="#orgc2e9a8f">什么是跳线的极性？</a></li>
-<li><a href="#orgb29a0e5">MPO/MTP光纤连接器的结构</a></li>
-<li><a href="#org46f3002">三种极性转换的方法介绍</a></li>
-</ul>
-</li>
-<li><a href="#orgeb2e7a4">40GBASE-iSR4 QSFP+ 光模块的发展 2016-8-18 15:56:33 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-22 周四 17:29]</span></span></a>
-<ul>
-<li><a href="#orgca9e195">背景</a></li>
-<li><a href="#orgdece3c0">潜在的机会</a></li>
-<li><a href="#org8dd337e">问题</a></li>
-<li><a href="#org8592257">解决方案</a></li>
-<li><a href="#org7b4304d">总结</a></li>
-</ul>
-</li>
-<li><a href="#org32f8f9e">光模块QSFP+和SFP+的区别</a>
-<ul>
-<li><a href="#org781554b">关于40G QSFP+光模块，你了解多少？</a>
-<ul>
-<li><a href="#org32cea29">40G QSFP+光模块基础知识</a></li>
-<li><a href="#orga813ea6">40G QSFP+光模块的应用</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#org183f211">光模块SFP+与SFP、XFP、QSFP、QSFP+的区别 2015-7-27 14:00:46</a>
-<ul>
-<li><a href="#org6f4d766">X2光模块</a></li>
-</ul>
-</li>
-<li><a href="#org8239397">SFP-10G-USR光模块专业扫盲 飞速(FS) vs 10GBase-SR SFP+ 2017-07-19 00:00:00</a>
-<ul>
-<li><a href="#org5dd2843">1、SFP-10G-USR光模块介绍</a></li>
-<li><a href="#orgbae0604">2、SFP-10G-USR光模块参数</a></li>
-<li><a href="#org0974ffe">3、SFP-10G-USR光模块的特点、优势和应用</a></li>
-<li><a href="#org2ff4c9b">5、SFP-10G-USR光模块和OSX010000光模块有哪些区别？</a></li>
-</ul>
-</li>
-<li><a href="#org6330622">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)预端接布线方案 </a>
-<ul>
-<li><a href="#org6bb81bb">数据中心的主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)</a></li>
-<li><a href="#org32bc910">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)间的布线</a></li>
-<li><a href="#orgb2cca75">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)间的布线</a></li>
-<li><a href="#org5176e2f">主干布线</a></li>
-<li><a href="#org5056bb6">水平布线</a></li>
-<li><a href="#org0d93d06">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)的预端接布线解决方案</a></li>
-</ul>
-</li>
-<li><a href="#orgc7622ac">om3与om4光纤有什么区别 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-22 周四 15:06]</span></span></a>
-<ul>
-<li><a href="#orgcbae6a9">OM1 ~ OM4</a></li>
-<li><a href="#orgf20e637">MPO光纤跳线 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-22 周四 15:35]</span></span></a>
-<ul>
-<li><a href="#orgf26f99f">MPO分类</a></li>
-<li><a href="#org1ae4647">连接原则</a></li>
-<li><a href="#org4ba21d0">MPO光纤跳线规格参数</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#org8988d61">ST、SC、FC、LC光纤接头区别</a>
-<ul>
-<li><a href="#orga238714">各种光纤接口类型介绍</a>
-<ul>
-<li><a href="#org7964942">光纤连接器</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#org41e560b">光纤、光缆传统知识问答</a></li>
-</ul>
-</div>
-</div>
+<h1 class="title">综合布线</h1>
 <p>
 <a href="http://www.asiapacificcable.com/TechnologyCenter/FiberOpticSolutions/14.html">MPO/MTP光纤跳线的基本概况</a>
 </p>
@@ -366,7 +116,7 @@ MPO连接器可用于2-12芯并排光纤的连接，最多可用于两排24芯�
 
 
 <div class="figure">
-<p><img src="network/MPO_B极性.jpg" alt="MPO_B极性.jpg" />
+<p><img src="network/MPO_B极性.jpg" alt="MPO_B极性.jpg">
 </p>
 </div>
 
@@ -399,7 +149,7 @@ MTP/MPO系统高密度、可拓展的设计可实现成千上万的连接，在�
 
 
 <div class="figure">
-<p><img src="network/QSPF_0.jpg" alt="QSPF_0.jpg" />
+<p><img src="network/QSPF_0.jpg" alt="QSPF_0.jpg">
 </p>
 </div>
 </div>
@@ -439,7 +189,7 @@ MTP/MPO系统高密度、可拓展的设计可实现成千上万的连接，在�
 
 
 <div class="figure">
-<p><img src="network/QSFP_1.jpg" alt="QSFP_1.jpg" />
+<p><img src="network/QSFP_1.jpg" alt="QSFP_1.jpg">
 </p>
 </div>
 
@@ -449,7 +199,7 @@ MTP/MPO系统高密度、可拓展的设计可实现成千上万的连接，在�
 
 
 <div class="figure">
-<p><img src="network/QSFP_2.jpg" alt="QSFP_2.jpg" />
+<p><img src="network/QSFP_2.jpg" alt="QSFP_2.jpg">
 </p>
 </div>
 
@@ -472,13 +222,13 @@ VCSEL设计结合优异的激光编程和控制算法 <b>减少模块的最大�
 
 
 <div class="figure">
-<p><img src="network/QSFP_3.jpg" alt="QSFP_3.jpg" />
+<p><img src="network/QSFP_3.jpg" alt="QSFP_3.jpg">
 </p>
 </div>
 
 
 <div class="figure">
-<p><img src="network/QSPF_4.png" alt="QSPF_4.png" />
+<p><img src="network/QSPF_4.png" alt="QSPF_4.png">
 </p>
 </div>
 </div>
@@ -760,7 +510,7 @@ SFP-10G-USR光模块的价格是90元，OSX010000光模块的价格是180元，�
 
 
 <div class="figure">
-<p><img src="network/data-center-areas-1024x333.jpg" alt="data-center-areas-1024x333.jpg" />
+<p><img src="network/data-center-areas-1024x333.jpg" alt="data-center-areas-1024x333.jpg">
 </p>
 </div>
 
@@ -775,24 +525,24 @@ SFP-10G-USR光模块的价格是90元，OSX010000光模块的价格是180元，�
 </div>
 </div>
 
-<div id="outline-container-org32bc910" class="outline-3">
-<h3 id="org32bc910">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)间的布线</h3>
-<div class="outline-text-3" id="text-org32bc910">
+<div id="outline-container-orgb2cca75" class="outline-3">
+<h3 id="orgb2cca75">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)间的布线</h3>
+<div class="outline-text-3" id="text-orgb2cca75">
 <p>
 根据TIA-942标准，数据中心的基本网络拓扑结构如下图所示，主要包括一个接入间、一个或多个电信间、一个主配线区(MDA)和多个水平配线区(HDA)和设备配线区(EDA)组成。从下图中的网络拓扑结构可以看出，主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)间的布线主要是主干布线和水平布线，其中，主配线区(MDA)和水平配线区(HDA)之间是主干布线，水平配线区(HDA)和设备配线区(EDA)之间是水平布线。
 </p>
 
 
 <div class="figure">
-<p><img src="network/TIA-942-data-center-topology.jpg" alt="TIA-942-data-center-topology.jpg" />
+<p><img src="network/TIA-942-data-center-topology.jpg" alt="TIA-942-data-center-topology.jpg">
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgb2cca75" class="outline-3">
-<h3 id="orgb2cca75">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)间的布线</h3>
-<div class="outline-text-3" id="text-orgb2cca75">
+<div id="outline-container-orgc9aecfa" class="outline-3">
+<h3 id="orgc9aecfa">主配线区(MDA)、水平配线区(HDA)和设备配线区(EDA)间的布线</h3>
+<div class="outline-text-3" id="text-orgc9aecfa">
 <p>
 注意：除了上图的基本网络拓扑结构外，管理者还可以根据具体情况在数据中心使用分布式网络拓扑结构、简化的网络拓扑结构等。
 </p>
@@ -840,7 +590,7 @@ SFP-10G-USR光模块的价格是90元，OSX010000光模块的价格是180元，�
 
 
 <div class="figure">
-<p><img src="network/backbone-horizontal-1024x353.jpg" alt="backbone-horizontal-1024x353.jpg" />
+<p><img src="network/backbone-horizontal-1024x353.jpg" alt="backbone-horizontal-1024x353.jpg">
 </p>
 </div>
 </div>
@@ -855,7 +605,7 @@ SFP-10G-USR光模块的价格是90元，OSX010000光模块的价格是180元，�
 
 
 <div class="figure">
-<p><img src="network/connection-samples.jpg" alt="connection-samples.jpg" />
+<p><img src="network/connection-samples.jpg" alt="connection-samples.jpg">
 </p>
 </div>
 
@@ -915,7 +665,7 @@ OM1、OM2、OM3和OM4光纤之间有什么区别？ <a href="http://www.asiapaci
 
 
 <div class="figure">
-<p><img src="network/OM3_OM4.jpg" alt="OM3_OM4.jpg" />
+<p><img src="network/OM3_OM4.jpg" alt="OM3_OM4.jpg">
 </p>
 </div>
 
@@ -941,7 +691,7 @@ OM1、OM2、OM3和OM4光纤之间有什么区别？ <a href="http://www.asiapaci
 
 
 <div class="figure">
-<p><img src="network/Fiber.JPEG" alt="Fiber.JPEG" />
+<p><img src="network/Fiber.JPEG" alt="Fiber.JPEG">
 </p>
 </div>
 
@@ -977,7 +727,7 @@ MPO连接器类型根据IEC 61754-7规定有几个因素来区分：芯数（光
 
 
 <div class="figure">
-<p><img src="network/MPO_male_female.png" alt="MPO_male_female.png" />
+<p><img src="network/MPO_male_female.png" alt="MPO_male_female.png">
 </p>
 </div>
 </div>
@@ -1395,8 +1145,7 @@ G.655非零色散位移光纤：G.655非零色散位移光纤在C波段的色散
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="author">Author: Albert</p>
-<p class="date">Created: 2018-11-23 周五 17:28</p>
+<p class="date">Created: 2018-11-24 周六 00:10</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
