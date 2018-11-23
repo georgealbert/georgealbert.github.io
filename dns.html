@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-11-23 周五 16:56 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title></title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Albert" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2017 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org91fd223">root server - master.k8s - 192.168.56.100 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-07 周三 11:11]</span></span></a>
+<ul>
+<li><a href="#orga27d7c9">[root@master ~]# cat /etc/named.conf</a></li>
+<li><a href="#orgc4b662e">[root@master ~]# cat /var/named/root.zone</a></li>
+</ul>
+</li>
+<li><a href="#orgea38a98">com权威DNS server - node1.k8s - 192.168.56.101</a>
+<ul>
+<li><a href="#org566f54f">[root@node1 ~]# cat /etc/named.conf</a></li>
+<li><a href="#orgea8876c">[root@node1 ~]# cat /etc/named.rfc1912.zones</a></li>
+<li><a href="#org796508d">[root@node1 ~]# cat /var/named/com.zone</a></li>
+</ul>
+</li>
+<li><a href="#org954f92b">albert.com授权DNS server - node2.k8s - 192.168.56.102</a>
+<ul>
+<li><a href="#org4f724e9">[root@node2 named]# cat /etc/named.conf</a></li>
+<li><a href="#orgb90b3d1">[root@node2 named]# cat /etc/named.rfc1912.zones</a></li>
+<li><a href="#org4196604">[root@node2 named]# cat albert.com.zone</a></li>
+</ul>
+</li>
+<li><a href="#org1f309d4">递归server/边缘cache DNS server - node3.k8s - 192.168.56.103 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-07 周三 11:20]</span></span></a>
+<ul>
+<li><a href="#orgadd3058">[root@node3 ~]# vim /etc/dnsmasq.conf</a></li>
+<li><a href="#org7a6444f">[root@node3 ~]# cat /etc/resolv.dnsmasq.conf</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<ul class="org-ul">
+<li>目标
+<ul class="org-ul">
+<li>客户端访问www.albert.com时</li>
+<li id="本地DNS服务器向根DNS转发">node3.k8s上的dnsmasq -&gt; master.k8s上的bind转发</li>
+<li id="com域实现主从域的搭建">没有做，只用了master dns</li>
+</ul></li>
+</ul>
+
+<p>
+<a href="https://www.tuicool.com/articles/JzqQfuQ">DNS基础及使用BIND搭建域名服务器</a> 写得不错，大量图解
+</p>
+
+<p>
+如果出现问题可以清空dns的cache
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">rndc flush  <span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#28165;&#31354;dns cache</span>
+rndc reload <span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#37325;&#26032;&#21152;&#36733;&#37197;&#32622;&#25991;&#20214;</span>
+</pre>
+</div>
+
+<div id="outline-container-org91fd223" class="outline-2">
+<h2 id="org91fd223">root server - master.k8s - 192.168.56.100 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-07 周三 11:11]</span></span></h2>
+<div class="outline-text-2" id="text-org91fd223">
+<p>
+使用bind9来做根dns服务器
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[root@master ~]# named-checkconf
+[root@master ~]# named-checkzone . /var/named/root.zone                    
+zone ./IN: loaded serial 2
+OK
+</pre>
+</div>
+</div>
+<div id="outline-container-orga27d7c9" class="outline-3">
+<h3 id="orga27d7c9">[root@master ~]# cat /etc/named.conf</h3>
+<div class="outline-text-3" id="text-orga27d7c9">
+<div class="org-src-container">
+<pre class="src src-sh">options {
+        // listen-on port 53 { 127.0.0.1; }; // ipv4 &#30417;&#21548;&#31471;&#21475;, &#27880;&#37322;&#25481;&#65292;&#22914;&#26524;&#19981;&#27880;&#37322;&#30340;&#35805;&#19981;&#30693;&#36947;&#24590;&#20040;&#37197;&#32622;&#21487;&#20197;&#30417;&#21548;&#25152;&#26377;ip
+        listen-on-v6 port 53 { ::1; };       // ipv6 &#30417;&#21548;&#31471;&#21475;
+        directory       <span style="color: #deb887;">"/var/named"</span>;        // &#21046;&#23450;&#35013;&#36733;zone&#21306;&#22495;&#25991;&#20214;&#30340;&#30446;&#24405;
+        dump-file       <span style="color: #deb887;">"/var/named/data/cache_dump.db"</span>;    // cache
+        statistics-file <span style="color: #deb887;">"/var/named/data/named_stats.txt"</span>;  // statistics
+        memstatistics-file <span style="color: #deb887;">"/var/named/data/named_mem_stats.txt"</span>;
+        // allow-query     { localhost; };
+        allow-query     { any; }; // &#20801;&#35768;&#35775;&#38382;&#21015;&#34920;,&#20462;&#25913;&#20026;any
+
+        recursion yes; // &#23545;&#24212;root&#26469;&#35828;&#65292;&#26159;&#21542;&#38656;&#35201;&#36882;&#24402;?
+
+        dnssec-enable yes;      // &#32771;&#34385;&#25913;&#20026;no
+        dnssec-validation yes;  // &#32771;&#34385;&#25913;&#20026;no
+
+<span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#26032;&#22686;</span>
+zone <span style="color: #deb887;">"."</span> IN {  // <span style="color: #deb887;">"."</span>&#20195;&#34920;&#26681;&#21306;&#22495;        
+        //type hint;
+        <span style="color: #f08080;">type</span> master;
+        file <span style="color: #deb887;">"root.zone"</span>; // &#25351;&#23450;zone&#25991;&#20214;&#65292;bind&#23433;&#35013;&#26102;&#40664;&#35748;&#24050;&#32463;&#29983;&#25104;,&#36825;&#37324;&#35201;&#29992;&#33258;&#24049;&#25351;&#23450;&#29992;/var/named/root.zone&#65292;<span style="color: #4eee94;">&#27880;&#24847;mode</span>=<span style="color: #4eee94;">640&#21644;owner</span>=root:named
+}; // <span style="color: #deb887;">"}"</span>&#21518;&#20063;&#24471;&#20998;&#21495;&#32467;&#26463;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgc4b662e" class="outline-3">
+<h3 id="orgc4b662e">[root@master ~]# cat /var/named/root.zone</h3>
+<div class="outline-text-3" id="text-orgc4b662e">
+<p>
+至此看来，named.conf的配置并不复杂，不过接下来的zone文件的配置就会改变你的看法。
+</p>
+<div class="org-src-container">
+<pre class="src src-conf"><span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">&#27880;&#24847;&#65292;zone&#25991;&#20214;&#30340;&#27880;&#37322;&#26159;&#20197;&#20998;&#21495;";"&#24320;&#22987;&#30340;&#12290;</span>
+<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">&#28155;&#21152;&#22495;&#25968;&#25454;&#24211;&#25991;&#20214;&#65306;vim /var/named/root.zone</span>
+$TTL 1D <span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">&#29983;&#23384;&#26399;, &#40664;&#35748;&#21333;&#20301;&#20026;&#31186;&#65292;&#21478;&#21487;&#35774;&#23450;&#20026;[W|D|H|M]</span>
+
+<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">[zone] IN SOA [&#20027;&#26426;&#21517;] [&#31649;&#29702;&#21592;email] ([&#20116;&#32452;&#26356;&#26032;&#26102;&#38388;&#21442;&#25968;])  </span>
+<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">@=&gt;zone IN SOA @=&gt;&#20027;&#26426;&#21517; rname.invalid.=&gt;email  </span>
+<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">@&#20195;&#34920;&#26681;&#22495;  </span>
+<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">rname.invalid.&#35299;&#26512;&#20026;rname@invalid&#65292;&#31532;&#19968;&#20010;"."&#20026;"@"&#30340;&#26367;&#20195;&#65292;&#23614;&#37096;&#30340;"."&#20026;&#26681;&#22495;&#65292;&#34920;&#26126;&#20854;&#20026;&#32477;&#23545;URL&#12290;</span>
+
+<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">@&#26159;SOA&#35760;&#24405;&#20013;&#30340;name&#23383;&#27573;&#30340;&#32553;&#20889;&#65292;a.root-server.net&#26159;&#24403;&#21069;&#26381;&#21153;&#22120;&#20027;&#26426;&#21517;&#31216;&#65292;mail.albert.com&#26159;&#24403;&#21069;&#21306;&#22495;&#25991;&#20214;&#36127;&#36131;&#20154;&#37038;&#31665;&#65292;&#21487;&#20197;&#30475;&#20570;mail@albert.com&#65292;&#22240;&#20026;@&#26377;&#29305;&#27530;&#29992;&#36884;&#65292;&#29992;.&#20195;&#26367;</span>
+@ IN  SOA  a.root-server.net  mail.albert.com. (
+                   2       <span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">serial</span>
+                   1D      <span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">refresh</span>
+                   1H      <span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">retry</span>
+                   1W      <span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">expire</span>
+                   3H )    <span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">minimuim</span>
+
+<span style="color: #7f7f7f;">;       </span><span style="color: #7f7f7f;">NS      @          ; &#30452;&#25509;&#36755;&#20837;&#22495;&#21517;&#65292;&#35775;&#38382;@  </span>
+<span style="color: #7f7f7f;">;       </span><span style="color: #7f7f7f;">A       127.0.0.1  ; &#30452;&#25509;&#36755;&#20837;&#22495;&#21517;&#65292;&#35299;&#26512;&#21040;&#30340;IPV4&#30340;IP  </span>
+<span style="color: #7f7f7f;">;       </span><span style="color: #7f7f7f;">AAAA    ::1        ; &#30452;&#25509;&#36755;&#20837;&#22495;&#21517;&#65292;&#35299;&#26512;&#21040;&#30340;IPV6&#30340;IP</span>
+                      NS a.root-server.net.
+com                IN NS a.tl-server.net.  <span style="color: #7f7f7f;">;</span><span style="color: #7f7f7f;">//&#22996;&#27966;</span>
+a.root-server.net. IN A  192.168.56.100
+a.tl-server.net.   IN A  192.168.56.101
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgea38a98" class="outline-2">
+<h2 id="orgea38a98">com权威DNS server - node1.k8s - 192.168.56.101</h2>
+<div class="outline-text-2" id="text-orgea38a98">
+<p>
+使用bind9来做com域dns服务器
+</p>
+</div>
+
+<div id="outline-container-org566f54f" class="outline-3">
+<h3 id="org566f54f">[root@node1 ~]# cat /etc/named.conf</h3>
+<div class="outline-text-3" id="text-org566f54f">
+<div class="org-src-container">
+<pre class="src src-sh">vim /etc/named.conf
+options {
+        // listen-on port 53 { 127.0.0.1; }; // &#27880;&#37322;&#25481;&#65292;&#22914;&#26524;&#19981;&#27880;&#37322;&#30340;&#35805;&#19981;&#30693;&#36947;&#24590;&#20040;&#37197;&#32622;&#21487;&#20197;&#30417;&#21548;&#25152;&#26377;ip
+        listen-on-v6 port 53 { ::1; };
+        directory       <span style="color: #deb887;">"/var/named"</span>;
+        dump-file       <span style="color: #deb887;">"/var/named/data/cache_dump.db"</span>;
+        statistics-file <span style="color: #deb887;">"/var/named/data/named_stats.txt"</span>;
+        memstatistics-file <span style="color: #deb887;">"/var/named/data/named_mem_stats.txt"</span>;
+        // allow-query     { localhost; };
+        allow-query     { any; }; // &#20462;&#25913;&#20026;any
+
+        recursion yes; // &#23545;&#24212;root&#26469;&#35828;&#65292;&#26159;&#21542;&#38656;&#35201;&#36882;&#24402;?
+
+        dnssec-enable yes;      // &#32771;&#34385;&#25913;&#20026;no
+        dnssec-validation yes;  // &#32771;&#34385;&#25913;&#20026;no
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgea8876c" class="outline-3">
+<h3 id="orgea8876c">[root@node1 ~]# cat /etc/named.rfc1912.zones</h3>
+<div class="outline-text-3" id="text-orgea8876c">
+<div class="org-src-container">
+<pre class="src src-sh">// &#26032;&#22686;&#19979;&#38754;&#30340;&#20869;&#23481;
+zone <span style="color: #deb887;">"com"</span> IN {
+       <span style="color: #f08080;">type</span> master;
+       file <span style="color: #deb887;">"com.zone"</span>;
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org796508d" class="outline-3">
+<h3 id="org796508d">[root@node1 ~]# cat /var/named/com.zone</h3>
+<div class="outline-text-3" id="text-org796508d">
+<div class="org-src-container">
+<pre class="src src-sh">[root@node1 ~]# cat /var/named/com.zone 
+$<span style="color: #4eee94;">TTL</span> 86400
+@      IN  SOA   dns1 mail.albert.com. (
+                   0          ; serial
+                   86400      ; refresh (1 day)
+                   3600       ; retry (1 hour)
+                   604800     ; expire (1 week)
+                   10800      ; minimum (3 hours)
+                                )
+                NS      dns1
+albert          NS      dns2  ;// &#22996;&#27966;&#23376;&#22495;
+dns1            A       192.168.56.101
+dns2            A       192.168.56.102
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org954f92b" class="outline-2">
+<h2 id="org954f92b">albert.com授权DNS server - node2.k8s - 192.168.56.102</h2>
+<div class="outline-text-2" id="text-org954f92b">
+<p>
+使用bind作为子域的授权服务器
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">[root@node2 ~]# named-checkzone albert.com  /var/named/albert.com.zone                    
+dig www.albert.com @192.168.56.102
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org4f724e9" class="outline-3">
+<h3 id="org4f724e9">[root@node2 named]# cat /etc/named.conf</h3>
+<div class="outline-text-3" id="text-org4f724e9">
+<p>
+在全局配置文件/etc/named.conf中修改
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">options {
+        //listen-on port 53 { 127.0.0.1; }; &#27880;&#37322;&#25481;&#65292;&#30417;&#21548;&#25152;&#26377;&#22320;&#22336;
+        listen-on-v6 port 53 { ::1; };
+        directory       <span style="color: #deb887;">"/var/named"</span>;
+        dump-file       <span style="color: #deb887;">"/var/named/data/cache_dump.db"</span>;
+        statistics-file <span style="color: #deb887;">"/var/named/data/named_stats.txt"</span>;
+        memstatistics-file <span style="color: #deb887;">"/var/named/data/named_mem_stats.txt"</span>;
+        allow-query     { any; }; // &#20801;&#35768;&#25152;&#26377;ip&#26469;&#26597;&#35810;
+        recursion yes;
+
+        dnssec-enable yes;      // [2018-11-07 &#21608;&#19977; 11:15:34] &#36793;&#32536;dns&#36825;&#37324;&#35774;&#32622;&#20026;&#20102;no&#65292;&#21542;&#21017;&#23601;&#26159;&#19981;&#33021;&#27491;&#30830;&#35299;&#26512;!
+        dnssec-validation yes;  // &#21487;&#20197;&#25913;&#20026;no
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgb90b3d1" class="outline-3">
+<h3 id="orgb90b3d1">[root@node2 named]# cat /etc/named.rfc1912.zones</h3>
+<div class="outline-text-3" id="text-orgb90b3d1">
+<p>
+在/etc/named.rfc1912.zones文件最后,新增下面的配置
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">zone <span style="color: #deb887;">"albert.com"</span> IN {
+       <span style="color: #f08080;">type</span> master;
+       file <span style="color: #deb887;">"albert.com.zone"</span>;
+};
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4196604" class="outline-3">
+<h3 id="org4196604">[root@node2 named]# cat albert.com.zone</h3>
+<div class="outline-text-3" id="text-org4196604">
+<p>
+创建albert.com.zone，内容如下:
+</p>
+<div class="org-src-container">
+<pre class="src src-conf">$TTL 1D 
+@      IN SOA  dns1 mail.albert.com. (
+          2018110702       <span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">serial</span>
+          1D      <span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">refresh</span>
+          1H      <span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">retry</span>
+          1W      <span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">expire</span>
+          3H)    <span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">minimum</span>
+       NS      dns1
+dns1       A  172.16.9.103
+www        A  172.16.9.100
+static     A  172.16.9.102  <span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">&#36755;&#20837;&#23376;&#22495;&#21517;&#65292;&#35299;&#26512;&#21040;&#30340;IP</span>
+img        A  172.16.9.103
+js         A  172.16.9.104
+log        A  172.16.9.101     
+a.login    A  172.16.9.101
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">/usr/sbin/named-checkconf -z
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1f309d4" class="outline-2">
+<h2 id="org1f309d4">递归server/边缘cache DNS server - node3.k8s - 192.168.56.103 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-07 周三 11:20]</span></span></h2>
+<div class="outline-text-2" id="text-org1f309d4">
+<p>
+使用dnsmasq或者bind作为边缘dns都可以ok，检查一下TTL的设置。
+</p>
+</div>
+
+<div id="outline-container-orgadd3058" class="outline-3">
+<h3 id="orgadd3058">[root@node3 ~]# vim /etc/dnsmasq.conf</h3>
+<div class="outline-text-3" id="text-orgadd3058">
+<p>
+修改/etc/dnsmasq.conf，新增或去掉注释
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">resolv-file=/etc/resolv.dnsmasq.conf
+strict-order
+<span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">log level&#21487;&#20197;&#35843;&#25972;&#21527;?&#30475;&#30475;cache&#20102;&#21738;&#20123;&#22495;&#21517;?</span>
+log-facility=/var/log/dnsmasq.log
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7a6444f" class="outline-3">
+<h3 id="org7a6444f">[root@node3 ~]# cat /etc/resolv.dnsmasq.conf</h3>
+<div class="outline-text-3" id="text-org7a6444f">
+<div class="org-src-container">
+<pre class="src src-sh">nameserver 192.168.56.100 <span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#25351;&#21521;&#25105;&#33258;&#24049;&#30340;root dns server&#65292;&#26681;&#26381;&#21153;&#22120;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Albert</p>
+<p class="date">Created: 2018-11-23 周五 16:56</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
