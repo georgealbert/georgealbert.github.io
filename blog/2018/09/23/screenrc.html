@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2018-11-25 周日 00:33 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>screen配置</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">screen配置</h1>
+<p>
+;#+HTML_DOCTYPE: html5
+;#+OPTIONS: toc:nil d:nil
+</p>
+
+<div id="outline-container-org6a9eead" class="outline-2">
+<h2 id="org6a9eead">.screenrc <span class="timestamp-wrapper"><span class="timestamp">[2018-09-25 周二 16:51]</span></span></h2>
+<div class="outline-text-2" id="text-org6a9eead">
+<ul class="org-ul">
+<li>F1~F12的key bingding配置不好用，有时间再改改。</li>
+<li>编码设置成utf8后，显示GBK编码的时候是乱码。</li>
+</ul>
+<p>
+<img src="./../../../../images/OM3_OM4.jpg" alt="OM3_OM4.jpg">
+<img src="file:///e:/home/albert/images/OM3_OM4.jpg" alt="OM3_OM4.jpg">
+<img src="file:///e:/images/OM3_OM4.jpg" alt="OM3_OM4.jpg">
+</p>
+<div class="org-src-container">
+<pre class="src src-conf"># https://www.kilobitspersecond.com/2014/02/10/understanding-gnu-screens-hardstatus-strings/
+# Set default encoding using utf8
+defutf8 on  
+# &#35299;&#20915;&#20013;&#25991;&#20081;&#30721;,&#36825;&#20010;&#35201;&#25353;&#38656;&#37197;&#32622;
+defencoding utf8
+encoding utf8 utf8
+# &#20860;&#23481;shell &#20351;&#24471;.bashrc .profile /etc/profile&#31561;&#37324;&#38754;&#30340;&#21035;&#21517;&#31561;&#35774;&#32622;&#29983;&#25928;
+shell -$SHELL
+# set the startup message
+startup_message off
+term linux
+# &#35299;&#20915;&#26080;&#27861;&#28378;&#21160;
+<span style="color: #4eee94;">termcapinfo xterm|xterms|xs ti@:te</span>=\E[2J 
+# &#23631;&#24149;&#32531;&#20914;&#21306;&#34892;&#25968;
+defscrollback 10000
+# &#19979;&#26631;&#31614;&#35774;&#32622;
+hardstatus on
+#caption always <span style="color: #deb887;">"%{= kw}%-w%{= kG}%{+b}[%n %t]%{-b}%{= kw}%+w %=%d %M %0c %{g}%H%{-}"</span> 
+caption always <span style="color: #deb887;">"%{= kw}%-w%{= kG}%{+b}[%n %t]%{-b}%{= kw}%+w %=%Y-%m-%d %{G}%H%{-}"</span>
+# &#20851;&#38381;&#38378;&#23631;
+vbell off
+#Keboard binding
+#bind Alt+z to move to previous window
+bindkey ^[z prev
+# bind Alt+x to move to next window
+bindkey ^[x next 
+<span style="color: #4eee94;"># bind Alt`~</span>= to screen0~12
+bindkey <span style="color: #deb887;">"^[`"</span> select 0
+bindkey <span style="color: #deb887;">"^[1"</span> select 1
+bindkey <span style="color: #deb887;">"^[2"</span> select 2
+bindkey <span style="color: #deb887;">"^[3"</span> select 3
+bindkey <span style="color: #deb887;">"^[4"</span> select 4
+bindkey <span style="color: #deb887;">"^[5"</span> select 5
+bindkey <span style="color: #deb887;">"^[6"</span> select 6
+bindkey <span style="color: #deb887;">"^[7"</span> select 7
+bindkey <span style="color: #deb887;">"^[8"</span> select 8
+bindkey <span style="color: #deb887;">"^[9"</span> select 9
+bindkey <span style="color: #deb887;">"^[0"</span> select 10
+bindkey <span style="color: #deb887;">"^[-"</span> select 11
+bindkey <span style="color: #deb887;">"^[="</span> select 12
+# bind F5 to create a new screen
+bindkey -k k5 screen
+# bind F6 to detach screen session (to background)
+bindkey -k k6 detach
+# bind F7 to kill current screen window
+bindkey -k k7 kill
+# bind F8 to rename current screen window
+bindkey -k k8 title
+</pre>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

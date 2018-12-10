@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2018-12-10 周一 15:16 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>emacs等宽字体配置</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">emacs等宽字体配置</h1>
+<p>
+emacs一直都用Consolas(英文)+Yahei(中文)的字体，今天测试了几种中英文等宽字体组合。比较满意的是Ubuntu Mono和FiraCode。
+</p>
+
+<p>
+中文在Win10上Yahei一直都是效果最好，不需要安装就能用的字体，所以中文选择Yahei。在网上找了几种等宽字体，逐一和Yahei配合，看看什么组合能达到中英文混批时是等宽的，其实就是2个英文字符正好等于一个中文字符的宽度。
+</p>
+
+<p>
+测试的几种字体的1和l，0和o都是很好区分的。说实在的Consolas的1和l就需要认真看才能区分出来。
+</p>
+
+<div id="outline-container-orgf08a9d9" class="outline-2">
+<h2 id="orgf08a9d9">Consolas + Yahei</h2>
+<div class="outline-text-2" id="text-orgf08a9d9">
+<p>
+两种字体都是系统自带的，不需要网上下载。奇怪的是两种字体的size不是等比例的。如测试的大部分字体都是英文size=8 + 中文size=20和英文size=10 + 中文size=24，只有这两种组合是等宽的。
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">字体</th>
+<th scope="col" class="org-left">效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Consolas 8 + Microsoft Yahei 20</td>
+<td class="org-left">org mode table可以对齐，但是英文太小了</td>
+</tr>
+
+<tr>
+<td class="org-left">Consolas 10 + Microsoft Yahei 24</td>
+<td class="org-left">org mode table可以对齐，但是英文太小了</td>
+</tr>
+
+<tr>
+<td class="org-left">Consolas 11 + Microsoft Yahei 20</td>
+<td class="org-left">我原来一直用的组合，不能对齐。</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org8185a30" class="outline-2">
+<h2 id="org8185a30">Consolas-with-Yahei</h2>
+<div class="outline-text-2" id="text-org8185a30">
+<p>
+把Consolas和Yahei打到一个ttf字体里了，造成了一个问题，无论选择什么size都做不到对不齐，而且size&lt;10的时候中文显示非常难看。如此强大的emacs根本不需要二合一字体，直接可以控制中英文分别用不同的字体即可。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org0234847" class="outline-2">
+<h2 id="org0234847">Source Code Variable</h2>
+<div class="outline-text-2" id="text-org0234847">
+<p>
+无法和Yahei配合对齐。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org0effd06" class="outline-2">
+<h2 id="org0effd06">Monaco</h2>
+<div class="outline-text-2" id="text-org0effd06">
+<p>
+<a href="https://github.com/cstrap/monaco-font">github</a>
+<a href="https://raw.githubusercontent.com/todylu/monaco.ttf/master/monaco.ttf">字体下载url可用</a>
+</p>
+
+<p>
+感觉支持的字符数有点少。Ubuntu更多，更新更快，免费（大家都免费，哈哈）。
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">字体</th>
+<th scope="col" class="org-left">效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Monaco 8 + Microsoft Yahei 20</td>
+<td class="org-left">org mode table可以对齐，但是英文太小了。但是比Consolas的字体大一点，高一点，效果好很多。</td>
+</tr>
+
+<tr>
+<td class="org-left">Monaco 10 + Microsoft Yahei 24</td>
+<td class="org-left">org mode table可以对齐，但是中文太小了</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgafa6b49" class="outline-2">
+<h2 id="orgafa6b49">Ubuntu Mono + Yahei</h2>
+<div class="outline-text-2" id="text-orgafa6b49">
+<p>
+<a href="https://design.ubuntu.com/font/">官网下载</a>
+</p>
+
+<p>
+Ubuntu Mono正好可以和Yahei等比例缩放。其他字体只有2种组合能中英文对齐。
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">字体</th>
+<th scope="col" class="org-left">效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Ubuntu Mono 10 + Microsoft Yahei 20</td>
+<td class="org-left">org mode table可以对齐，但是英文太小了。字母a、e有点难看</td>
+</tr>
+
+<tr>
+<td class="org-left">Ubuntu Mono 12 + Microsoft Yahei 24</td>
+<td class="org-left">org mode table可以对齐，但是size 24的中文太大了，size 12的英文也有点大</td>
+</tr>
+
+<tr>
+<td class="org-left">Ubuntu Mono 11 + Microsoft Yahei 22</td>
+<td class="org-left">org mode table可以对齐，中文大小稍微大了一点，size 20就好了，勉强可以接受</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org20a66b9" class="outline-2">
+<h2 id="org20a66b9">FiraCode</h2>
+<div class="outline-text-2" id="text-org20a66b9">
+<p>
+<a href="https://github.com/tonsky/FiraCode">官网下载</a>
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">字体</th>
+<th scope="col" class="org-left">效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Fira Code 8 + Microsoft Yahei 20</td>
+<td class="org-left">org mode table可以对齐，但是英文太小了，不如Ubuntu的组合多。</td>
+</tr>
+
+<tr>
+<td class="org-left">Fira Code 10 + Microsoft Yahei 24</td>
+<td class="org-left">org mode table可以对齐，但是size 24的中文太大了</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>
