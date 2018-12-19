@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2018-12-18 周二 16:16 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>连接线缆介绍</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">连接线缆介绍</h1>
+
+<div id="outline-container-org45702f3" class="outline-2">
+<h2 id="org45702f3">以太网双绞线</h2>
+<div class="outline-text-2" id="text-org45702f3">
+</div><div id="outline-container-orge6f51bc" class="outline-3">
+<h3 id="orge6f51bc">概念</h3>
+<div class="outline-text-3" id="text-orge6f51bc">
+<p>
+以太网双绞线（Twisted-Pair Cable）由不同颜色的8根具有绝缘保护层的铜导线组成，每两根导线按一定规则绞织在一起，共组成4对绞线对。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org376a33c" class="outline-3">
+<h3 id="org376a33c">适用范围</h3>
+<div class="outline-text-3" id="text-org376a33c">
+<p>
+以太网双绞线主要用于传输模拟信号，但也适用于数字信号的传输，特别适用于较短距离的信息传输，是目前局域网上常用的传输介质。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6eec3f1" class="outline-3">
+<h3 id="org6eec3f1">最大传输距离</h3>
+<div class="outline-text-3" id="text-org6eec3f1">
+<p>
+以太网双绞线的最大传输距离为100m。如果要加大传输距离，在两段以太网双绞线之间可安装中继器，最多可安装4个中继器。如安装4个中继器连接5个网段，则最大传输距离可达500m。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orge9fec36" class="outline-3">
+<h3 id="orge9fec36">RJ-45连接器</h3>
+<div class="outline-text-3" id="text-orge9fec36">
+<p>
+每条以太网双绞线通过两端安装的RJ-45连接器（俗称水晶头）将各种网络设备连接起来。RJ-45连接器的引脚序号如图D-1所示。
+</p>
+
+<p>
+图D-1 RJ-45连接器引脚序号示意图
+<img src="./../../../../images/RJ45.png" alt="RJ45.png"> 
+</p>
+</div>
+</div>
+<div id="outline-container-org4cb6d57" class="outline-3">
+<h3 id="org4cb6d57">线序标准</h3>
+<div class="outline-text-3" id="text-org4cb6d57">
+<p>
+RJ-45连接器引脚序号与铜导线颜色具有一定的对应关系，EIA/TIA的布线标准中规定了两种双绞线的线序568A和568B。
+</p>
+
+<dl class="org-dl">
+<dt>标准568A</dt><dd>白绿&#x2013;1，绿&#x2013;2，白橙&#x2013;3，蓝&#x2013;4，白蓝&#x2013;5，橙&#x2013;6，白棕&#x2013;7，棕&#x2013;8。</dd>
+<dt>标准568B</dt><dd>白橙&#x2013;1，橙&#x2013;2，白绿&#x2013;3，蓝&#x2013;4，白蓝&#x2013;5，绿&#x2013;6，白棕&#x2013;7，棕&#x2013;8。</dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-org396fede" class="outline-3">
+<h3 id="org396fede">双绞线类型</h3>
+<div class="outline-text-3" id="text-org396fede">
+<p>
+按照是否外加金属屏蔽层，以太网双绞线可分为屏蔽双绞线（Shielded Twisted-Pair，STP）和非屏蔽双绞线（Unshielded Twisted-Pair，UTP）。由于屏蔽双绞线应用的条件比较苛刻，且价格较高，目前大多数局域网使用的是非屏蔽双绞线。此处关于以太网双绞线的分类基于非屏蔽双绞线。
+</p>
+</div>
+
+<div id="outline-container-org5b4881b" class="outline-4">
+<h4 id="org5b4881b">按电气性能分类</h4>
+<div class="outline-text-4" id="text-org5b4881b">
+<p>
+按照电气性能的不同，以太网双绞线可分为3类线、4类线、5类线、超5类线、6类线和7类线等类型，数字越大，级别越高、带宽也越宽。目前在局域网中常见的是5类线、超5类线和6类线。
+</p>
+
+<table border="1" rules="all" frame="border">
+<caption class="t-above"><span class="table-number">Table 1:</span> 表D-2 常见以太网双绞线介绍</caption>
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">双绞线类型</th>
+<th scope="col" class="org-left">介绍</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">5类</td>
+<td class="org-left">适用于最高传输速率为100Mbps的数据传输，传输带宽是100MHZ</td>
+</tr>
+
+<tr>
+<td class="org-left">超5类</td>
+<td class="org-left">适用于最高传输速率为1000Mbps的数据传输，传输带宽是100MHZ</td>
+</tr>
+
+<tr>
+<td class="org-left">6类</td>
+<td class="org-left">适用于传输速率高于1Gbps的数据传输，传输带宽是250MHZ</td>
+</tr>
+</tbody>
+</table>
+
+<dl class="org-dl">
+<dt>说明</dt><dd>SR8800-F路由器的RJ-45以太网端口采用5类或5类以上以太网双绞线进行连接。</dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-org6a32587" class="outline-4">
+<h4 id="org6a32587">按线序分类</h4>
+<div class="outline-text-4" id="text-org6a32587">
+<p>
+根据线序的不同，以太网双绞线可分为直通线（Straight-Through Twisted-Pair Cable）和交叉线（Crossover Twisted-Pair Cable）。
+</p>
+
+<dl class="org-dl">
+<dt>直通线</dt><dd>双绞线两端的线序都为标准568B，如图D-2所示。</dd>
+<dt>交叉线</dt><dd>双绞线一端的线序为标准568B，另一端的线序为标准568A，如图D-3所示。</dd>
+</dl>
+
+<p>
+图D-2 直通线两端线序示意图
+<img src="./../../../../images/direct_copper_cable.png" alt="direct_copper_cable.png"> 
+</p>
+
+<p>
+图D-3 交叉线两端线序示意图
+<img src="./../../../../images/twisted_copper_cable.png" alt="twisted_copper_cable.png"> 
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgb5df470" class="outline-3">
+<h3 id="orgb5df470">直通线与交叉线使用原则</h3>
+<div class="outline-text-3" id="text-orgb5df470">
+<p>
+使用以太网双绞线连接设备时，应根据所连接的RJ-45以太网口类型选择以太网双绞线的类型。RJ-45以太网口分为MDI口和MDIX口两种类型，路由器和PC上的RJ-45以太网口为MDI口，路由器上的为MDIX口，MDI和MDIX口各引脚功能分配情况如表D-3和表D-4所示。
+</p>
+
+<table border="1" rules="all" frame="border">
+<caption class="t-above"><span class="table-number">Table 2:</span> 表D-3 MDI口引脚功能分配</caption>
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">端口引脚序号</th>
+<th scope="col" class="org-left">10Base-T/100Base-TX</th>
+<th scope="col" class="org-left">&#xa0;</th>
+<th scope="col" class="org-left">1000Base-T</th>
+<th scope="col" class="org-left">&#xa0;</th>
+</tr>
+
+<tr>
+<th scope="col" class="org-right">&#xa0;</th>
+<th scope="col" class="org-left">信号</th>
+<th scope="col" class="org-left">功能</th>
+<th scope="col" class="org-left">信号</th>
+<th scope="col" class="org-left">功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">Tx+</td>
+<td class="org-left">发送数据</td>
+<td class="org-left">BIDA+</td>
+<td class="org-left">双向数据线A+</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">Tx-</td>
+<td class="org-left">发送数据</td>
+<td class="org-left">BIDA-</td>
+<td class="org-left">双向数据线A-</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">Rx+</td>
+<td class="org-left">接收数据</td>
+<td class="org-left">BIDB+</td>
+<td class="org-left">双向数据线B+</td>
+</tr>
+
+<tr>
+<td class="org-right">4</td>
+<td class="org-left">保留</td>
+<td class="org-left">-</td>
+<td class="org-left">BIDC+</td>
+<td class="org-left">双向数据线C+</td>
+</tr>
+
+<tr>
+<td class="org-right">5</td>
+<td class="org-left">保留</td>
+<td class="org-left">-</td>
+<td class="org-left">BIDC-</td>
+<td class="org-left">双向数据线C-</td>
+</tr>
+
+<tr>
+<td class="org-right">6</td>
+<td class="org-left">Rx-</td>
+<td class="org-left">接收数据</td>
+<td class="org-left">BIDB-</td>
+<td class="org-left">双向数据线B-</td>
+</tr>
+
+<tr>
+<td class="org-right">7</td>
+<td class="org-left">保留</td>
+<td class="org-left">-</td>
+<td class="org-left">BIDD+</td>
+<td class="org-left">双向数据线D+</td>
+</tr>
+
+<tr>
+<td class="org-right">8</td>
+<td class="org-left">保留</td>
+<td class="org-left">-</td>
+<td class="org-left">BIDD-</td>
+<td class="org-left">双向数据线D-</td>
+</tr>
+</tbody>
+</table>
+
+
+
+<table border="1" rules="all" frame="border">
+<caption class="t-above"><span class="table-number">Table 3:</span> 表D-4 MDIX口引脚功能分配</caption>
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">端口引脚序号</th>
+<th scope="col" class="org-left">10Base-T/100Base-TX</th>
+<th scope="col" class="org-left">&#xa0;</th>
+<th scope="col" class="org-left">1000Base-T</th>
+<th scope="col" class="org-left">&#xa0;</th>
+</tr>
+
+<tr>
+<th scope="col" class="org-right">&#xa0;</th>
+<th scope="col" class="org-left">信号</th>
+<th scope="col" class="org-left">功能</th>
+<th scope="col" class="org-left">信号</th>
+<th scope="col" class="org-left">功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">Rx+</td>
+<td class="org-left">接收数据</td>
+<td class="org-left">BIDB+</td>
+<td class="org-left">双向数据线B+</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">Rx-</td>
+<td class="org-left">接收数据</td>
+<td class="org-left">BIDB-</td>
+<td class="org-left">双向数据线B-</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">Tx+</td>
+<td class="org-left">发送数据</td>
+<td class="org-left">BIDA+</td>
+<td class="org-left">双向数据线A+</td>
+</tr>
+
+<tr>
+<td class="org-right">4</td>
+<td class="org-left">保留</td>
+<td class="org-left">-</td>
+<td class="org-left">BIDD+</td>
+<td class="org-left">双向数据线D+</td>
+</tr>
+
+<tr>
+<td class="org-right">5</td>
+<td class="org-left">保留</td>
+<td class="org-left">-</td>
+<td class="org-left">BIDD-</td>
+<td class="org-left">双向数据线D-</td>
+</tr>
+
+<tr>
+<td class="org-right">6</td>
+<td class="org-left">Tx-</td>
+<td class="org-left">发送数据</td>
+<td class="org-left">BIDA-</td>
+<td class="org-left">双向数据线A-</td>
+</tr>
+
+<tr>
+<td class="org-right">7</td>
+<td class="org-left">保留</td>
+<td class="org-left">-</td>
+<td class="org-left">BIDC+</td>
+<td class="org-left">双向数据线C+</td>
+</tr>
+
+<tr>
+<td class="org-right">8</td>
+<td class="org-left">保留</td>
+<td class="org-left">-</td>
+<td class="org-left">BIDC-</td>
+<td class="org-left">双向数据线C-</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>
+说明
+</p>
+<ul class="org-ul">
+<li>Tx=发送数据</li>
+<li>Rx=接收数据</li>
+<li>BI=双向数据</li>
+</ul>
+
+<p>
+为保证设备正常通信，对于相连的两台设备，一端设备端口的发送数据的引脚需对应对端设备端口接收数据的引脚。因此，当两端设备都为MDI口或者MDIX口时，需使用交叉线连接，当一端为MDI口一端为MDIX口时，需使用直通线连接。直通线或交叉线的使用情况可以总结如下：
+</p>
+
+<ul class="org-ul">
+<li>直通线用于连接不同类型设备，比如连接路由器和PC、路由器和路由器等。</li>
+<li>交叉线用于连接同种类型设备，比如连接路由器和路由器、路由器和路由器、PC和PC等。</li>
+</ul>
+
+<p>
+如果RJ-45以太网端口支持MDI/MDIX自适应特性，当MDI/MDIX自适应启用时，端口能自动适应不同线序（自动适应直通线或交叉线）。
+</p>
+
+<dl class="org-dl">
+<dt>说明</dt><dd>SR8800-F路由器RJ-45以太网端口支持MDI/MDIX自适应特性。缺省情况下，端口启用MDI/MDIX自适应。</dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-org2f033a8" class="outline-3">
+<h3 id="org2f033a8">制作方法</h3>
+<div class="outline-text-3" id="text-org2f033a8">
+<p>
+以太网双绞线的制作步骤如下：
+</p>
+
+<ol class="org-ol">
+<li>利用压线钳剪裁出计划需要使用的双绞线长度。</li>
+
+<li>利用压线钳将线头剪齐，再将线头放入剥线专用的刀口，稍微用力握紧压线钳并慢慢旋转，让刀口划开双绞线的保护胶皮，并把这部分的保护胶皮去掉。（压线钳挡位离剥线刀口长度通常恰好为RJ-45连接器长度，这样可以有效避免剥线过长或过短。）</li>
+
+<li>将4个线对的8条细导线逐一解开、理顺、扯直，然后按照规定的线序排列整齐。</li>
+
+<li>利用压线钳的剪线刀口把细导线顶部裁剪整齐，缓缓地用力把8条细导线同时沿RJ-45连接器内的8个线槽插入，一直插到线槽的顶端，并确保每一根细导线都已经紧紧地顶在RJ-45连接器的末端。</li>
+
+<li>把RJ-45连接器插入压线钳的槽中，用力握紧线钳，直到听到轻微的“啪”一声。</li>
+
+<li>重复上述（2）至（5）步，制作双绞线另一端接头。</li>
+
+<li>使用测试仪测试。</li>
+</ol>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6266f4c" class="outline-2">
+<h2 id="org6266f4c">光纤</h2>
+<div class="outline-text-2" id="text-org6266f4c">
+<dl class="org-dl">
+<dt>注意</dt><dd>当选用光纤连接网络设备时，同一通信线路中使用的可插拔接口模块、尾纤、跳纤、光缆的类型必须保持一致。即如果采用单模光纤进行连接，该通信线路中使用的可插拔接口模块、尾纤、跳纤、光缆都必须是单模类型。</dd>
+</dl>
+</div>
+
+<div id="outline-container-orgd6503bd" class="outline-3">
+<h3 id="orgd6503bd">简介</h3>
+<div class="outline-text-3" id="text-orgd6503bd">
+</div><div id="outline-container-org6480159" class="outline-4">
+<h4 id="org6480159">光纤</h4>
+<div class="outline-text-4" id="text-org6480159">
+<p>
+光纤是光导纤维（Optical Fiber）的简称，是一种传输光能的波导介质，一般由纤芯和包层组成。
+</p>
+
+<p>
+光纤传输方式损耗低，传输距离远，在长距离传输方面具有优势。
+</p>
+
+<p>
+按光在光纤中的传输模式不同，光纤可分为单模光纤（SMF，Single Mode Fiber）和多模光纤（MMF，Multi Mode Fiber）。
+</p>
+
+<dl class="org-dl">
+<dt>单模光纤</dt><dd>中心玻璃芯较细（10μm或更小），只能传一种模式的光。模间色散较小，适用于远程通讯。</dd>
+<dt>多模光纤</dt><dd>中心玻璃芯较粗（50μm、62.5μm或更大），可传多种模式的光。模间色散较大，传输距离比较短，一般只有几公里。</dd>
+</dl>
+
+<p>
+光纤的最大拉伸力和压扁力如表D-5所示。
+</p>
+
+<table border="1" rules="all" frame="border">
+<caption class="t-above"><span class="table-number">Table 4:</span> 表D-5 光纤的最大拉伸力和压扁力</caption>
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">受力时间</th>
+<th scope="col" class="org-right">拉伸力(N)</th>
+<th scope="col" class="org-right">压扁力(N/mm)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">短暂受力</td>
+<td class="org-right">150</td>
+<td class="org-right">500</td>
+</tr>
+
+<tr>
+<td class="org-left">长期受力</td>
+<td class="org-right">80</td>
+<td class="org-right">100</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org0df0a31" class="outline-4">
+<h4 id="org0df0a31">光缆</h4>
+<div class="outline-text-4" id="text-org0df0a31">
+<p>
+由于户外长距离传输的需要而将多根光纤封装在一起而组成的线缆称为光缆，光缆外皮一般为黑色，里面有钢丝保护。按封装的光纤类型不同，光缆有单模、多模之分。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org0c13bf7" class="outline-4">
+<h4 id="org0c13bf7">跳纤</h4>
+<div class="outline-text-4" id="text-org0c13bf7">
+<p>
+两端都有连接器的光纤为跳纤。跳纤用来做从设备到光纤布线链路的跳接线，一般用于连接光端机和终端盒。常见的跳纤有单模跳纤和多模跳纤。
+</p>
+
+<dl class="org-dl">
+<dt>单模跳纤</dt><dd>外皮一般为黄色，接头和保护套为蓝色，传输距离较长。</dd>
+
+<dt>多模跳纤</dt><dd>外皮一般为橙色，接头和保护套为米色或者黑色，传输距离较短。</dd>
+</dl>
+
+<p>
+按接口类型来分，跳纤还分为SC跳纤、LC跳纤、FC跳纤等多种类型。跳纤长度的规格一般有0.5m、1m、2m、3m、5m、10m等。
+</p>
+</div>
+</div>
+<div id="outline-container-org32a3a80" class="outline-4">
+<h4 id="org32a3a80">尾纤</h4>
+<div class="outline-text-4" id="text-org32a3a80">
+<p>
+只有一端有连接器，而另一端是纤芯断头的光纤为尾纤。尾纤通过熔接与光缆的纤芯相连，常出现在光纤终端盒内，主要用于连接光缆和光纤收发器。
+</p>
+
+<p>
+尾纤可分为单模尾纤（黄色）和多模尾纤（橙色）。按接口类型来分，尾纤还分为SC尾纤、LC尾纤、FC尾纤等多种类型。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd8ccfa8" class="outline-4">
+<h4 id="orgd8ccfa8">光纤连接器</h4>
+<div class="outline-text-4" id="text-orgd8ccfa8">
+<p>
+光纤连接器是光纤通信系统中不可缺少的无源器件，它的使用实现了光通道间的可拆式连接，使光系统的调测与维护更为方便。光纤连接器的种类很多，设备仅支持LC型光纤连接器，外观如图D-7所示。
+</p>
+
+<p>
+图D-7 LC型光纤连接器外观示意图
+<img src="./../../../../images/LC-2.png" alt="LC-2.png"> 
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgc572b7a" class="outline-4">
+<h4 id="orgc572b7a">使用注意事项</h4>
+<div class="outline-text-4" id="text-orgc572b7a">
+<p>
+在使用光纤进行连接时，请注意以下内容：
+</p>
+
+<ul class="org-ul">
+<li>请确认光纤连接器及光纤的类型是否与所采用的可插拔接口模块的类型相符。</li>
+
+<li>SR8800-F路由器的部分配套单板上的光接口(如SFP光接口)具有屏蔽堵头，当需要使用这些光接口时，需要先取下屏蔽堵头。请妥善保管取下的屏蔽堵头，当不再使用这些光接口时，需要在这些光接口上重新安装上屏蔽堵头。</li>
+
+<li>光纤连接器上具有防尘帽，在使用光纤连接器时，请妥善保管防尘帽。当不再使用时，光纤连接器上必须盖好防尘帽，以免在装配过程中将光纤连接器插芯端面划伤而影响其性能指标。如果防尘帽过松或有污染，请您及时更换。</li>
+
+<li>使用光纤连接前，请用无尘纸沾无水酒精将光纤连接器插芯端面擦净，擦拭时只能向一个方向擦，同时也要擦拭与其对接的光纤接头端面。</li>
+
+<li>请勿扭曲、弯折光纤，安装后光纤的弯曲半径不得小于40mm（动态弯曲情况下最小弯曲半径为20D，静态情况下为10D，D为光纤防尘帽外径）。</li>
+
+<li>连接时，如果光纤需要穿过金属板孔，那么该金属板孔应具有光滑的、经过充分倒圆的表面（倒圆半径R应不小于2mm)，穿过金属板孔及沿结构件锐边转弯时，应加保护套或衬垫。</li>
+
+<li>插拔光纤连接器时请勿用力过猛，避免用力拉、压、挤光纤。光纤允许的拉伸力和压扁力的最大值请参见表D-5。</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

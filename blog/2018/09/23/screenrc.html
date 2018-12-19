@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2018-11-25 周日 00:33 -->
+<!-- 2018-12-19 周三 16:52 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>screen配置</title>
@@ -23,11 +23,6 @@
 <li>F1~F12的key bingding配置不好用，有时间再改改。</li>
 <li>编码设置成utf8后，显示GBK编码的时候是乱码。</li>
 </ul>
-<p>
-<img src="./../../../../images/OM3_OM4.jpg" alt="OM3_OM4.jpg">
-<img src="file:///e:/home/albert/images/OM3_OM4.jpg" alt="OM3_OM4.jpg">
-<img src="file:///e:/images/OM3_OM4.jpg" alt="OM3_OM4.jpg">
-</p>
 <div class="org-src-container">
 <pre class="src src-conf"># https://www.kilobitspersecond.com/2014/02/10/understanding-gnu-screens-hardstatus-strings/
 # Set default encoding using utf8
@@ -78,6 +73,27 @@ bindkey -k k7 kill
 # bind F8 to rename current screen window
 bindkey -k k8 title
 </pre>
+</div>
+</div>
+
+<div id="outline-container-org509e39b" class="outline-3">
+<h3 id="org509e39b">简单配置</h3>
+<div class="outline-text-3" id="text-org509e39b">
+<div class="org-src-container">
+<pre class="src src-cfg">hardstatus on
+hardstatus alwayslastline
+hardstatus string "%{.bW}%-w%{.rW}%n %t%{-}%+w %=%{..G} %H %{..Y} %m/%d %C%a "
+startup_message off
+termcapinfo xterm* ti@:te@
+</pre>
+</div>
+
+<p>
+测试一下org mode生成图片html的相对路径。
+<img src="./../../../../images/OM3_OM4.jpg" alt="OM3_OM4.jpg">
+<img src="file:///e:/home/albert/images/OM3_OM4.jpg" alt="OM3_OM4.jpg">
+<img src="file:///e:/images/OM3_OM4.jpg" alt="OM3_OM4.jpg">
+</p>
 </div>
 </div>
 </div>

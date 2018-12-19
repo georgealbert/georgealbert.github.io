@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2018-12-19 周三 16:46 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bind和dnsmasq的阿里云CNAME配置</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">bind和dnsmasq的阿里云CNAME配置</h1>
+<p>
+最近申请了阿里云CDN对应用使用的图片和大文件进行下载加速。在做阿里云CDN测试时，调整DNS的CNAME需要走的审批流程比较长，想先用自己虚机上的dns配置CNAME进行CDN测试。
+</p>
+
+<dl class="org-dl">
+<dt>源站</dt><dd>albertzhou.net</dd>
+
+<dt>加速域名</dt><dd><p>
+选择图片和大文件时生成的加速域名看着不一样
+</p>
+
+<table border="1" rules="all" frame="border">
+<caption class="t-above"><span class="table-number">Table 1:</span> 加速类型和域名</caption>
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">类型</th>
+<th scope="col" class="org-left">域名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">选择图片加速时的域名</td>
+<td class="org-left">download.albertzhou.net.w.kunlungr.com</td>
+</tr>
+
+<tr>
+<td class="org-left">选择大文件加速时的域名</td>
+<td class="org-left">download.albertzhou.net.w.kunlunca.com</td>
+</tr>
+</tbody>
+</table></dd>
+</dl>
+
+<div id="outline-container-org37b6ec4" class="outline-2">
+<h2 id="org37b6ec4">dnsmasq</h2>
+<div class="outline-text-2" id="text-org37b6ec4">
+<p>
+因为在dnsmas的配置文件中只要新增配置一行CNAME配置就可以，比bind的配置简单多了，所以先用dnsmasq。测试了半天发现总是解析不到cname，原来dnsmasq的CNAME配置对target是有要求的。
+</p>
+
+<p>
+具体如下：
+</p>
+
+<pre class="example">
+There are significant limitations on the target; it must be a DNS name which is known to dnsmasq from /etc/hosts (or additional hosts files), from DHCP, from --interface-name or from another --cname.
+</pre>
+
+<p>
+<code>target</code> 域名必须要在 <code>/etc/hosts</code> 里面或者其他地方有指向。
+</p>
+
+<p>
+在dnsmasq的配置文件中加一行 cname=xxx.xxx,target，然后在 <code>/etc/hosts</code> 中加一行target的ip，target的ip可以ping得到，如：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">vim /etc/dnsmasq.d/k8s.conf
+<span style="color: #4eee94;">cname</span>=download.albertzhou.net,download.albertzhou.net.w.kunlunca.com
+
+vim /etc/hosts
+124.165.219.100    download.albertzhou.net.w.kunlunca.com
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgfa350eb" class="outline-2">
+<h2 id="orgfa350eb">bind</h2>
+<div class="outline-text-2" id="text-orgfa350eb">
+<p>
+dnsmasq的CNAME中的target要在/etc/hosts中配，就算可以配置多个，也有点麻烦，而且不能完全模拟实际环境，只能上bind了。bind的配置比较麻烦，唉，再麻烦也要上。
+</p>
+</div>
+
+<div id="outline-container-org557b8db" class="outline-3">
+<h3 id="org557b8db">前提</h3>
+<div class="outline-text-3" id="text-org557b8db">
+<p>
+一级域名 <code>albertzhou.net</code> 已经在 <code>/etc/named.rfc1912.zones</code> 中配置了，可以直接在zone文件里面配置。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">[root@node2 ~]# cat /etc/named.rfc1912.zones
+
+<span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#30465;&#30053;&#20854;&#20182;&#30340;zone&#37197;&#32622;</span>
+...
+
+zone <span style="color: #deb887;">"albert.com"</span> IN {
+       <span style="color: #f08080;">type</span> master;
+       file <span style="color: #deb887;">"albert.com.zone"</span>;
+};
+
+...
+
+</pre>
+</div>
+
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#20462;&#25913;bind&#30340;zone&#65292;&#22686;&#21152;download.albertzhou.net&#30340;CNAME</span>
+vim /var/named/albertzhou.net.zone
+$<span style="color: #4eee94;">TTL</span> 20 ; 20 seconds
+download     IN    CNAME    download.albertzhou.net.w.kunlunca.com.  
+
+<span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#37325;&#26032;&#21152;&#36733;zone&#37197;&#32622;</span>
+rndc reload
+</pre>
+</div>
+
+<p>
+bind的配置ok了，就可以直接把cname的lookup递归到阿里云的dns，这点比dnsmasq省事。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3ab490a" class="outline-3">
+<h3 id="org3ab490a">测试</h3>
+<div class="outline-text-3" id="text-org3ab490a">
+<p>
+dig测试域名的解析。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">[root@node2 ~]# dig download.albertzhou.net
+
+; &lt;&lt;&gt;&gt; DiG 9.9.4-RedHat-9.9.4-61.el7_5.1 &lt;&lt;&gt;&gt; download.albertzhou.net
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 57938
+<span style="color: #ffff00; font-weight: bold;">;; flags: qr aa rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 2, ADDITIONAL: 7</span>
+
+<span style="color: #ffff00; font-weight: bold;">;; OPT PSEUDOSECTION:</span>
+<span style="color: #ffff00; font-weight: bold;">; EDNS: version: 0, flags:; udp: 4096</span>
+<span style="color: #ffff00; font-weight: bold;">;; QUESTION SECTION:</span>
+<span style="color: #ffff00; font-weight: bold;">;download.albertzhou.net.   IN      A</span>
+
+<span style="color: #ffff00; font-weight: bold;">;; ANSWER SECTION:</span>
+<span style="color: #ffff00; font-weight: bold;">download.albertzhou.net. 60 IN      CNAME   download.albertzhou.net.w.kunlunca.com.</span>
+<span style="color: #ffff00; font-weight: bold;">download.albertzhou.net.w.kunlunca.com. 180 IN A 123.129.244.229</span>
+
+<span style="color: #ffff00; font-weight: bold;">;; AUTHORITY SECTION:</span>
+<span style="color: #ffff00; font-weight: bold;">w.kunlunca.com.         10799   IN      NS      ns3.kunlunca.com.</span>
+<span style="color: #ffff00; font-weight: bold;">w.kunlunca.com.         10799   IN      NS      ns4.kunlunca.com.</span>
+
+<span style="color: #ffff00; font-weight: bold;">;; ADDITIONAL SECTION:</span>
+<span style="color: #ffff00; font-weight: bold;">ns3.kunlunca.com.       10799   IN      A       121.43.18.42</span>
+<span style="color: #ffff00; font-weight: bold;">ns3.kunlunca.com.       10799   IN      A       203.107.0.204</span>
+<span style="color: #ffff00; font-weight: bold;">ns3.kunlunca.com.       10799   IN      A       203.107.0.205</span>
+<span style="color: #ffff00; font-weight: bold;">ns4.kunlunca.com.       10799   IN      A       120.25.118.73</span>
+<span style="color: #ffff00; font-weight: bold;">ns4.kunlunca.com.       10799   IN      A       203.107.0.204</span>
+<span style="color: #ffff00; font-weight: bold;">ns4.kunlunca.com.       10799   IN      A       101.200.28.73</span>
+
+<span style="color: #ffff00; font-weight: bold;">;; Query time: 404 msec</span>
+<span style="color: #ffff00; font-weight: bold;">;; SERVER: 127.0.0.1#53(127.0.0.1)</span>
+<span style="color: #ffff00; font-weight: bold;">;; WHEN: Wed Dec 19 15:22:42 CST 2018</span>
+<span style="color: #ffff00; font-weight: bold;">;; MSG SIZE  rcvd: 260</span>
+</pre>
+</div>
+
+<p>
+再用curl测试实际下载文件的速度。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">curl -vvv -o /dev/null download.albertzhou.net/bigfile.txt
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
