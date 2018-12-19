@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2018-12-19 周三 16:16 -->
+<!-- 2018-12-19 周三 16:57 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DNS递归解析过程</title>
 <meta name="generator" content="Org mode">
-<link rel="stylesheet" type="text/css" href="main.css" />
+<link rel="stylesheet" type="text/css" href="/main.css" />
 </head>
 <body>
 <div id="content">
@@ -33,9 +33,9 @@ rndc reload <span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;"
 </pre>
 </div>
 
-<div id="outline-container-org91fd223" class="outline-2">
-<h2 id="org91fd223">root server - master.k8s - 192.168.56.100 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-07 周三 11:11]</span></span></h2>
-<div class="outline-text-2" id="text-org91fd223">
+<div id="outline-container-org0bafc57" class="outline-2">
+<h2 id="org0bafc57">root server - master.k8s - 192.168.56.100 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-07 周三 11:11]</span></span></h2>
+<div class="outline-text-2" id="text-org0bafc57">
 <p>
 使用bind9来做根dns服务器
 </p>
@@ -47,9 +47,9 @@ OK
 </pre>
 </div>
 </div>
-<div id="outline-container-orga27d7c9" class="outline-3">
-<h3 id="orga27d7c9">[root@master ~]# cat /etc/named.conf</h3>
-<div class="outline-text-3" id="text-orga27d7c9">
+<div id="outline-container-org4c7a2b2" class="outline-3">
+<h3 id="org4c7a2b2">[root@master ~]# cat /etc/named.conf</h3>
+<div class="outline-text-3" id="text-org4c7a2b2">
 <div class="org-src-container">
 <pre class="src src-sh">options {
         // listen-on port 53 { 127.0.0.1; }; // ipv4 &#30417;&#21548;&#31471;&#21475;, &#27880;&#37322;&#25481;&#65292;&#22914;&#26524;&#19981;&#27880;&#37322;&#30340;&#35805;&#19981;&#30693;&#36947;&#24590;&#20040;&#37197;&#32622;&#21487;&#20197;&#30417;&#21548;&#25152;&#26377;ip
@@ -77,9 +77,9 @@ zone <span style="color: #deb887;">"."</span> IN {  // <span style="color: #deb8
 </div>
 </div>
 
-<div id="outline-container-orgc4b662e" class="outline-3">
-<h3 id="orgc4b662e">[root@master ~]# cat /var/named/root.zone</h3>
-<div class="outline-text-3" id="text-orgc4b662e">
+<div id="outline-container-orge5e1536" class="outline-3">
+<h3 id="orge5e1536">[root@master ~]# cat /var/named/root.zone</h3>
+<div class="outline-text-3" id="text-orge5e1536">
 <p>
 至此看来，named.conf的配置并不复杂，不过接下来的zone文件的配置就会改变你的看法。
 </p>
@@ -113,17 +113,17 @@ a.tl-server.net.   IN A  192.168.56.101
 </div>
 </div>
 </div>
-<div id="outline-container-orgea38a98" class="outline-2">
-<h2 id="orgea38a98">com权威DNS server - node1.k8s - 192.168.56.101</h2>
-<div class="outline-text-2" id="text-orgea38a98">
+<div id="outline-container-orgf82c9a9" class="outline-2">
+<h2 id="orgf82c9a9">com权威DNS server - node1.k8s - 192.168.56.101</h2>
+<div class="outline-text-2" id="text-orgf82c9a9">
 <p>
 使用bind9来做com域dns服务器
 </p>
 </div>
 
-<div id="outline-container-org566f54f" class="outline-3">
-<h3 id="org566f54f">[root@node1 ~]# cat /etc/named.conf</h3>
-<div class="outline-text-3" id="text-org566f54f">
+<div id="outline-container-org1843f53" class="outline-3">
+<h3 id="org1843f53">[root@node1 ~]# cat /etc/named.conf</h3>
+<div class="outline-text-3" id="text-org1843f53">
 <div class="org-src-container">
 <pre class="src src-sh">vim /etc/named.conf
 options {
@@ -145,9 +145,9 @@ options {
 </div>
 </div>
 
-<div id="outline-container-orgea8876c" class="outline-3">
-<h3 id="orgea8876c">[root@node1 ~]# cat /etc/named.rfc1912.zones</h3>
-<div class="outline-text-3" id="text-orgea8876c">
+<div id="outline-container-org379ffcc" class="outline-3">
+<h3 id="org379ffcc">[root@node1 ~]# cat /etc/named.rfc1912.zones</h3>
+<div class="outline-text-3" id="text-org379ffcc">
 <div class="org-src-container">
 <pre class="src src-sh">// &#26032;&#22686;&#19979;&#38754;&#30340;&#20869;&#23481;
 zone <span style="color: #deb887;">"com"</span> IN {
@@ -159,9 +159,9 @@ zone <span style="color: #deb887;">"com"</span> IN {
 </div>
 </div>
 
-<div id="outline-container-org796508d" class="outline-3">
-<h3 id="org796508d">[root@node1 ~]# cat /var/named/com.zone</h3>
-<div class="outline-text-3" id="text-org796508d">
+<div id="outline-container-org4399b3c" class="outline-3">
+<h3 id="org4399b3c">[root@node1 ~]# cat /var/named/com.zone</h3>
+<div class="outline-text-3" id="text-org4399b3c">
 <div class="org-src-container">
 <pre class="src src-sh">[root@node1 ~]# cat /var/named/com.zone 
 $<span style="color: #4eee94;">TTL</span> 86400
@@ -181,9 +181,9 @@ dns2            A       192.168.56.102
 </div>
 </div>
 </div>
-<div id="outline-container-org954f92b" class="outline-2">
-<h2 id="org954f92b">albert.com授权DNS server - node2.k8s - 192.168.56.102</h2>
-<div class="outline-text-2" id="text-org954f92b">
+<div id="outline-container-org88a2e6e" class="outline-2">
+<h2 id="org88a2e6e">albert.com授权DNS server - node2.k8s - 192.168.56.102</h2>
+<div class="outline-text-2" id="text-org88a2e6e">
 <p>
 使用bind作为子域的授权服务器
 </p>
@@ -195,9 +195,9 @@ dig www.albert.com @192.168.56.102
 </div>
 </div>
 
-<div id="outline-container-org4f724e9" class="outline-3">
-<h3 id="org4f724e9">[root@node2 named]# cat /etc/named.conf</h3>
-<div class="outline-text-3" id="text-org4f724e9">
+<div id="outline-container-orgaec0f2b" class="outline-3">
+<h3 id="orgaec0f2b">[root@node2 named]# cat /etc/named.conf</h3>
+<div class="outline-text-3" id="text-orgaec0f2b">
 <p>
 在全局配置文件/etc/named.conf中修改
 </p>
@@ -219,9 +219,9 @@ dig www.albert.com @192.168.56.102
 </div>
 </div>
 
-<div id="outline-container-orgb90b3d1" class="outline-3">
-<h3 id="orgb90b3d1">[root@node2 named]# cat /etc/named.rfc1912.zones</h3>
-<div class="outline-text-3" id="text-orgb90b3d1">
+<div id="outline-container-org7d58324" class="outline-3">
+<h3 id="org7d58324">[root@node2 named]# cat /etc/named.rfc1912.zones</h3>
+<div class="outline-text-3" id="text-org7d58324">
 <p>
 在/etc/named.rfc1912.zones文件最后,新增下面的配置
 </p>
@@ -235,9 +235,9 @@ dig www.albert.com @192.168.56.102
 </div>
 </div>
 
-<div id="outline-container-org4196604" class="outline-3">
-<h3 id="org4196604">[root@node2 named]# cat albert.com.zone</h3>
-<div class="outline-text-3" id="text-org4196604">
+<div id="outline-container-org1281859" class="outline-3">
+<h3 id="org1281859">[root@node2 named]# cat albert.com.zone</h3>
+<div class="outline-text-3" id="text-org1281859">
 <p>
 创建albert.com.zone，内容如下:
 </p>
@@ -268,17 +268,17 @@ a.login    A  172.16.9.101
 </div>
 </div>
 
-<div id="outline-container-org1f309d4" class="outline-2">
-<h2 id="org1f309d4">递归server/边缘cache DNS server - node3.k8s - 192.168.56.103 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-07 周三 11:20]</span></span></h2>
-<div class="outline-text-2" id="text-org1f309d4">
+<div id="outline-container-orgdf59d3a" class="outline-2">
+<h2 id="orgdf59d3a">递归server/边缘cache DNS server - node3.k8s - 192.168.56.103 <span class="timestamp-wrapper"><span class="timestamp">[2018-11-07 周三 11:20]</span></span></h2>
+<div class="outline-text-2" id="text-orgdf59d3a">
 <p>
 使用dnsmasq或者bind作为边缘dns都可以ok，检查一下TTL的设置。
 </p>
 </div>
 
-<div id="outline-container-orgadd3058" class="outline-3">
-<h3 id="orgadd3058">[root@node3 ~]# vim /etc/dnsmasq.conf</h3>
-<div class="outline-text-3" id="text-orgadd3058">
+<div id="outline-container-orgeb523e3" class="outline-3">
+<h3 id="orgeb523e3">[root@node3 ~]# vim /etc/dnsmasq.conf</h3>
+<div class="outline-text-3" id="text-orgeb523e3">
 <p>
 修改/etc/dnsmasq.conf，新增或去掉注释
 </p>
@@ -292,9 +292,9 @@ log-facility=/var/log/dnsmasq.log
 </div>
 </div>
 
-<div id="outline-container-org7a6444f" class="outline-3">
-<h3 id="org7a6444f">[root@node3 ~]# cat /etc/resolv.dnsmasq.conf</h3>
-<div class="outline-text-3" id="text-org7a6444f">
+<div id="outline-container-org952eafd" class="outline-3">
+<h3 id="org952eafd">[root@node3 ~]# cat /etc/resolv.dnsmasq.conf</h3>
+<div class="outline-text-3" id="text-org952eafd">
 <div class="org-src-container">
 <pre class="src src-sh">nameserver 192.168.56.100 <span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#25351;&#21521;&#25105;&#33258;&#24049;&#30340;root dns server&#65292;&#26681;&#26381;&#21153;&#22120;</span>
 </pre>
