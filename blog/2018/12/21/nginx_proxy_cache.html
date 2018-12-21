@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2018-12-21 周五 17:42 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>nginx的proxy cache MISS问题</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">nginx的proxy cache MISS问题</h1>
+<p>
+在nginx的静态资源缓存测试中发现总是MISS，问题在哪里呢？
+</p>
+
+<div id="outline-container-orgd9dd3da" class="outline-2">
+<h2 id="orgd9dd3da">proxy cache MISS</h2>
+<div class="outline-text-2" id="text-orgd9dd3da">
+<p>
+不小心copy了一段牛逼的配置。配置的http段中正好有 <code>proxy_buffering off;</code> 这么一行，然后引发了cache MISS的问题。
+</p>
+
+<p>
+curl测试发现请求静态资源怎么总是返回都是 <code>MISS</code> 。
+</p>
+
+<p>
+开始怀疑location配置得不对，但是如果配置得有问题是不可能在static.log中看见日志的，说明location是正确的。
+</p>
+
+<p>
+location中的proxy cache配置是在生产系统上跑了很久的，是不会有问题的。
+</p>
+
+<p>
+那只可能是哪行配置有问题了。把机器上的配置放到自己的虚机上测试居然可以跑，状态是HIT，真是神奇了。其实测试时只是 <code>nginx -s reload</code> , 重新加载配置文件，http段的配置有不生效的可能，后来 <code>nginx -s quit;nginx</code> 完全停了nginx再启动后，果然全部MISS掉了。唉，以后改配置要小心，防止出现配置不生效的情况，太浪费时间了。
+</p>
+</div>
+
+<div id="outline-container-org70141b8" class="outline-3">
+<h3 id="org70141b8">解决方法</h3>
+<div class="outline-text-3" id="text-org70141b8">
+<p>
+在location中打开
+</p>
+<div class="org-src-container">
+<pre class="src src-conf"><span style="color: #98f5ff;">location ~ (^/).*\.(gif|jpg|jpeg|png|js|css|html|cab|bmp)$</span>
+{
+    proxy_buffering on<span style="color: #7f7f7f;">;</span>
+}
+</pre>
+</div>
+
+<p>
+<a href="https://forum.nginx.org/read.php?2,265504,265506#msg-265506">Re: nginx 1.9.12 proxy_cache always returns MISS</a> Great! =) Make sure proxy_buffering stays on - that will bypass the cache
+if turned off, and make sure your key space is large because you'll throw
+500s for everything if it runs out (I figured it would evict a key if it
+ran out of space, and what was a wrong assumption)
+</p>
+
+<p>
+看了一下代码，u-&gt;buffering在http, server, location中初始化，之前在http中配置了proxy_buffering off; 但是在location中没配置，所以一直是 <code>off</code> ，在location中再设置为 <code>on</code> 就可以了。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-c">    { ngx_string(<span style="color: #deb887;">"proxy_buffering"</span>),
+      NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
+      ngx_conf_set_flag_slot,
+      NGX_HTTP_LOC_CONF_OFFSET,
+      offsetof(ngx_http_proxy_loc_conf_t, upstream.buffering),
+      <span style="color: #a2cd5a;">NULL</span> },
+
+...
+
+<span style="color: #00bfff;">static</span> ngx_int_t
+ngx_http_proxy_handler(<span style="color: #98f5ff;">ngx_http_request_t</span> *<span style="color: #4eee94;">r</span>)
+...
+
+    u-&gt;buffering = plcf-&gt;upstream.buffering;
+
+...
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #00bfff;">static</span> <span style="color: #98f5ff;">void</span>
+<span style="color: #daa520;">ngx_http_upstream_send_response</span>(<span style="color: #98f5ff;">ngx_http_request_t</span> *<span style="color: #4eee94;">r</span>, <span style="color: #98f5ff;">ngx_http_upstream_t</span> *<span style="color: #4eee94;">u</span>)
+
+...
+
+    <span style="color: #00bfff;">if</span> (!u-&gt;buffering) {
+
+...
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge3a1002" class="outline-3">
+<h3 id="orge3a1002">配置</h3>
+<div class="outline-text-3" id="text-orge3a1002">
+<div class="org-src-container">
+<pre class="src src-conf"><span style="color: #98f5ff;">http</span>
+{
+  # &#32531;&#23384;&#20020;&#26102;&#30446;&#24405;&#12290;&#21518;&#31471;&#30340;&#21709;&#24212;&#24182;&#19981;&#30452;&#25509;&#36820;&#22238;&#23458;&#25143;&#31471;&#65292;&#32780;&#26159;&#20808;&#20889;&#21040;&#19968;&#20010;&#20020;&#26102;&#25991;&#20214;&#20013;&#65292;&#28982;&#21518;&#34987;rename&#19968;&#19979;&#24403;&#20570;&#32531;&#23384;&#25918;&#22312; proxy_cache_path&#12290;
+  proxy_temp_path  /dev/shm/proxy_temp_dir<span style="color: #7f7f7f;">; </span>
+
+  # &#32531;&#23384;&#30446;&#24405;&#65292;&#30446;&#24405;&#37324;&#30340;&#25991;&#20214;&#21517;&#26159; cache_key &#30340;MD5&#20540;&#12290;
+  <span style="color: #4eee94;"># levels</span>=1:2 &#34920;&#31034;&#37319;&#29992;2&#32423;&#30446;&#24405;&#32467;&#26500;&#65307;
+  <span style="color: #4eee94;"># keys_zone</span>=cache_one:128m inactive=2h max_size=1g<span style="color: #7f7f7f;">;</span>
+  # &#32531;&#23384;&#21306;&#21517;&#31216;&#20026;cache_one&#65307;
+  # &#32531;&#23384;&#30340;&#20869;&#23384;&#31354;&#38388;&#20026;100M&#65292;&#20869;&#23384;&#31354;&#38388;&#21487;&#22810;&#27425;&#20351;&#29992;&#65307;
+  # &#40664;&#35748;&#36807;&#26399;&#26102;&#38388;&#20026;2&#23567;&#26102;&#65292;&#36229;&#36807;2&#23567;&#26102;&#26410;&#34987;&#35775;&#38382;&#25991;&#20214;&#33258;&#21160;&#28165;&#38500;&#65307;
+  # &#26368;&#22823;&#25991;&#20214;&#23384;&#20648;&#20026;1G&#65292;&#36229;&#36807;&#21518;&#28165;&#38500;&#26368;&#23569;&#20351;&#29992;&#30340;&#25968;&#25454;&#12290;
+  <span style="color: #4eee94;">proxy_cache_path  /dev/shm/proxy_cache_dir levels</span>=1:2 keys_zone=cache_one:128m inactive=2h max_size=1g<span style="color: #7f7f7f;">;</span>
+}
+
+<span style="color: #98f5ff;">location ~ (^/).*\.(gif|jpg|jpeg|png|js|css|html|cab|bmp)$</span>
+{
+  # &#24341;&#29992;&#21069;&#38754;&#23450;&#20041;&#30340;&#32531;&#23384;&#21306; cache_one&#12290;
+  proxy_cache  cache_one<span style="color: #7f7f7f;">; </span>
+
+
+  # &#23450;&#20041;cache_key&#12290;
+  proxy_cache_key  $host$uri<span style="color: #7f7f7f;">;</span>
+
+  # &#20026;&#19981;&#21516;&#30340;&#21709;&#24212;&#29366;&#24577;&#30721;&#35774;&#32622;&#19981;&#21516;&#30340;&#32531;&#23384;&#26102;&#38388;&#65292;&#27604;&#22914;200&#12289;302&#31561;&#27491;&#24120;&#32467;&#26524;&#21487;&#20197;&#32531;&#23384;&#30340;&#26102;&#38388;&#38271;&#28857;&#65292;&#32780;404&#12289;500&#31561;&#32531;&#23384;&#26102;&#38388;&#35774;&#32622;&#30701;&#19968;&#20123;&#65292;&#36825;&#20010;&#26102;&#38388;&#21040;&#20102;&#25991;&#20214;&#23601;&#20250;&#36807;&#26399;&#65292;&#32780;&#19981;&#35770;&#26159;&#21542;&#21018;&#34987;&#35775;&#38382;&#36807;&#12290;
+  proxy_cache_valid  200 304 1h<span style="color: #7f7f7f;">;</span>
+
+  proxy_next_upstream http_502 http_504 error timeout invalid_header<span style="color: #7f7f7f;">;</span>
+
+  # &#24573;&#30053;Cache-Control&#30340;&#35831;&#27714;&#22836;&#25511;&#21046;&#65292;&#20381;&#28982;&#36827;&#34892;&#32531;&#23384;&#12290;&#20363;&#22914;&#23545;&#35831;&#27714;&#22836;&#35774;&#32622;cookie&#21518;&#65292;&#40664;&#35748;&#26159;&#19981;&#32531;&#23384;&#30340;&#65292;&#38656;&#35201;&#22686;&#21152;&#24573;&#30053;&#37197;&#32622;&#12290;
+  # &#24573;&#30053;&#25481;&#35774;&#32622;cookie&#30340;header&#65292;&#38745;&#24577;&#36164;&#28304;&#19981;&#38656;&#35201;&#65292;&#32780;&#19988;&#20250;&#35753;session&#22833;&#25928;&#12290;
+  proxy_ignore_headers Set-Cookie<span style="color: #7f7f7f;">;</span>
+
+  proxy_hide_header Cookie<span style="color: #7f7f7f;">;</span>
+
+  proxy_http_version 1.1<span style="color: #7f7f7f;">;</span>
+
+  proxy_set_header Connection <span style="color: #deb887;">""</span><span style="color: #7f7f7f;">;</span>
+
+  # &#22312;response&#30340;http header&#20013;&#22686;&#21152;&#19968;&#20010;header&#65292;&#26174;&#31034;cache&#30340;&#29366;&#24577;&#26159;HIT/MISS/STALE&#65292;&#26041;&#20415;curl&#26102;&#26597;&#30475;&#29366;&#24577;&#12290;
+  add_header  Nginx-Cache <span style="color: #deb887;">"$upstream_cache_status"</span><span style="color: #7f7f7f;">;</span>
+
+  # &#40664;&#35748;&#26159;&#25171;&#24320;&#30340;
+  proxy_buffering   on<span style="color: #7f7f7f;">;</span>
+
+  proxy_pass http://127.0.0.1:8000<span style="color: #7f7f7f;">;</span>
+
+  # &#22312;&#21709;&#24212;&#22836;&#37324;&#35774;&#32622;Expires:&#25110;Cache-Control:max-age&#65292;&#36820;&#22238;&#32473;&#23458;&#25143;&#31471;&#30340;&#27983;&#35272;&#22120;&#32531;&#23384;&#22833;&#25928;&#26102;&#38388;&#12290;
+  expires 1d<span style="color: #7f7f7f;">;</span>
+
+  access_log <span style="color: #deb887;">"pipe:/usr/local/sbin/cronolog /home/admin/nginx/logs/static_%Y-%m-%d_log"</span> static<span style="color: #7f7f7f;">;</span>
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org24c9914" class="outline-2">
+<h2 id="org24c9914">gzip配置</h2>
+<div class="outline-text-2" id="text-org24c9914">
+<p>
+使用了proxy cache当然要配合打开压缩功能，对文本格式的内容进行压缩传输，这样会节省大量带宽、提高响应时间，否则失去cache的意义。
+</p>
+
+<p>
+<a href="https://nginx.org/en/docs/http/ngx_http_gzip_module.html">官网gzip模块文档</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-conf"># &#22312;http&#27573;&#37197;&#32622;
+gzip               on<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;"># &#24320;&#21551;giz&#27169;&#22359;&#65292;&#40664;&#35748;&#26159;&#20851;&#38381;&#30340;&#12290;</span>
+gzip_http_version  1.0<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;"># &#35774;&#32622;http&#21327;&#35758;&#29256;&#26412;&#30340;&#26368;&#20302;&#29256;&#26412;&#65292;&#23545;1.0&#29256;&#26412;&#20197;&#19978;&#36827;&#34892;&#21387;&#32553;&#12290;</span>
+gzip_comp_level    6<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;"># gzip&#21387;&#32553;&#27604;/&#21387;&#32553;&#32423;&#21035;&#65292;&#21387;&#32553;&#32423;&#21035; 1-9&#65292;&#32423;&#21035;&#36234;&#39640;&#21387;&#32553;&#29575;&#36234;&#22823;&#65292;&#24403;&#28982;&#21387;&#32553;&#26102;&#38388;&#20063;&#23601;&#36234;&#38271;&#65288;&#20256;&#36755;&#24555;&#20294;&#27604;&#36739;&#28040;&#32791;cpu&#65289;&#12290;&#20854;&#23454;&#21387;&#32553;&#32423;&#21035;&#20026;1&#20063;&#26159;&#19981;&#38169;&#30340;&#36873;&#25321;&#65292;&#26426;&#22120;&#30340;cpu&#20250;&#21387;&#21147;&#23567;&#20123;&#12290;</span>
+gzip_min_length    1024<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;"># &#20801;&#35768;&#21387;&#32553;&#30340;&#39029;&#38754;&#26368;&#23567;&#23383;&#33410;&#25968;&#65292;&#40664;&#35748;&#26159;&#20840;&#37096;&#37117;&#21387;&#32553;&#65292;&#26368;&#22909;&#19981;&#35201;&#23567;&#20110;1k&#65292;&#22240;&#20026;&#23567;&#20110;1k&#30340;&#21487;&#33021;&#36234;&#21387;&#36234;&#22823;&#12290;</span>
+gzip_proxied       any<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;"># enables compression for all proxied requests.</span>
+gzip_vary          on<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;"># &#32473;http&#35831;&#27714;&#22686;&#21152;vary&#23383;&#27573;&#65292; &#19981;&#25903;&#25345;gzip&#30340;&#19981;&#36827;&#34892;&#21387;&#32553;&#22788;&#29702;.</span>
+gzip_disable       msie6<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;"># ie6&#19981;&#21387;&#32553;.</span>
+gzip_buffers       96 8k<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;"># &#35774;&#32622;&#31995;&#32479;&#33719;&#21462;&#20960;&#20010;&#21333;&#20301;&#30340;&#32531;&#23384;&#29992;&#20110;&#23384;&#20648;gzip&#30340;&#21387;&#32553;&#32467;&#26524;&#25968;&#25454;&#27969;&#12290;96 16k&#20195;&#34920;&#20197;16k&#20026;&#21333;&#20301;&#30340;buffer&#65292;96&#20010;buffer.</span>
+gzip_types         text/xml text/plain text/css application/javascript application/x-javascript application/rss+xml application/atom+xml application/xml<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;"># ;&#35774;&#32622;&#21387;&#32553;&#25991;&#20214;&#31867;&#22411;&#65292;&#36825;&#37324;&#25351;&#23450;&#20102;xml/html/js/css</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
