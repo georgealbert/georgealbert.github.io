@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2018-12-18 周二 16:34 -->
+<!-- 2019-08-09 周五 17:36 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>emacs中英文等宽字体配置</title>
@@ -259,6 +259,57 @@ linux上的老牌等宽字体。
 </tr>
 </tbody>
 </table>
+</div>
+</div>
+<div id="outline-container-org00f2c8a" class="outline-2">
+<h2 id="org00f2c8a">emacs配置</h2>
+<div class="outline-text-2" id="text-org00f2c8a">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">defun</span> <span style="color: #daa520;">albert|notebook-font</span><span style="color: #ffe4b5;">()</span>
+  <span style="color: #ffe4b5;">"Config font on HP zhan66."</span>
+  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">interactive</span><span style="color: #ffe4b5;">)</span>
+  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> <span style="color: #ffe4b5;">(</span>eq system-type 'windows-nt<span style="color: #ffe4b5;">)</span>
+    <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">progn</span>
+      <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Setting English Font</span>
+      <span style="color: #ffe4b5;">(</span>set-face-attribute 'default nil <span style="color: #f08080;">:font</span> <span style="color: #deb887;">"Ubuntu Mono 11"</span><span style="color: #ffe4b5;">)</span>
+      <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Chinese Font</span>
+      <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">dolist</span> <span style="color: #ffe4b5;">(</span>charset '<span style="color: #ffe4b5;">(</span>kana han symbol cjk-misc bopomofo<span style="color: #ffe4b5;">))</span>
+              <span style="color: #ffe4b5;">(</span>set-fontset-font <span style="color: #ffe4b5;">(</span>frame-parameter nil 'font<span style="color: #ffe4b5;">)</span>
+                            charset
+                            <span style="color: #ffe4b5;">(</span>font-spec <span style="color: #f08080;">:family</span> <span style="color: #deb887;">"Microsoft Yahei"</span> <span style="color: #f08080;">:size</span> 22<span style="color: #ffe4b5;">))))))</span>
+
+<span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">defun</span> <span style="color: #daa520;">albert|s2319-font</span><span style="color: #ffe4b5;">()</span>
+  <span style="color: #ffe4b5;">"Config font on dell s2319. </span>
+<span style="color: #ffe4b5;">   Ubuntu Mono 10 + Yahei 14 &#22826;&#23567;&#20102;</span>
+<span style="color: #ffe4b5;">   Ubuntu Mono 12 + Yahei 16 &#27604;&#36739;&#21512;&#36866;</span>
+<span style="color: #ffe4b5;">   "</span>
+  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">interactive</span><span style="color: #ffe4b5;">)</span>
+  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> <span style="color: #ffe4b5;">(</span>eq system-type 'windows-nt<span style="color: #ffe4b5;">)</span>
+    <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">progn</span>
+      <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Setting English Font</span>
+      <span style="color: #ffe4b5;">(</span>set-face-attribute 'default nil <span style="color: #f08080;">:font</span> <span style="color: #deb887;">"Ubuntu Mono 12"</span><span style="color: #ffe4b5;">)</span>
+      <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Chinese Font</span>
+      <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">dolist</span> <span style="color: #ffe4b5;">(</span>charset '<span style="color: #ffe4b5;">(</span>kana han symbol cjk-misc bopomofo<span style="color: #ffe4b5;">))</span>
+              <span style="color: #ffe4b5;">(</span>set-fontset-font <span style="color: #ffe4b5;">(</span>frame-parameter nil 'font<span style="color: #ffe4b5;">)</span>
+                            charset
+                            <span style="color: #ffe4b5;">(</span>font-spec <span style="color: #f08080;">:family</span> <span style="color: #deb887;">"Microsoft Yahei"</span> <span style="color: #f08080;">:size</span> 16<span style="color: #ffe4b5;">))))))</span>
+
+<span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> <span style="color: #ffe4b5;">(</span>eq window-system 'w32<span style="color: #ffe4b5;">)</span>
+  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">progn</span>
+    <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#26681;&#25454;&#26174;&#31034;&#22120;&#23454;&#38469;&#23485;&#24230;(&#20197;&#27627;&#31859;&#20026;&#21333;&#20301;)&#65292;&#26174;&#31034;&#23383;&#20307;.</span>
+    <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">DELL S2319HS &#20998;&#36776;&#29575;: 1920x1080, &#23631;&#24149;&#23610;&#23544;: 509mm * 286mm</span>
+    <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">EIZO EV2451 &#20998;&#36776;&#29575;: 1920x1080, &#23631;&#24149;&#23610;&#23544;: 528mm * 297mm</span>
+    <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">(display-mm-height)</span>
+    <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> <span style="color: #ffe4b5;">(</span>&gt;= <span style="color: #ffe4b5;">(</span>display-mm-width<span style="color: #ffe4b5;">)</span> 509<span style="color: #ffe4b5;">)</span>
+      <span style="color: #ffe4b5;">(</span>albert|s2319-font<span style="color: #ffe4b5;">))</span>
+
+    <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#23485;&#24230;&#22312;500mm&#30340;&#35748;&#20026;&#26159;&#31508;&#35760;&#26412;?&#25110;&#32773;&#26356;&#21152;&#31934;&#30830;&#19968;&#28857;&#30340;&#26041;&#24335;&#26469;&#21305;&#37197;&#19981;&#21516;&#30340;&#31508;&#35760;&#26412;&#22411;&#21495;?</span>
+    <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">HP ZHAN66 309mm X 175mm</span>
+    <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Thinkpad T430 4xxmm X 20xmm?</span>
+    <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> <span style="color: #ffe4b5;">(</span>eq <span style="color: #ffe4b5;">(</span>display-mm-width<span style="color: #ffe4b5;">)</span> 309<span style="color: #ffe4b5;">)</span>
+      <span style="color: #ffe4b5;">(</span>albert|notebook-font<span style="color: #ffe4b5;">))))</span>
+</pre>
+</div>
 </div>
 </div>
 </div>
