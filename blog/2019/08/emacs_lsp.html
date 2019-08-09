@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-08-09 周五 17:11 -->
+<!-- 2019-08-09 周五 17:25 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>emacs python和go的lsp配置</title>
@@ -31,7 +31,7 @@ python的lsp比elpy稍微好用点。
 </p>
 
 <p>
-lsp有python的和微软的。推荐使用微软的mspyls。
+lsp有python的和微软的。推荐使用微软的 <code>mspyls</code> 。
 </p>
 </div>
 
@@ -62,7 +62,7 @@ dotnet publish -c Release -r win-x64
 <h3 id="org2cc95d3">mspyls on linux</h3>
 <div class="outline-text-3" id="text-org2cc95d3">
 <p>
-linux的rid使用linux-x64
+linux的rid使用 <code>linux-x64</code> 。
 </p>
 
 <p>
@@ -105,7 +105,7 @@ $<span style="color: #4eee94;">dotnet</span> publish -c Release -r linux-x64
 </div>
 
 <p>
-<a href="https://github.com/emacs-lsp/lsp-python-ms">https://github.com/emacs-lsp/lsp-python-ms</a>
+参考 <a href="https://github.com/emacs-lsp/lsp-python-ms">https://github.com/emacs-lsp/lsp-python-ms</a>
 </p>
 </div>
 </div>
@@ -115,11 +115,15 @@ $<span style="color: #4eee94;">dotnet</span> publish -c Release -r linux-x64
 <h2 id="orgef857ec">go - bingo and golsp</h2>
 <div class="outline-text-2" id="text-orgef857ec">
 <p>
-bingo已经不更新了，转移到go官方的golsp。
+go的lsp可以用 <code>bingo</code> 和 <code>golsp</code> 。
 </p>
 
 <p>
-golsp和bingo在windows上，看代码一会就会报错。
+bingo已经不更新了，转移到go官方的 <code>golsp</code> 。
+</p>
+
+<p>
+golsp和bingo在windows上体验很差，看代码一会就emacs就会报错，如 package找不到之类的。
 </p>
 
 <p>
@@ -142,7 +146,9 @@ go在windows中的环境变量
 
 <li><p>
 go在linux中的环境变量
+需要设置 <code>GOPATH</code> ，在 <code>PATH</code> 中加入go和gopls的path。
 </p>
+
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #f08080;">export</span> <span style="color: #4eee94;">GOPATH</span>=$<span style="color: #4eee94;">HOME</span>/go
 
@@ -159,22 +165,7 @@ go在linux中的环境变量
 <dt>gopls安装目录</dt><dd>~/go/bin</dd>
 
 <dt>(no term)</dt><dd><p>
-处理被墙的问题
-</p>
-<div class="org-src-container">
-<pre class="src src-sh">E:\workspace\bingo\tools\cmd\gopls&gt;go install
-go: golang.org/x/net@v0.0.0-20190620200207-3b0461eec859: unrecognized import path <span style="color: #deb887;">"golang.org/x/net"</span> (https fetch: Get https://golang.org/x/net?go-get=1: dial tcp 216.239.37.1:443: connectex: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond.)
-
-mkdir -p $<span style="color: #4eee94;">GOPATH</span>/src/golang.org/x
-<span style="color: #f08080;">cd</span> $<span style="color: #4eee94;">GOPATH</span>/src/golang.org/x
-git clone https://github.com/golang/net.git
-git clone https://github.com/golang/sync.git
-git clone https://github.com/golang/tools.git
-</pre>
-</div></dd>
-
-<dt>(no term)</dt><dd><p>
-安装gopls到 $GOPATH/bin 目录
+安装gopls到 $GOPATH/bin 目录，设置了GOPATH后，会装到 <code>$GOPATH/bin</code> 下
 </p>
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #f08080;">cd</span> /drives/e/workspace/go/src/golang.org/x/tools
@@ -201,6 +192,23 @@ bingo is a go module project, so you need install Go 1.11 or above, to install t
 <p>
 <a href="https://github.com/saibing/bingo/wiki/Install">https://github.com/saibing/bingo/wiki/Install</a>
 </p>
+
+<ul class="org-ul">
+<li><p>
+处理install bingo被墙的问题
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">E:\workspace\bingo\tools\cmd\gopls&gt;go install
+go: golang.org/x/net@v0.0.0-20190620200207-3b0461eec859: unrecognized import path <span style="color: #deb887;">"golang.org/x/net"</span> (https fetch: Get https://golang.org/x/net?go-get=1: dial tcp 216.239.37.1:443: connectex: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond.)
+
+mkdir -p $<span style="color: #4eee94;">GOPATH</span>/src/golang.org/x
+<span style="color: #f08080;">cd</span> $<span style="color: #4eee94;">GOPATH</span>/src/golang.org/x
+git clone https://github.com/golang/net.git
+git clone https://github.com/golang/sync.git
+git clone https://github.com/golang/tools.git
+</pre>
+</div></li>
+</ul>
 
 <div class="org-src-container">
 <pre class="src src-sh">git clone -b bingo https://github.com/saibing/tools.git
