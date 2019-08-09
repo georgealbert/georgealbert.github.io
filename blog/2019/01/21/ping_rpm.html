@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2019-08-09 周五 16:02 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>&lrm;</title>
+<meta name="generator" content="Org mode">
+</head>
+<body>
+<div id="content">
+<p>
+参考 <a href="https://www.cnblogs.com/schangech/p/5641108.html">https://www.cnblogs.com/schangech/p/5641108.html</a>
+和 <a href="https://www.linuxidc.com/Linux/2013-12/93786.htm">https://www.linuxidc.com/Linux/2013-12/93786.htm</a>
+</p>
+
+<ol class="org-ol">
+<li><p>
+建立一个普通用户，有普通用户来制作rpm，用root的可能会因为代码问题导致毁灭的后果
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">useradd albert 
+su - albert 
+</pre>
+</div></li>
+
+<li><p>
+确定我们在哪个目录下制作RPM，通常这个目录我们topdir，这个需要在宏配置文件中指定，这个配置文件称为macrofiles，它们通常为 <i>usr/lib/rpm/macros:/usr/lib/rpm/macros.*:~</i>.rpmmacros,这个在rhel 5.8中可以通过rpmbuild &#x2013;showrc | grep macrofiles  查看，6.3的我使用这个找不到，但使用是一样的。你可以通过rpmbuild &#x2013;showrc | grep topdir 查看你系统默认的工作目录。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">rpmbuild --showrc | grep topdir 
+
+-14: _builddir  %{_topdir}/BUILD 
+-14: _buildrootdir  %{_topdir}/BUILDROOT 
+-14: _rpmdir    %{_topdir}/RPMS 
+-14: _sourcedir %{_topdir}/SOURCES 
+-14: _specdir   %{_topdir}/SPECS 
+-14: _srcrpmdir %{_topdir}/SRPMS 
+-14: _topdir    %{getenv:HOME}/rpmbuild 
+</pre>
+</div>
+
+<p>
+我们还是自定义工作目录
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">vi ~/.rpmmacros 
+%_topdir    /home/albert/rpmbuild    <span style="color: #B0BED8;">##</span><span style="color: #B0BED8;">&#30446;&#24405;&#21487;&#20197;&#33258;&#23450;&#20041; </span>
+
+mkdir ~/rpmbuild  
+</pre>
+</div></li>
+
+<li><p>
+在topdir下建立需要的目录
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> ~/rpmbuild  
+mkdir -pv {BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS} 
+</pre>
+</div></li>
+
+<li><p>
+把收集的源码放到SOURCES下
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">cp /tmp/tengine-1.4.2.tar.gz ~/rpmbuild/SOURCES  <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">&#20107;&#20808;&#25918;&#22909;&#30340;</span>
+</pre>
+</div></li>
+
+<li><p>
+在SPECS下建立重要的spec文件
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> SPECS 
+vim tengine.spec          <span style="color: #B0BED8;">##</span><span style="color: #B0BED8;">&#20869;&#23481;&#35265;&#21518;&#35762;&#35299;&#65292;rhel6.3&#20250;&#33258;&#21160;&#29983;&#25104;&#27169;&#26495; </span>
+</pre>
+</div></li>
+
+<li><p>
+用rpmbuild命令制作rpm包，rpmbuild命令会根据spec文件来生成rpm包 
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">rpmbuild  
+  -ba &#26082;&#29983;&#25104;src.rpm&#21448;&#29983;&#25104;&#20108;&#36827;&#21046;rpm 
+  -bs &#21482;&#29983;&#25104;src&#30340;rpm 
+  -bb &#21482;&#29983;&#20108;&#36827;&#21046;&#30340;rpm 
+  -bp &#25191;&#34892;&#21040;pre 
+  -bc &#25191;&#34892;&#21040; build&#27573; 
+  -bi &#25191;&#34892;install&#27573; 
+  -bl &#26816;&#27979;&#26377;&#25991;&#20214;&#27809;&#21253;&#21547; 
+</pre>
+</div>
+
+<p>
+我们可以一步步试，先rpmbuild -bp ,再-bc 再-bi 如果没问题，rpmbuild -ba 生成src包与二进制包吧
+</p></li>
+
+<li><p>
+spec
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">[albert@master SPECS]$ cat tengine.spec
+%define _unpackaged_files_terminate_build 0
+%define _missing_doc_files_terminate_build 0
+
+%define _prefix    /home/albert/nginx
+%define _user      albert
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">%define _user_uid  99</span>
+%define _group     albert
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">%define _group_uid 99</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">%define _sbin_path      /usr/sbin</span>
+
+%define name      Tengine
+%define summary   Tengine modified for pingmesh
+%define version   2.2.3
+%define release   1
+%define license   GPL
+%define group     Application/WebServer
+%define source    tengine-%{version}.tar.gz
+%define url       http://tengine.taobao.org/
+%define vendor    Taobao
+%define packager  albert
+
+
+Name:       tengine
+Version:    2.2.3
+Release:    1
+Vendor:     Taobao
+Summary:    GUN Tengine 2.2.3 X86_64
+
+Group:      System Enviroment/Daemons
+License:    GPL
+URL:        http://tengine.taobao.org/
+
+Source0:    tengine-%{version}.tar.gz
+
+Packager:   albert
+
+BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root
+
+
+%description
+Taobao tengine for pingmesh with modified ngx_tcp_proxy_module
+
+
+%prep
+%setup -q -n tengine-%{version}
+
+
+%build
+./configure <span style="color: #deb887;">\</span>
+  --without-pcre <span style="color: #deb887;">\</span>
+  --with-http_v2_module <span style="color: #deb887;">\</span>
+  --without-http_limit_conn_module <span style="color: #deb887;">\</span>
+  --without-http_limit_req_module <span style="color: #deb887;">\</span>
+  --without-http_rewrite_module <span style="color: #deb887;">\</span>
+  --without-select_module <span style="color: #deb887;">\</span>
+  --without-poll_module <span style="color: #deb887;">\</span>
+  --without-http_userid_module <span style="color: #deb887;">\</span>
+  --without-http_auth_basic_module <span style="color: #deb887;">\</span>
+  --without-http_autoindex_module <span style="color: #deb887;">\</span>
+  --without-http_memcached_module <span style="color: #deb887;">\</span>
+  --without-http_empty_gif_module <span style="color: #deb887;">\</span>
+  --with-http_ssl_module <span style="color: #deb887;">\</span>
+  --with-http_upstream_check_module <span style="color: #deb887;">\</span>
+  --without-http_fastcgi_module <span style="color: #deb887;">\</span>
+  --without-http_uwsgi_module <span style="color: #deb887;">\</span>
+  --without-http_scgi_module <span style="color: #deb887;">\</span>
+  --prefix=/home/albert/nginx <span style="color: #deb887;">\</span>
+  --conf-path=/home/albert/nginx/conf/nginx.conf <span style="color: #deb887;">\</span>
+  --add-module=/home/albert/nginx_tcp_proxy_module
+make
+
+
+%install
+rm -rf %{buildroot}
+make install <span style="color: #4eee94;">DESTDIR</span>=%{buildroot}
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">make DESTDIR=$RPM_BUILD_ROOT install</span>
+
+
+%clean
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">[ "$RPM_BUILD_ROOT" != "/" ] &amp;&amp; rm -rf "$RPM_BUILD_ROOT"</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">make clean</span>
+rm -rf %{buildroot}
+
+
+%pre
+grep -q ^%{_group}: /etc/group || %{_sbin_path}/groupadd -g %{_group_gid} %{_group}
+grep -q ^%{_user}: /etc/passwd || %{_sbin_path}/useradd -g %{_group} -u %{_user_uid} -d %{_prefix} -s /sbin/nologin -M %{_user}
+
+
+%files
+%defattr (-,%{_user},%{_group})
+%dir %{_prefix}/
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">%dir /home/albert/nginx/</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">%dir %{_prefix}</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">%defattr(-,root,root,-)</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">%dir %{_prefix}/</span>
+%attr(0755,%{_user},%{_group}) %dir %{_prefix}/logs
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">%dir %{_prefix}/modules</span>
+%dir %{_prefix}/sbin
+%dir %{_prefix}/conf
+%dir %{_prefix}/html
+%{_prefix}/sbin/nginx
+%{_prefix}/sbin/dso_tool
+%{_prefix}/conf/module_stubs
+%{_prefix}/conf/win-utf
+%{_prefix}/conf/koi-utf
+%{_prefix}/conf/nginx.conf.default
+%{_prefix}/conf/koi-win
+%{_prefix}/conf/mime.types
+%config(noreplace) %{_prefix}/conf/nginx.conf
+%{_prefix}/conf/mime.types.default
+%{_prefix}/html/50x.html
+%{_prefix}/html/index.html
+%{_prefix}/conf/browsers
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">%{_initrddir}/tengine</span>
+%doc %{_prefix}/html/index.html
+%attr(0775,%{_user},%{_group}) %{_prefix}/sbin/nginx
+
+
+%changelog
+ * Mon Jan 21 2019 Jinan <a href="mailto:georgealbert%40qq.com">&lt;georgealbert@qq.com&gt;</a>
+ - ver 2.2.3 
+</pre>
+</div></li>
+</ol>
+
+<div id="outline-container-org72c6d49" class="outline-2">
+<h2 id="org72c6d49">rpmbuild报错Installed (but unpackaged) file(s) found <a href="https://blog.csdn.net/zhoujiaxq/article/details/38108787">https://blog.csdn.net/zhoujiaxq/article/details/38108787</a></h2>
+<div class="outline-text-2" id="text-org72c6d49">
+<pre class="example">
+_unpackaged_files_terminate_build 0  
+_missing_doc_files_terminate_build 0 
+
+在tengine.spec里面直接
+%define _unpackaged_files_terminate_build 0
+%define _missing_doc_files_terminate_build 0
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org6a877d7" class="outline-2">
+<h2 id="org6a877d7">非root用户安装rpm包，只能 sudo 了</h2>
+<div class="outline-text-2" id="text-org6a877d7">
+<div class="org-src-container">
+<pre class="src src-sh">
+[albert@master x86_64]$ rpm -qpl tengine-2.2.3-1.x86_64.rpm
+/home/albert/nginx
+/home/albert/nginx/conf
+/home/albert/nginx/conf/browsers
+/home/albert/nginx/conf/koi-utf
+/home/albert/nginx/conf/koi-win
+/home/albert/nginx/conf/mime.types
+/home/albert/nginx/conf/mime.types.default
+/home/albert/nginx/conf/module_stubs
+/home/albert/nginx/conf/nginx.conf
+/home/albert/nginx/conf/nginx.conf.default
+/home/albert/nginx/conf/win-utf
+/home/albert/nginx/html
+/home/albert/nginx/html/50x.html
+/home/albert/nginx/html/index.html
+/home/albert/nginx/logs
+/home/albert/nginx/modules
+/home/albert/nginx/sbin
+/home/albert/nginx/sbin/dso_tool
+/home/albert/nginx/sbin/nginx
+[albert@master x86_64]$ rpm -qi tengine-2.2.3-1.x86_64.rpm
+package tengine-2.2.3-1.x86_64.rpm is not installed
+
+[albert@master x86_64]$ rpm -qpi tengine-2.2.3-1.x86_64.rpm
+Name        : tengine
+Version     : 2.2.3
+Release     : 1
+Architecture: x86_64
+Install Date: (not installed)
+Group       : System Enviroment/Daemons
+Size        : 1002368
+License     : GPL
+Signature   : (none)
+Source RPM  : tengine-2.2.3-1.src.rpm
+Build Date  : Mon 21 Jan 2019 05:25:55 PM CST
+Build Host  : master.k8s
+Relocations : (not relocatable)
+Packager    : albert
+Vendor      : Taobao
+URL         : http://tengine.taobao.org/
+Summary     : GUN Tengine 2.2.3 X86_64
+Description :
+Taobao tengine for pingmesh with modified ngx_tcp_proxy_module
+
+</pre>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2019-08-09 周五 16:02 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>linux报Resource temporarily unavailable的问题</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">linux报Resource temporarily unavailable的问题</h1>
+
+<div id="outline-container-orgccc4449" class="outline-2">
+<h2 id="orgccc4449">问题</h2>
+<div class="outline-text-2" id="text-orgccc4449">
+<p>
+某物理机在重启java的进程后，经常报 <code>Resource temporarily unavailable</code> 的错误，但是kill掉java进程后，系统恢复正常。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orge4629a7" class="outline-2">
+<h2 id="orge4629a7">一般报错的原因</h2>
+<div class="outline-text-2" id="text-orge4629a7">
+<ol class="org-ol">
+<li>物理内存耗尽。</li>
+<li>进程启动超过了用户的ulimit限制。</li>
+<li>进程、线程启动过多，linux无法分配新的pid。</li>
+</ol>
+</div>
+
+<div id="outline-container-orga1c091c" class="outline-3">
+<h3 id="orga1c091c">物理内存耗尽</h3>
+<div class="outline-text-3" id="text-orga1c091c">
+<p>
+常见的 <code>Resource temporarily unavailable</code>  报错原因，一般是虚机一般内存都比较小，如8G内存，由于java程序起了太多的线程，很容易把物理内存吃光。直接看物理内存还有多少。
+</p>
+
+<p>
+每个thread默认分配8192K内存，如果起得太多，如java进程有1000个thread，8*1000=8G，光thread的stack所占用的内存就达到8G，在一个8G内存虚机上会直接耗尽物理内存，更不要说java进程启动时一般设置4G以上的heap。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">$<span style="color: #4eee94;">ulimit</span> -s
+8192
+</pre>
+</div>
+
+<p>
+该机是物理机，不是虚机。物理内存为256G，free看内存有大量剩余。不是内存耗尽导致报错。
+</p>
+
+<p>
+<a href="https://stackoverflow.com/questions/344203/maximum-number-of-threads-per-process-in-linux/344292#344292">https://stackoverflow.com/questions/344203/maximum-number-of-threads-per-process-in-linux/344292#344292</a>
+</p>
+
+<p>
+Depends on your system, just write a sample program [ by creating processes in a loop ] and check using 
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">ps axo pid,ppid,rss,vsz,nlwp,cmd
+</pre>
+</div>
+
+<p>
+When it can no more create threads check nlwp count [ nlwp is the number threads ] voila you got your fool proof answer instead of going thru books
+</p>
+
+<p>
+TODO: 貌似centos 7上可以起很多thread，远远超过物理内存限制，在创建thread是没分配stack吗?
+<span class="timestamp-wrapper"><span class="timestamp">[2019-08-05 周一 15:13] </span></span> 唉，代码写错了，thread的代码，应该
+</p>
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #00bfff;">do</span> {
+    sleep(10);
+}
+<span style="color: #00bfff;">while</span>(1);
+</pre>
+</div>
+
+<p>
+默认max process是4096，改为8000，能创建7982个thread，报错 Resource temporarily unavailable，同时执行命令报错，哈哈。怎么没把内存吃光。看VIRT是非常大，但是RES实际使用的才100多MB内存。可能就是没有stack，所以？
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">[albert@master.k8s /home/albert]
+$<span style="color: #4eee94;">ps</span> axo pid,ppid,rss,vsz,nlwp,cmd
+bash: fork: retry: No child processes
+bash: fork: retry: No child processes
+bash: fork: retry: No child processes
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org76a9fac" class="outline-3">
+<h3 id="org76a9fac">进程启动的数量超过了用户的ulimit限制</h3>
+<div class="outline-text-3" id="text-org76a9fac">
+<p>
+另外一个导致报错的原因，一般是超过了max user processes。centos默认4096，可以调整最大进程数解决。
+</p>
+
+<p>
+执行ulimit查看用户可以启动的max user processes，655360，真够大的，谁没事设置这么大的值啊，65535就够可以了。一个机器上同时有6万多进程，这机器是在干什么啊？得多忙啊？
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">$<span style="color: #4eee94;">ulimit</span> -u
+655360 
+</pre>
+</div>
+
+<p>
+显然，max user processes不是导致报错原因。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org14cdf26" class="outline-3">
+<h3 id="org14cdf26">进程、线程启动过多，linux无法分配新的pid</h3>
+<div class="outline-text-3" id="text-org14cdf26">
+<ol class="org-ol">
+<li>/proc/sys/kernel/pid_max
+（操作系统进程、线程ID的最大值）系统支持的最大线程数
+sysctl kernel.pid_max</li>
+
+<li>/proc/sys/kernel/threads-max
+表示内核所能使用的线程的最大数目</li>
+
+<li>max_user_process
+ulimit -u #系统限制某用户下最多可以运行多少进程或线程</li>
+
+<li>/proc/sys/vm/max_map_count
+单进程mmap的限制会影响单个进程可创建的线程数</li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-sh">[root@03 ~]# cat /proc/sys/kernel/threads-max
+2060562
+[root@03 ~]# cat /proc/sys/kernel/pid_max
+114688
+</pre>
+</div>
+
+<p>
+pid_max比threads-max小一个数量级，pid_max可能是瓶颈。
+</p>
+
+<p>
+在执行top和ps时能感觉到特别慢，要不就是系统性能有问题，要不就是进程太多了导致的。该物理机是2C，56core的。cpu不高。性能不行的问题基本可以排除，那可能是进程太多导致的。
+</p>
+
+<p>
+top显示出结果就要几十秒，top显示的task有10万+，这就有点厉害了。接近pid_max了，再看zombie进程数也在10万多。
+</p>
+
+<p>
+原因应该是linux可分配的pid数量不够，无法分配新的pid导致报错。
+</p>
+
+<p>
+pid的数量不够了导致的，现在的pid都用到11万多，昨天pid_max也就11万多，随便起来几个牛逼的java进程，线程起得多，马上就到上限。
+</p>
+
+<p>
+没改pid_max前，pid_max是11万多。发现top执行特别慢，进程太多了，nmon也慢。
+</p>
+
+<p>
+process和thread都会分配pid，pid不光是只有process才有，linux按process分配资源，按thread进行调度。
+</p>
+
+<p>
+临时动态调整pid_max，不修改sysctl.conf，以免下次重启系统后，pid_max太大，浪费内存。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[root@03 ~]# sysctl -w kernel.pid_max=2060562
+kernel.pid_max = 2060562 
+
+[root@03 ~]# sysctl kernel.pid_max
+kernel.pid_max = 2060562
+</pre>
+</div>
+
+<p>
+zombie进程不怎么吃cpu。top是实时显示当前系统中的进程，会把所有的pid(10万+的pid)都查一遍，对系统中的进程，按cpu使用率排序从大到小显示，所以top进程占用的cpu就高了，直接吃掉了一个core的cpu。
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge74c021" class="outline-2">
+<h2 id="orge74c021">解决方案</h2>
+<div class="outline-text-2" id="text-orge74c021">
+<ol class="org-ol">
+<li>不重启系统，动态调整pid_max。
+重启物理机动静比较大，先治标，解决问题。</li>
+
+<li>重启系统，就不会有这么多zombie进程占用pid，导致可分配的pid变少，也可以释放zombie进程占用的其他资源。
+重启治百病啊。</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgbcc5d22" class="outline-2">
+<h2 id="orgbcc5d22">Linux的进程和线程</h2>
+<div class="outline-text-2" id="text-orgbcc5d22">
+<p>
+Linux的进程和线程有很多异同点，可以Google下。但只要能清楚地理解一下几点，则足够理解Linux中各种ID的含义。
+</p>
+
+<ol class="org-ol">
+<li>进程是资源分配的基本单位， <code>线程是调度的基本单位。</code></li>
+<li><code>进程是资源的集合</code> ，这些资源包括内存地址空间，文件描述符等等，一个进程中的多个线程共享这些资源。</li>
+<li>CPU对任务进行调度时， <code>可调度的基本单位 (dispatchable entity)是线程</code> 。如果一个进程中没有其他线程，可以理解成这个进程中只有一个 <code>主线程</code> ，这个主进程独享进程中的所有资源。</li>
+<li>进程的个体间是完全独立的，而线程间是彼此依存，并且共享资源。多进程环境中，任何一个进程的终止，不会影响到其他非子进程。而多线程环境中，父线程终止，全部子线程被迫终止(没有了资源)。</li>
+</ol>
+
+<p>
+上述第一点说明是最基础的，也是最重要的。
+</p>
+
+<p>
+初步理解各种ID。基本上按照重要程度从高到低，在分割线下方的IDs不太重要。
+</p>
+
+<dl class="org-dl">
+<dt>pid</dt><dd>进程ID。</dd>
+<dt>lwp</dt><dd>线程ID。在用户态的命令(比如ps)中常用的显示方式。</dd>
+<dt>tid</dt><dd>线程ID，等于lwp。tid在系统提供的接口函数中更常用，比如syscall(SYS_gettid)和syscall(__NR_gettid)。</dd>
+<dt>tgid</dt><dd>线程组ID，也就是线程组leader的进程ID，等于pid。
+<code>------分割线------</code></dd>
+<dt>pgid</dt><dd>进程组ID，也就是进程组leader的进程ID。</dd>
+<dt>pthread id</dt><dd>pthread库提供的ID，生效范围不在系统级别，可以忽略。</dd>
+<dt>sid</dt><dd>session ID for the session leader。</dd>
+<dt>tpgid</dt><dd>tty process group ID for the process group leader。</dd>
+</dl>
+
+<p>
+从上面的列表看出，各种ID最后都归结到pid和lwp(tid)上。所以理解各种ID， <code>最终归结为理解pid和lwp(tid)的联系和区别。</code>
+</p>
+
+<p>
+关于线程继承关系图如下：
+</p>
+<pre class="example">
+               USER VIEW
+ &lt;-- PID 43 --&gt; &lt;----------------- PID 42 -----------------&gt;
+                     +---------+
+                     | process |
+                    _| pid=42  |_
+                  _/ | tgid=42 | \_ (new thread) _
+       _ (fork) _/   +---------+                  \
+      /                                        +---------+
++---------+                                    | process |
+| process |                                    | pid=44  |
+| pid=43  |                                    | tgid=42 |
+| tgid=43 |                                    +---------+
++---------+
+ &lt;-- PID 43 --&gt; &lt;--------- PID 42 --------&gt; &lt;--- PID 44 ---&gt;
+                     KERNEL VIEW
+</pre>
+
+<p>
+上图很好地描述了用户视角(user view)和内核视角(kernel view)看到线程的差别：
+</p>
+
+<ul class="org-ul">
+<li>从用户视角出发，在pid 42中产生的tid 44线程，属于tgid(线程组leader的进程ID) 42。甚至用ps和top的默认参数，你都无法看到tid 44线程。</li>
+<li>从内核视角出发，tid 42和tid 44是独立的调度单元，可以把他们视为"pid 42"和"pid 44"。</li>
+</ul>
+
+<p>
+需要指出的是，有时候在Linux中进程和线程的区分也不是十分严格的。即thread和process混用，pid和tid混用，根据上下文，还是可以清楚地区分对方想要表达的意思。上图中，从内核视角出发看到了pid 44，是从调度单元的角度出发，但是在top或ps命令中，你是绝对找不到一个pid为44的进程的，只能看到一个lwp(tid)为44的线程。
+</p>
+
+<p>
+在这里可以清晰的看到，创建一个新的进程会操作系统分配一个新的PID和TGID，并且2个值相同，当主线程创建一个新的线程的时候，会分配一个新的PID，并且TGID和之前开始的进程一致。
+</p>
+</div>
+
+<div id="outline-container-orgeea18c8" class="outline-3">
+<h3 id="orgeea18c8">Linux通过进程查看线程的方法</h3>
+<div class="outline-text-3" id="text-orgeea18c8">
+<ol class="org-ol">
+<li><p>
+htop 
+默认系统没有安装
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">yum install htop  
+</pre>
+</div>
+
+<p>
+按t(显示进程线程嵌套关系)和H(显示线程)，然后F4过滤进程名。
+</p>
+
+<p>
+按K，显示或者隐藏系统进程。默认不显示系统进程。太多了也不好看。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">$<span style="color: #4eee94;">rpm</span> -qi htop
+Name        : htop
+Version     : 2.2.0
+Release     : 3.el7
+Architecture: x86_64
+Install Date: Wed 31 Jul 2019 03:23:07 PM CST
+Group       : Unspecified
+Size        : 222730
+License     : GPLv2+
+Signature   : RSA/SHA256, Thu 17 Jan 2019 10:50:37 AM CST, Key ID 6a2faea2352c64e5
+Source RPM  : htop-2.2.0-3.el7.src.rpm
+Build Date  : Thu 17 Jan 2019 10:46:51 AM CST
+Build Host  : buildvm-24.phx2.fedoraproject.org
+Relocations : (not relocatable)
+Packager    : Fedora Project
+Vendor      : Fedora Project
+URL         : http://hisham.hm/htop/
+Bug URL     : https://bugz.fedoraproject.org/htop
+Summary     : Interactive process viewer
+Description :
+htop is an interactive text-mode process viewer for Linux, similar to top(1).  
+</pre>
+</div></li>
+
+<li>ps -eLf | grep java
+(快照，带线程命令，e是显示全部进程，L是显示线程，f全格式输出) 
+-L选项可以看到线程，通常能打印出LWP和NLWP相关信息。</li>
+
+<li>pstree -p &lt;pid&gt;
+(显示进程树，不加pid显示所有)</li>
+
+<li>top -Hp &lt;pid&gt; - (实时) 查看某个进程的线程
+默认top显示的是tasks数量，即进程。
+可以按"H"，来切换成线程。可以看到实际上有96个线程(Threads)。也可以直接利用top -H命令来直接打印线程情况。</li>
+
+<li>ps -T -p &lt;pid&gt;
+(快照)</li>
+</ol>
+
+<p>
+推荐程度按数字从小到大。
+</p>
+</div>
+
+<div id="outline-container-orgcc4bfcf" class="outline-4">
+<h4 id="orgcc4bfcf">pidstat -t [-p ${pid}] 打印出线程之间的关系 - pidstat 命令详解</h4>
+<div class="outline-text-4" id="text-orgcc4bfcf">
+<p>
+pidstat -t [-p pid] 打印出线程之间的关系。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">[albert@master.k8s /home/albert]
+$<span style="color: #4eee94;">pidstat</span> -t -p 3953
+Linux 3.10.0-957.1.3.el7.x86_64 (master.k8s)    07/31/2019      _x86_64_        (2 CPU)
+
+04:02:33 PM   UID      TGID       TID    %usr %system  %guest    %CPU   CPU  Command
+04:02:33 PM  1000      3953         -    0.00    0.00    0.00    0.00     1  tid
+04:02:33 PM  1000         -      3953    0.00    0.00    0.00    0.00     1  |__tid
+04:02:33 PM  1000         -      3954    0.00    0.00    0.00    0.00     1  |__THRAED-1
+04:02:33 PM  1000         -      3955    0.00    0.00    0.00    0.00     1  |__THRAED-2
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>pidstat概述
+pidstat是sysstat工具的一个命令，用于监控全部或指定进程的cpu、内存、线程、设备IO等系统资源的占用情况。pidstat首次运行时显示自系统启动开始的各项统计信息，之后运行pidstat将显示自上次运行该命令以后的统计信息。用户可以通过指定统计的次数和时间来获得所需的统计信息。</li>
+
+<li><p>
+pidstat安装
+pidstat 是sysstat软件套件的一部分，sysstat包含很多监控linux系统状态的工具，它能够从大多数linux发行版的软件源中获得。
+</p>
+
+<p>
+在Debian/Ubuntu系统中可以使用下面的命令来安装:
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">apt-get install sysstat
+</pre>
+</div>
+
+<p>
+CentOS/Fedora/RHEL版本的linux中则使用下面的命令：
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">yum install sysstat
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2019-08-09 周五 15:44 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>&lrm;</title>
+<meta name="generator" content="Org mode">
+</head>
+<body>
+<div id="content">
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-05-31 周五 15:45]</span></span>
+</p>
+
+<div id="outline-container-org5dfed9d" class="outline-2">
+<h2 id="org5dfed9d">virtualbox中的nat和host-only双网卡配置</h2>
+<div class="outline-text-2" id="text-org5dfed9d">
+<p>
+原来只使用host-only网络，但是我的机器重装了一次vb以后，每次重启以后都需要手工再配置网络共享，
+否则host-only网络总是ping不通外网。而且使用host-only网络无法在vpn后ping通内网的ip。
+</p>
+
+<p>
+考虑使用nat网络进行内网访问，host-only网络用来从我的机器访问虚机。
+</p>
+
+<p>
+需要同时使用nat和host-only网络。原来的host-only网络配置时，由于需要指定每个虚机的ip，
+所以把host-only网络的dhcp server给停掉了。导致再增加nat网络的时候，nat网络对应的虚机中的网卡总是无法从dhcp server分配到ip。
+</p>
+</div>
+
+<div id="outline-container-org94230e0" class="outline-3">
+<h3 id="org94230e0">virtualbox配置</h3>
+<div class="outline-text-3" id="text-org94230e0">
+<p>
+在"网络"中网卡1是nat网络，网卡2是host-only网络。不知道为什么eth0是host-only的，而eth1是nat的。
+</p>
+
+<dl class="org-dl">
+<dt>host-only</dt><dd>支持DHCP</dd>
+
+<dt>nat</dt><dd>启动DHCP，默认的
+<ol class="org-ol">
+<li>“管理” -&gt; “主机网络管理器” -&gt; 单击 “DHCP服务器” tab -&gt; 勾选 “启用服务器”
+虽然启用了dhcp，但是在centos的ifcfg-eth0中仍然可以设置静态ip，这样访问起来不会乱。</li>
+</ol></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-org1d14422" class="outline-3">
+<h3 id="org1d14422">虚机中的默认路由</h3>
+<div class="outline-text-3" id="text-org1d14422">
+<p>
+启动后 <code>ip a</code> 可以看见eth0、eth1的ip都已经是正确的，但是 <code>ip route</code> 有2条默认路由。
+</p>
+
+<p>
+注释掉ifcfg-eth0中的GATEWAY=192.168.56.1， <code>systemctl restart network</code> 重启网络服务后，只剩下一条默认路由。
+</p>
+
+<p>
+可以手工删除多余的默认路由
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">ip route add default via 192.168.100.1</span>
+ip route del default via 192.168.56.1
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

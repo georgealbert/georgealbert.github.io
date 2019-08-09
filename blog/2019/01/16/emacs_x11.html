@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2019-08-09 周五 16:02 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>emacs 和 X11</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">emacs 和 X11</h1>
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-08-09 周五 15:57] </span></span> 几个月前，在尝试不同的x server时，发现 <code>XMing 6.9</code> 不需要修改key binding。而且XMing支持ttf字体，字体配置比mobaXterm方便。
+</p>
+
+<p>
+高版本的XMing和VCXSrv都有问题。
+</p>
+
+<p>
+最近需要在linux上开发、debug nginx。
+</p>
+
+<p>
+用mobaXterm作为xserver，虚机作为xclient，emacs gui。
+</p>
+
+<p>
+字符界面的emacs非常稳定，功能正常，但是图形界面的中文的显示更漂亮，而且可以全屏显示，能多看几行，因此就开始了折腾。
+</p>
+
+<p>
+不得不说的是，emacs在linux中的启动真的是神速，同样的配置文件，虚机中的linux都只要1.5s，而win10要10s左右，这个差距太明显。
+</p>
+
+<p>
+字符界面的问题
+</p>
+<ol class="org-ol">
+<li>esc 键按下去后有时候感觉响应比较慢，后续的按键容易出错</li>
+<li>gdb debug时能看的内容有点少。字符都是一个大小，显示不如gui中那么好看。</li>
+<li>显示行号后，copy时总把行号给copy下来。</li>
+</ol>
+
+<div id="outline-container-org28fcd30" class="outline-2">
+<h2 id="org28fcd30">用yum安装X11相关包</h2>
+<div class="outline-text-2" id="text-org28fcd30">
+<p>
+我的emacs 25.3是用源代码编译安装的。centos默认只有字符界面，需要安装X11相关的rpm包，尤其是开发包才能重新编译emacs，让emacs支持gui。
+</p>
+
+<ol class="org-ol">
+<li><p>
+安装X Window相关的rpm包
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">yum groupinstall <span style="color: #deb887;">'X Window System'</span> -y
+</pre>
+</div>
+
+<p>
+After that you can choose one of these available Desktop groups to install.
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">yum groupinstall basic-desktop desktop-platform x11 fonts
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">yum install libX11*
+</pre>
+</div>
+
+<p>
+不一定要装桌面，如gnome kde或者gtk，反正不在centos上启动桌面，只是Xclient罢了，XServer由mobaXterm来做.
+</p></li>
+
+<li><p>
+编译
+</p>
+
+<p>
+在configure时提示需要几个图片格式的包，先来2个吧。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[root@master emacs-25.3]# yum install libpng* libjpeg
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#23433;&#35013;libgif&#26102;&#26377;&#25253;&#38169;&#65292;&#26242;&#26102;&#19981;&#35013;&#20102;&#12290;</span>
+configure: error: The following required libraries were not found:
+     libgif/libungif libtiff
+Maybe some development libraries/packages are missing?
+If you don<span style="color: #deb887;">'t want to link with them give</span>
+<span style="color: #deb887;">     --with-gif=no --with-tiff=no</span>
+<span style="color: #deb887;">as options to configure</span>
+</pre>
+</div>
+
+<p>
+不用支持gif和tiff格式，emacs能显示png和jpeg就够了。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">./configure --with-gif=no --with-tiff=no
+make &amp;&amp; make install 
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org7f59899" class="outline-2">
+<h2 id="org7f59899">中文字体</h2>
+<div class="outline-text-2" id="text-org7f59899">
+<p>
+mobaXterm貌似只能用点阵字体（pcf格式），ttf一类的怎么设置都不行。
+</p>
+
+<p>
+中文字体有个遗留问题，英文字符和中文字符没法区分开，需要再看看为什么都用默认的字体了。
+</p>
+
+<p>
+刚开始配置时用了习惯的微软雅黑（true type）， <code>mkfontdir or ttmkdir or mkfontscale</code> 生成了fonts.dir和fonts.scale，但是在 <code>xset fp+ ~/.fonts</code> 时总是报错。
+想了一下，觉得xserver时mobaXterm，xclient是centos，server和client不是一个机器，应该用xserver上有的字体，而且 xset 命令其实是增加xserver上对应的目录，我在xclient（即centosz）有个目录 ~/.fonts，但是在xserver上是没有的，肯定报错。需要先看看xserver的字体目录和支持的字体。
+</p>
+
+<p>
+用mobaX作为xserver时，font path是 <code>C:\Users\Albert\AppData\Local\Temp\Mxt107/usr/share/fonts/misc/</code> ，这是windows上的临时目录啊。那我要增加一个font path的话，不能加到临时目录下，每次重启xserver都是把临时目录清空，我的字体就会丢失。所以可以设置到我的emacs字体的目录。
+</p>
+
+<p>
+字体目录除了点阵字体（pcf格式，不知道xserver是否支持其他格式，true type报错）需要 <code>fonts.dir</code> 和 <code>fonts.alias(不一定需要，有别名的话写配置比较方便)</code> 文件，否则 xset fp 会报错。
+</p>
+
+<ul class="org-ul">
+<li>中英文等宽字体
+找不到ubuntu mono点阵字体，如果用点阵字体，需要转换一下，先用文泉驿中文字体顶替一下，文泉驿字体不是中英文等宽的，还需要找个等宽的英文字体，mobaxterm自带的等宽字体不如ubuntu mono和consolas好看。</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26597;&#30475;xserver&#20013;&#25903;&#25345;&#30340;&#23383;&#20307;&#21644;&#23383;&#20307;&#23545;&#24212;&#23383;&#31526;&#38598;</span>
+[albert@master ~]$ xlsfonts
+
+[albert@master ~]$ xset q
+...
+Font Path:
+  C:\Users\Albert\AppData\Local\Temp\Mxt107/usr/share/fonts/misc/,built-ins
+...
+</pre>
+</div>
+
+<p>
+增加font path后需要执行 <code>xset fp rehash</code> ,使服务器重读当前字体路径下的字体数据库。通常只在运行 <code>mkfontdir</code> 重新创建字体数据库后添加新字体到字体目录时才会使用。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">for xorg = mobaX</span>
+xset +fp <span style="color: #deb887;">"E:\backup\emacs_font\wqy-bitmapfont-pcf-0.9.9-0\wqy-bitmapfont"</span> &amp;&amp; xset fp rehash
+
+[albert@master ~]$ xset q
+Font Path:
+  E:/backup/emacs_font/ubuntu-font-family-0.83/,C:\Users\Albert\AppData\Local\Temp\Mxt107/usr/share/fonts/misc/,built-ins
+
+[albert@master ~]$ xset fp rehash
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>fonts.alias
+是否存在都不影响，mobaXterm自带的是有fonts.alias的，在emacs中执行 <code>M-x menu-set-font</code> menu选择时看着会比较短。</li>
+</ul>
+</div>
+
+<div id="outline-container-org9ee236f" class="outline-3">
+<h3 id="org9ee236f">wqy-unibit等宽点阵字体 <span class="timestamp-wrapper"><span class="timestamp">[2019-01-17 周四 22:40]</span></span></h3>
+<div class="outline-text-3" id="text-org9ee236f">
+<div class="org-src-container">
+<pre class="src src-sh">xset +fp <span style="color: #deb887;">"E:\backup\emacs_font\wqy\wqy-unibit"</span> &amp;&amp; xset q &amp;&amp; xset fp rehash &amp;&amp; xlsfonts |grep wq
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgfab7412" class="outline-3">
+<h3 id="orgfab7412">consolas with yahei ttf <span class="timestamp-wrapper"><span class="timestamp">[2019-01-30 周三 12:45]</span></span></h3>
+<div class="outline-text-3" id="text-orgfab7412">
+<div class="org-src-container">
+<pre class="src src-sh">xset +fp <span style="color: #deb887;">"E:\backup\emacs_font\Consolas-with-Yahei"</span> &amp;&amp; xset q &amp;&amp; xset fp rehash &amp;&amp; xlsfonts |grep Yahei
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfe24576" class="outline-2">
+<h2 id="orgfe24576">输入法</h2>
+<div class="outline-text-2" id="text-orgfe24576">
+<p>
+在x window中想让emacs真的用好了，实在是太难了。输入法就是个问题。在没安装gnome等桌面的情况下，不知道直接装sougou输入法是不是能成功。
+</p>
+
+<p>
+先考虑emacs内的输入法 <code>pyim</code> 。pyim在github上很活跃，安装简单。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp">
+</pre>
+</div>
+
+<p>
+遗留了几个问题：
+</p>
+<ol class="org-ol">
+<li>中英文切换
+如何在输入法中想其他输入法一下按 shift 快速切换输入法，总是按 C-\ 切换输入法太麻烦了。M-j效果很好</li>
+<li>字库
+是否考虑下一个大的字库。自带的字库有点小。</li>
+<li>内存占用很高
+小字库已经用了快100MB的内存，虚机的内存紧张。</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgd3f015e" class="outline-2">
+<h2 id="orgd3f015e">键盘</h2>
+<div class="outline-text-2" id="text-orgd3f015e">
+<p>
+mobaXterm的xserver坑最深的就是键盘。我的要求很简单，就是把 esc 还给我，在x window中的emacs，esc键的行为非常奇怪，按下去一点反应都没有，只有先按 alt 键，再按 esc才行。按2个键，这绝对不能接受。
+</p>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-02-10 周日 15:59] </span></span> Ctrl-[ 可以输入 Escape ，就是不习惯，不好用。
+</p>
+</div>
+<div id="outline-container-org6e76c36" class="outline-3">
+<h3 id="org6e76c36">xmodmap</h3>
+<div class="outline-text-3" id="text-org6e76c36">
+<p>
+执行 <code>xev</code> 命令，发现先按 ALT ，再按 esc 的keycode = 9， 再按个字母键后按 esc 的keycode都是8，而且会不停的显示log，就像键 lock住了，按下去一直不弹起来一样。
+</p>
+
+<p>
+没改之前的：
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">&#26174;&#31034;x11&#20013;&#30340;keymap</span>
+
+xmodmap -pm
+
+xmodmap -e <span style="color: #deb887;">"keycode 8 ="</span>
+[albert@master ~]$ xmodmap -pke
+keycode   8 = Mode_switch NoSymbol Mode_switch
+keycode   9 = Escape NoSymbol Escape
+</pre>
+</div>
+
+<p>
+ALT_R 基本是不用的，把escape改到alt_r上。不爽的是win和linux x window的按键操作不一致，非常不舒服，但是可以将就着用。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">vi ~/.Xmodmap
+keycode 8 =
+keycode 113 = Escape
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#20462;&#25913;key mapping&#21518;&#65292;&#20351;&#20043;&#29983;&#25928;</span>
+xmodmap ~/.Xmodmap
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgbe3635e" class="outline-3">
+<h3 id="orgbe3635e">xkb</h3>
+<div class="outline-text-3" id="text-orgbe3635e">
+<p>
+这东西是出了名的难用。坑了我一个下午和整个晚上，还是搞不定。为什么keycode是从8开始的，而且8、9都对应esc键，和键盘的layout有关系吗？
+</p>
+
+<p>
+pc 104和 pc105的layout是不是应该用pc104的layout
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org9c0c8f1" class="outline-2">
+<h2 id="org9c0c8f1">剪切板 clipboard</h2>
+<div class="outline-text-2" id="text-org9c0c8f1">
+<p>
+是字符集还是mobaxterm的clipborad的问题，从win往linux上粘贴时，只能paste进去一堆0，这个问题解决了emacs的gui就基本就可以用了。
+</p>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-01-30 周三 10:40] </span></span> 好像没什么配置，突然就用鼠标中键可以用了。为什么呢？只是因为我安装了epel源后，装上了xsel和xclip
+</p>
+
+<p>
+但是Shift+Ins paste到emacs里面还是一对的 000。先凑合着用吧。
+</p>
+
+<p>
+<a href="https://www.emacswiki.org/emacs/CopyAndPaste#toc5">https://www.emacswiki.org/emacs/CopyAndPaste#toc5</a>
+<a href="https://stackoverflow.com/questions/3216081/integrate-emacs-copy-paste-with-system-copy-paste">https://stackoverflow.com/questions/3216081/integrate-emacs-copy-paste-with-system-copy-paste</a>
+<a href="https://stackoverflow.com/questions/64360/how-to-copy-text-from-emacs-to-another-application-on-linux">https://stackoverflow.com/questions/64360/how-to-copy-text-from-emacs-to-another-application-on-linux</a>
+</p>
+
+
+<p>
+<a href="https://stackoverflow.com/questions/9985316/how-to-paste-to-emacs-from-clipboard-on-osx">https://stackoverflow.com/questions/9985316/how-to-paste-to-emacs-from-clipboard-on-osx</a>
+(global-set-key  [(shift insert)] 'x-insert-selection)
+</p>
+
+<p>
+Try using the M-x clipboard-yank command. If you want to copy text to the clipboard you have to M-x clipboard-kill-region.
+This works on Linux and Windows, I guess on Mac it's the same.
+</p>
+
+<p>
+在evil中无效啊。
+(global-set-key  [(shift insert)] 'clipboard-yank)
+(global-set-key (kbd "S-&lt;insert&gt;") 'clipboard-yank)
+</p>
+
+<p>
+<a href="https://github.com/wbolster/evil-colemak-basics">https://github.com/wbolster/evil-colemak-basics</a> 调整evil的key binding，可以参考一下。
+</p>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #B0BED8;">;</span><span style="color: #B0BED8;">(if (eq system-type 'gnu/linux)</span>
+<span style="color: #B0BED8;">;  </span><span style="color: #B0BED8;">(progn</span>
+<span style="color: #B0BED8;">;     </span><span style="color: #B0BED8;">(setq x-select-enable-clipboard t)</span>
+<span style="color: #B0BED8;">;     </span><span style="color: #B0BED8;">(defun xsel-cut-function (text &amp;optional push)</span>
+<span style="color: #B0BED8;">;       </span><span style="color: #B0BED8;">(with-temp-buffer</span>
+<span style="color: #B0BED8;">;         </span><span style="color: #B0BED8;">(insert text)</span>
+<span style="color: #B0BED8;">;         </span><span style="color: #B0BED8;">(call-process-region (point-min) (point-max) "xsel" nil 0 nil "--clipboard" "--input")))</span>
+<span style="color: #B0BED8;">;     </span><span style="color: #B0BED8;">(defun xsel-paste-function()</span>
+<span style="color: #B0BED8;">;       </span><span style="color: #B0BED8;">(let ((xsel-output (shell-command-to-string "xsel --clipboard --output")))</span>
+<span style="color: #B0BED8;">;         </span><span style="color: #B0BED8;">(unless (string= (car kill-ring) xsel-output)</span>
+<span style="color: #B0BED8;">;           </span><span style="color: #B0BED8;">xsel-output )))</span>
+<span style="color: #B0BED8;">;     </span><span style="color: #B0BED8;">(setq interprogram-cut-function 'xsel-cut-function)</span>
+<span style="color: #B0BED8;">;     </span><span style="color: #B0BED8;">(setq interprogram-paste-function 'xsel-paste-function)))</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org367f1a4" class="outline-2">
+<h2 id="org367f1a4">速度</h2>
+<div class="outline-text-2" id="text-org367f1a4">
+<p>
+感觉x中的emacs在打卡emacs的配置文件时有点卡，可以试试修改渲染方式为 direct draw ? 打开opengl的硬件加速后还是卡，我的集显有问题？需要用nv的独显?
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>
