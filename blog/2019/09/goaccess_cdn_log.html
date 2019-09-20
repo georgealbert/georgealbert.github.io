@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2019-09-20 周五 17:18 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>用goaccess解析阿里cdn的log</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">用goaccess解析阿里cdn的log</h1>
+<p>
+多年前一直用awstats解析门户网站的访问log。最近需要分析cdn的log，考虑到awstats安装配置有点麻烦，又不太喜欢perl，所以在网上找到了goaccess。
+</p>
+
+<p>
+goaccess是c写的。goaccess图文并茂，可以用命令行，也可以生成html。而且速度快，每秒8W的日志记录解析速度，比awstats快不少，同时可以用websocket 10秒刷新实时统计数据。
+</p>
+
+<div id="outline-container-org1116ea1" class="outline-2">
+<h2 id="org1116ea1">安装</h2>
+<div class="outline-text-2" id="text-org1116ea1">
+</div>
+<div id="outline-container-org26e80a7" class="outline-3">
+<h3 id="org26e80a7">rpm安装</h3>
+<div class="outline-text-3" id="text-org26e80a7">
+<p>
+最新的goaccess是 <code>v1.3</code> 。centos 7上使用epel源安装的goaccess是 <code>v1.2</code> 的。如果觉得版本低，可以用源代码安装。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">yum install goaccess
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org843d7c9" class="outline-3">
+<h3 id="org843d7c9">源代码安装</h3>
+<div class="outline-text-3" id="text-org843d7c9">
+<p>
+rpm安装的版本低了一点，改为使用源代码安装。
+</p>
+</div>
+
+<div id="outline-container-orga9716b1" class="outline-4">
+<h4 id="orga9716b1">安装编译goaccess时依赖开发包</h4>
+<div class="outline-text-4" id="text-orga9716b1">
+<div class="org-src-container">
+<pre class="src src-sh">sudo yum install -y ncurses-devel openssl-devel tokyocabinet-devel libmaxminddb-devel
+</pre>
+</div>
+
+<p>
+开发包说明:
+</p>
+<dl class="org-dl">
+<dt>ncurses-devel</dt><dd>goaccess只依赖ncurses-devel</dd>
+<dt>openssl-devel</dt><dd>通过TLS/SSL访问goaccess的WebSocket需要openssl-devel</dd>
+<dt>libmaxminddb-devel</dt><dd>使用maxminddb格式的geoip地址库</dd>
+<dt>tokyocabinet-devel</dt><dd>goaccess默认将数据存储在内存的Hash Table中，如果数据量太大，就需要存到硬盘，使用TokyoCabinet数据存储</dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-org759e487" class="outline-4">
+<h4 id="org759e487">make &amp;&amp; make install</h4>
+<div class="outline-text-4" id="text-org759e487">
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">&#26597;&#30475;&#32534;&#35793;&#36873;&#39033;</span>
+./configure --help 
+</pre>
+</div>
+
+<p>
+步骤很简单。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">./configure --prefix=/usr/local/goaccess <span style="color: #deb887;">\</span>
+--enable-utf8 <span style="color: #deb887;">\</span>
+--enable-geoip=mmdb <span style="color: #deb887;">\</span>
+--enable-tcb <span style="color: #deb887;">\</span>
+--with-openssl
+
+make &amp;&amp; make install
+</pre>
+</div>
+
+<ol class="org-ol">
+<li>指定安装目录为 <b>/usr/local/goaccess</b> ，改为其他的也可以，习惯而已。</li>
+
+<li>&#x2013;enable-utf8 支持中文字符处理。</li>
+
+<li>&#x2013;with-openssl 通过TLS/SSL访问goaccess的WebSocket实时数据。</li>
+
+<li>&#x2013;enable-geoip=mmdb 启用根据ip显示地理位置。</li>
+
+<li>&#x2013;enable-tcb goaccess默认将数据存储在内存的Hash Table中，如果数据量太大，就需要存到硬盘，使用TokyoCabinet数据存储。</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf62052e" class="outline-2">
+<h2 id="orgf62052e">log format</h2>
+<div class="outline-text-2" id="text-orgf62052e">
+<p>
+goacesss的log format参考 <a href="https://goaccess.io/man">https://goaccess.io/man</a> 
+</p>
+
+<p>
+阿里cdn的格式在cdn日志下载页面上有简单说明。
+</p>
+
+<ul class="org-ul">
+<li><p>
+阿里cdn日志字段对应goaccess的格式，部分字段在goaccess上没有对应的，用 <code>%^</code> 忽略掉该字段。
+[时间]、访问IP %h、代理IP %^、responsetime %L、"referer %R"、"method %m、访问URL %U"、httpcode %s、requestsize %^、responsesize %b、cache命中状态 %^、"UA头 %u"、"文件类型" %^
+</p>
+
+<pre class="example">
+[%d:%t %^] %h %^ %L \"%R\" \"%m %U\" %s %^ %b %^ \"%u\" %^  
+</pre>
+
+<ol class="org-ol">
+<li>代理IP，应该是x-forward-for，但是goaccess没找到对应的格式，用 <code>%^</code> 忽略掉这个字段。</li>
+<li>responsetime，貌似以毫秒为单位，如果以微秒为单位，看分析结果，似乎太快了。</li>
+<li>requestsize，goaccess没找到对应的格式，用 <code>%^</code> 忽略掉这个字段。</li>
+<li>"文件类型"，goaccess没找到对应的格式，用 <code>%^</code> 忽略掉这个字段，在配置文件里有一些文件类型的配置。</li>
+</ol></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org694a82e" class="outline-2">
+<h2 id="org694a82e">命令行生成html报表</h2>
+<div class="outline-text-2" id="text-org694a82e">
+<ol class="org-ol">
+<li>&#x2013;real-time-html web界面查看实时日志分析</li>
+<li>-o /path/to/report.html 指定生成报表路径</li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-sh">goaccess -f /var/log/nginx/access.log  --log-format=<span style="color: #deb887;">"[%d:%t %^] %h %^ %L \"%R\" \"%m %U\" %s %^ %b %^ \"%u\" %^"</span> --date-format=<span style="color: #deb887;">"%d/%b/%Y"</span> --time-format=%H:%M:%S -a --geoip-database=/usr/local/goaccess-1.1/GeoLiteCity.dat -o /tmp/nginx-log-<span style="color: #ffd700;">`date +%F-%H-%M-%S`</span>.html
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">-f log file name</span>
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">--geoip-database ip&#22320;&#22336;&#25968;&#25454;&#24211;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org2b15091" class="outline-2">
+<h2 id="org2b15091">命令行显示报表</h2>
+<div class="outline-text-2" id="text-org2b15091">
+<div class="org-src-container">
+<pre class="src src-sh">goaccess -f cdn-log_2019_09_19_090000_100000 -H -M -a
+
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">&#25353; spc &#36873;&#25321; ncsa combined&#65292;&#20854;&#23454;&#36873;&#20160;&#20040;&#37117;&#19968;&#26679;&#65292;&#40664;&#35748;&#30340;log format&#37117;&#19981;&#33021;&#29992;</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">&#25353; c &#32534;&#36753;log format&#65292;&#25226;&#19978;&#38754;&#30340;log format&#22635;&#36827;&#21435;</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">&#25353; ENTER &#22788;&#29702;&#25991;&#20214;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7ff5b73" class="outline-2">
+<h2 id="org7ff5b73">配置文件</h2>
+<div class="outline-text-2" id="text-org7ff5b73">
+<ol class="org-ol">
+<li>rpm安装的默认配置文件在 <code>/etc/goaccess.conf</code></li>
+
+<li>指定了安装目录为/usr/local/goaccess 的配置文件在 <code>/usr/local/goaccess/goaccess/goaccess.conf</code></li>
+
+<li>user可以在 HOME 下建一个 <code>.goaccessrc</code></li>
+</ol>
+
+<p>
+配置文件有下面几行就能解析cdn的log了。
+</p>
+
+<pre class="example">
+time-format %H:%M:%S
+
+date-format %d/%b/%Y
+
+# ali cdn Log Format. 2019.09.20
+# 阿里cdn的时间应该是毫秒为单位的，不然太快了，用 %L，不用 %D
+log-format [%d:%t %^] %h %^ %L \"%R\" \"%m %U\" %s %^ %b %^ \"%u\" %^
+
+geoip-database /usr/local/share/GeoIP/GeoLite2-City.mmdb
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgca2a0c7" class="outline-2">
+<h2 id="orgca2a0c7">GeoIP和纯真IP库显示IP地理位置信息</h2>
+<div class="outline-text-2" id="text-orgca2a0c7">
+<p>
+显示ip的地理位置，geoip城市ip数据包 <a href="https://dev.maxmind.com/geoip/geoip2/geolite2/">https://dev.maxmind.com/geoip/geoip2/geolite2/</a>
+</p>
+
+<p>
+下载后，解压到某个目录，然后修改配置文件中的 <code>geoip-database</code> 或者在命令行直接指定ip库。
+</p>
+
+<p>
+GeoLite2 Free是免费的，每周二更新一次。不过不如收费MaxMind’s GeoIP2 databases准确。不显示国内的运营商。对应国内复杂网络环境，ip地址显示不是非常准确。想要准确的可以考虑商用的。
+</p>
+
+<p>
+<a href="https://blog.csdn.net/matthewei6/article/details/50536609">https://blog.csdn.net/matthewei6/article/details/50536609</a> IP数据库的比较和选择
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>
