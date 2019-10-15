@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2019-10-15 周二 17:43 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>org-mode publish时去掉多余的&lt;div&gt;和id</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">org-mode publish时去掉多余的&lt;div&gt;和id</h1>
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-10-15 周二 11:19]</span></span>
+</p>
+
+<p>
+blog是用org mode写的，在publish时，会自动很多&lt;div&gt;和div的id，显得比较乱。需要把多余的&lt;div&gt;和id都去掉。
+</p>
+
+
+<h2>在publish生成html时去掉多余的&lt;div&gt;</h2>
+
+<p>
+修改 <b>lisp/org/ox-html.el</b> 中的 <code>org-export-define-backend</code> 中的 <code>(headline . org-html-headline)</code>
+</p>
+
+<p>
+用 <code>advice-add</code> <b>override</b> 原来的 <code>org-html-headline</code> ，去掉生成headline的 <b>&lt;div id="org???"&gt;&lt;/div&gt;</b> 去掉。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp"><span style="color: #ffe4b5;">(</span>advice-add #'org-export-get-reference <span style="color: #f08080;">:override</span> #'unpackaged/org-export-get-reference<span style="color: #ffe4b5;">)</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #ffe4b5;">(</span>advice-add #'org-html-headline <span style="color: #f08080;">:override</span> #'albert|org-html-headline<span style="color: #ffe4b5;">)</span>
+
+<span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">defun</span> <span style="color: #daa520;">albert|org-html-headline</span> <span style="color: #ffe4b5;">(</span>headline contents info<span style="color: #ffe4b5;">)</span>
+  <span style="color: #ffe4b5;">"Transcode a HEADLINE element from Org to HTML.</span>
+<span style="color: #ffe4b5;">CONTENTS holds the contents of the headline.  INFO is a plist</span>
+<span style="color: #ffe4b5;">holding contextual information."</span>
+  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">unless</span> <span style="color: #ffe4b5;">(</span>org-element-property <span style="color: #f08080;">:footnote-section-p</span> headline<span style="color: #ffe4b5;">)</span>
+    <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">let*</span> <span style="color: #ffe4b5;">((</span>numberedp <span style="color: #ffe4b5;">(</span>org-export-numbered-headline-p headline info<span style="color: #ffe4b5;">))</span>
+           <span style="color: #ffe4b5;">(</span>numbers <span style="color: #ffe4b5;">(</span>org-export-get-headline-number headline info<span style="color: #ffe4b5;">))</span>
+           <span style="color: #ffe4b5;">(</span>level <span style="color: #ffe4b5;">(</span>+ <span style="color: #ffe4b5;">(</span>org-export-get-relative-level headline info<span style="color: #ffe4b5;">)</span>
+                     <span style="color: #ffe4b5;">(</span>1- <span style="color: #ffe4b5;">(</span>plist-get info <span style="color: #f08080;">:html-toplevel-hlevel</span><span style="color: #ffe4b5;">))))</span>
+           <span style="color: #ffe4b5;">(</span>todo <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">and</span> <span style="color: #ffe4b5;">(</span>plist-get info <span style="color: #f08080;">:with-todo-keywords</span><span style="color: #ffe4b5;">)</span>
+                      <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">let</span> <span style="color: #ffe4b5;">((</span>todo <span style="color: #ffe4b5;">(</span>org-element-property <span style="color: #f08080;">:todo-keyword</span> headline<span style="color: #ffe4b5;">)))</span>
+                        <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">and</span> todo <span style="color: #ffe4b5;">(</span>org-export-data todo info<span style="color: #ffe4b5;">)))))</span>
+           <span style="color: #ffe4b5;">(</span>todo-type <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">and</span> todo <span style="color: #ffe4b5;">(</span>org-element-property <span style="color: #f08080;">:todo-type</span> headline<span style="color: #ffe4b5;">)))</span>
+           <span style="color: #ffe4b5;">(</span>priority <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">and</span> <span style="color: #ffe4b5;">(</span>plist-get info <span style="color: #f08080;">:with-priority</span><span style="color: #ffe4b5;">)</span>
+                          <span style="color: #ffe4b5;">(</span>org-element-property <span style="color: #f08080;">:priority</span> headline<span style="color: #ffe4b5;">)))</span>
+           <span style="color: #ffe4b5;">(</span>text <span style="color: #ffe4b5;">(</span>org-export-data <span style="color: #ffe4b5;">(</span>org-element-property <span style="color: #f08080;">:title</span> headline<span style="color: #ffe4b5;">)</span> info<span style="color: #ffe4b5;">))</span>
+           <span style="color: #ffe4b5;">(</span>tags <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">and</span> <span style="color: #ffe4b5;">(</span>plist-get info <span style="color: #f08080;">:with-tags</span><span style="color: #ffe4b5;">)</span>
+                      <span style="color: #ffe4b5;">(</span>org-export-get-tags headline info<span style="color: #ffe4b5;">)))</span>
+           <span style="color: #ffe4b5;">(</span>full-text <span style="color: #ffe4b5;">(</span>funcall <span style="color: #ffe4b5;">(</span>plist-get info <span style="color: #f08080;">:html-format-headline-function</span><span style="color: #ffe4b5;">)</span>
+                               todo todo-type priority text tags info<span style="color: #ffe4b5;">))</span>
+           <span style="color: #ffe4b5;">(</span>contents <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">or</span> contents <span style="color: #deb887;">""</span><span style="color: #ffe4b5;">))</span>
+           <span style="color: #ffe4b5;">(</span>ids <span style="color: #ffe4b5;">(</span>delq nil
+                      <span style="color: #ffe4b5;">(</span>list <span style="color: #ffe4b5;">(</span>org-element-property <span style="color: #f08080;">:CUSTOM_ID</span> headline<span style="color: #ffe4b5;">)</span>
+                            <span style="color: #ffe4b5;">(</span>org-export-get-reference headline info<span style="color: #ffe4b5;">)</span>
+                            <span style="color: #ffe4b5;">(</span>org-element-property <span style="color: #f08080;">:ID</span> headline<span style="color: #ffe4b5;">))))</span>
+           <span style="color: #ffe4b5;">(</span>preferred-id <span style="color: #ffe4b5;">(</span>car ids<span style="color: #ffe4b5;">))</span>
+           <span style="color: #ffe4b5;">(</span>extra-ids
+            <span style="color: #ffe4b5;">(</span>mapconcat
+             <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">lambda</span> <span style="color: #ffe4b5;">(</span>id<span style="color: #ffe4b5;">)</span>
+               <span style="color: #ffe4b5;">(</span>org-html--anchor
+                <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> <span style="color: #ffe4b5;">(</span>org-uuidgen-p id<span style="color: #ffe4b5;">)</span> <span style="color: #ffe4b5;">(</span>concat <span style="color: #deb887;">"ID-"</span> id<span style="color: #ffe4b5;">)</span> id<span style="color: #ffe4b5;">)</span>
+                nil nil info<span style="color: #ffe4b5;">))</span>
+             <span style="color: #ffe4b5;">(</span>cdr ids<span style="color: #ffe4b5;">)</span> <span style="color: #deb887;">""</span><span style="color: #ffe4b5;">)))</span>
+      <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> <span style="color: #ffe4b5;">(</span>org-export-low-level-p headline info<span style="color: #ffe4b5;">)</span>
+          <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">This is a deep sub-tree: export it as a list item.</span>
+          <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">let*</span> <span style="color: #ffe4b5;">((</span>html-type <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> numberedp <span style="color: #deb887;">"ol"</span> <span style="color: #deb887;">"ul"</span><span style="color: #ffe4b5;">)))</span>
+            <span style="color: #ffe4b5;">(</span>concat
+             <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">and</span> <span style="color: #ffe4b5;">(</span>org-export-first-sibling-p headline info<span style="color: #ffe4b5;">)</span>
+                  <span style="color: #ffe4b5;">(</span>apply #'format <span style="color: #deb887;">"&lt;%s class=\"org-%s\"&gt;\n"</span>
+                         <span style="color: #ffe4b5;">(</span>make-list 2 html-type<span style="color: #ffe4b5;">)))</span>
+             <span style="color: #ffe4b5;">(</span>org-html-format-list-item
+                   contents <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> numberedp 'ordered 'unordered<span style="color: #ffe4b5;">)</span>
+                   nil info nil
+                   <span style="color: #ffe4b5;">(</span>concat <span style="color: #ffe4b5;">(</span>org-html--anchor preferred-id nil nil info<span style="color: #ffe4b5;">)</span>
+                           extra-ids
+                           full-text<span style="color: #ffe4b5;">))</span> <span style="color: #deb887;">"\n"</span>
+             <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">and</span> <span style="color: #ffe4b5;">(</span>org-export-last-sibling-p headline info<span style="color: #ffe4b5;">)</span>
+                  <span style="color: #ffe4b5;">(</span>format <span style="color: #deb887;">"&lt;/%s&gt;\n"</span> html-type<span style="color: #ffe4b5;">))))</span>
+        <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Standard headline.  Export it as a section.</span>
+        <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">let</span> <span style="color: #ffe4b5;">((</span>extra-class <span style="color: #ffe4b5;">(</span>org-element-property <span style="color: #f08080;">:HTML_CONTAINER_CLASS</span> headline<span style="color: #ffe4b5;">))</span>
+              <span style="color: #ffe4b5;">(</span>first-content <span style="color: #ffe4b5;">(</span>car <span style="color: #ffe4b5;">(</span>org-element-contents headline<span style="color: #ffe4b5;">))))</span>
+          <span style="color: #ffe4b5;">(</span>format <span style="color: #deb887;">"%s%s\n"</span>
+                  <span style="color: #ffe4b5;">(</span>format <span style="color: #deb887;">"\n&lt;h%d id=\"%s\"&gt;%s%s&lt;/h%d&gt;\n"</span>
+                          level
+                          preferred-id
+                          extra-ids
+                          <span style="color: #ffe4b5;">(</span>concat
+                           <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">and</span> numberedp
+                                <span style="color: #ffe4b5;">(</span>format
+                                 <span style="color: #deb887;">"&lt;span class=\"section-number-%d\"&gt;%s&lt;/span&gt; "</span>
+                                 level
+                                 <span style="color: #ffe4b5;">(</span>mapconcat #'number-to-string numbers <span style="color: #deb887;">"."</span><span style="color: #ffe4b5;">)))</span>
+                           full-text<span style="color: #ffe4b5;">)</span>
+                          level<span style="color: #ffe4b5;">)</span>
+                  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> <span style="color: #ffe4b5;">(</span>eq <span style="color: #ffe4b5;">(</span>org-element-type first-content<span style="color: #ffe4b5;">)</span> 'section<span style="color: #ffe4b5;">)</span> contents
+                    <span style="color: #ffe4b5;">(</span>concat <span style="color: #ffe4b5;">(</span>org-html-section first-content <span style="color: #deb887;">""</span> info<span style="color: #ffe4b5;">)</span> contents<span style="color: #ffe4b5;">))))))))</span>
+</pre>
+</div>
+
+<p>
+<code>advice-add</code> 的讨论参考 <a href="https://emacs-china.org/t/defadvice-advice-add/7355/19">https://emacs-china.org/t/defadvice-advice-add/7355/19</a>
+</p>
+
+<p>
+<code>advice-add</code> override某个函数的方法参考 <a href="https://github.com/alphapapa/unpackaged.el#export-to-html-with-useful-anchors">https://github.com/alphapapa/unpackaged.el#export-to-html-with-useful-anchors</a>
+</p>
+
+<h2>修改org-html-section，去掉每个headline后面的&lt;div&gt;块</h2>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #ffe4b5;">(</span>advice-add #'org-html-section <span style="color: #f08080;">:override</span> #'albert|org-html-section<span style="color: #ffe4b5;">)</span>
+
+<span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">defun</span> <span style="color: #daa520;">albert|org-html-section</span> <span style="color: #ffe4b5;">(</span>section contents info<span style="color: #ffe4b5;">)</span>
+  <span style="color: #ffe4b5;">"Transcode a SECTION element from Org to HTML.</span>
+<span style="color: #ffe4b5;">CONTENTS holds the contents of the section.  INFO is a plist</span>
+<span style="color: #ffe4b5;">holding contextual information."</span>
+  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">let</span> <span style="color: #ffe4b5;">((</span>parent <span style="color: #ffe4b5;">(</span>org-export-get-parent-headline section<span style="color: #ffe4b5;">)))</span>
+    <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Before first headline: no container, just return CONTENTS.</span>
+    <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> <span style="color: #ffe4b5;">(</span>not parent<span style="color: #ffe4b5;">)</span> contents
+      <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Get div's class and id references.</span>
+      <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">let*</span> <span style="color: #ffe4b5;">((</span>class-num <span style="color: #ffe4b5;">(</span>+ <span style="color: #ffe4b5;">(</span>org-export-get-relative-level parent info<span style="color: #ffe4b5;">)</span>
+                           <span style="color: #ffe4b5;">(</span>1- <span style="color: #ffe4b5;">(</span>plist-get info <span style="color: #f08080;">:html-toplevel-hlevel</span><span style="color: #ffe4b5;">))))</span>
+             <span style="color: #ffe4b5;">(</span>section-number
+              <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">and</span> <span style="color: #ffe4b5;">(</span>org-export-numbered-headline-p parent info<span style="color: #ffe4b5;">)</span>
+                   <span style="color: #ffe4b5;">(</span>mapconcat
+                    #'number-to-string
+                    <span style="color: #ffe4b5;">(</span>org-export-get-headline-number parent info<span style="color: #ffe4b5;">)</span> <span style="color: #deb887;">"-"</span><span style="color: #ffe4b5;">))))</span>
+        <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Build return value.</span>
+        <span style="color: #ffe4b5;">(</span>format <span style="color: #deb887;">"\n%s\n"</span> <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">or</span> contents <span style="color: #deb887;">""</span><span style="color: #ffe4b5;">))))))</span>
+</pre>
+</div>
+
+
+<h2>源代码块可以修改 <code>org-html-src-block</code></h2>
+
+<p>
+未修改。
+</p>
+
+
+<h2>list可以修改 <code>org-html-format-list-item</code></h2>
+
+<p>
+未修改。
+</p>
+
+
+<h2>修改&lt;div id="content"&gt;</h2>
+
+<p>
+有空再找找具体在哪里。
+</p>
+
+<p>
+由于生成的正文是包裹在 <b>&lt;div id="content"&gt;</b> 中的，用的是id，而不是class。main.css中只好加一个 <b>#content</b> 了。
+</p>
+
+<h2>在publish时生成html后进行filter</h2>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-10-15 周二 11:45]</span></span>
+</p>
+
+<p>
+可以考虑生成html后进行过滤，去掉&lt;div&gt;中多余的id中包含 <code>org</code> 关键字的属性。用下面这个函数的效果是不错的。
+</p>
+
+<p>
+但这样做多余的&lt;div&gt;还在，不好看。也可以考虑在生成html时就不产生多余的&lt;div&gt;
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp"><span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">defun</span> <span style="color: #daa520;">html-body-id-filter</span> <span style="color: #ffe4b5;">(</span>output backend info<span style="color: #ffe4b5;">)</span>
+  <span style="color: #ffe4b5;">"Remove random ID attributes generated by Org."</span>
+  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">when</span> <span style="color: #ffe4b5;">(</span>eq backend 'html<span style="color: #ffe4b5;">)</span>
+    <span style="color: #ffe4b5;">(</span>replace-regexp-in-string
+     <span style="color: #deb887;">" id=\"[[:alpha:]-]*org[[:alnum:]]\\{7\\}\""</span>
+     <span style="color: #deb887;">""</span>
+     output t<span style="color: #ffe4b5;">)))</span>
+
+<span style="color: #ffe4b5;">(</span>add-to-list 'org-export-filter-final-output-functions 'html-body-id-filter<span style="color: #ffe4b5;">)</span>
+</pre>
+</div>
+
+<p>
+参考 <a href="https://emacs.stackexchange.com/questions/36366/disable-auto-id-generation-in-org-mode-html-export">https://emacs.stackexchange.com/questions/36366/disable-auto-id-generation-in-org-mode-html-export</a>
+</p>
+
+
+<h2>参考了下面的url</h2>
+
+<p>
+<a href="https://stackoverflow.com/questions/13340616/assign-ids-to-every-entry-in-org-mode">https://stackoverflow.com/questions/13340616/assign-ids-to-every-entry-in-org-mode</a>
+</p>
+
+<p>
+<a href="https://stackoverflow.com/questions/27132422/reference-unique-id-across-emacs-org-mode-files">https://stackoverflow.com/questions/27132422/reference-unique-id-across-emacs-org-mode-files</a>
+</p>
+
+<p>
+<a href="https://github.com/alphapapa/unpackaged.el#export-to-html-with-useful-anchors">https://github.com/alphapapa/unpackaged.el#export-to-html-with-useful-anchors</a> 这个可以参考一下
+</p>
+
+<p>
+<a href="https://writequit.org/articles/emacs-org-mode-generate-ids.html">https://writequit.org/articles/emacs-org-mode-generate-ids.html</a>
+</p>
+
+<h2>本机测试静态页面</h2>
+
+<p>
+blog的css和图片使用了绝对路径，直接双击html会找不到路径，加载不了css和图片，需要用http server跑静态页面。
+</p>
+
+<p>
+在windows上搞个nginx跑静态页面大材小用。可以用python的http module。下面是python 3的命令。默认监听 127.0.0.1:8000。浏览器访问 <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a> 
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> georgealbert.io
+python -m http.server
+</pre>
+</div>
+</div>
+</body>
+</html>

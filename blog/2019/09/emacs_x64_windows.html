@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-10-15 周二 11:41 -->
+<!-- 2019-10-15 周二 17:15 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>解决emacs 27.0.50的lwindow无效问题</title>
@@ -34,7 +34,7 @@
 <div id="content">
 <h1 class="title">解决emacs 27.0.50的lwindow无效问题</h1>
 <p>
-&lt;lwindow&gt;键不知何故被emacs 27.0.50 和 26.3给吞了，怎么配置都不管用，不能使用emacs时按 <b>win+D*、 *win+R</b> 很不方便，所以在提了一个bug后，觉得还是自己编译进行debug比较方便。
+&lt;lwindow&gt;键不知何故被emacs 27.0.50 和 26.3给吞了，怎么配置都不管用，使用emacs时不能按 <b>win+D*、 *win+R</b> 很不方便，所以提了一个bug。
 </p>
 
 <p>
@@ -45,18 +45,16 @@
 原来就一直都用zklhp的sourceforge上的版本。谢谢zklhp!
 </p>
 
-<div class="outline-2">
-<h2 id="下载x86_64版的MSYS2"><a></a>下载x86_64版的MSYS2，MinGW-w64</h2>
-<div class="outline-text-2" id="text-下载x86_64版的MSYS2">
+
+<h2>下载x86_64版的MSYS2，MinGW-w64</h2>
+
 <p>
 <a href="https://sourceforge.net/projects/msys2/files/Base/x86_64">https://sourceforge.net/projects/msys2/files/Base/x86_64</a>
 </p>
-</div>
-</div>
 
-<div class="outline-2">
+
 <h2>配置</h2>
-<div class="outline-text-2">
+
 <p>
 去掉了mail的支持，反正也不用
 </p>
@@ -69,12 +67,10 @@ mingw-w64-x86_64-libjpeg-turbo mingw-w64-x86_64-librsvg <span style="color: #deb
 mingw-w64-x86_64-libxml2   
 </pre>
 </div>
-</div>
-</div>
 
-<div class="outline-2">
-<h2 id="test_src"><a></a>获得源码</h2>
-<div class="outline-text-2" id="text-test_src">
+
+<h2>获得源码</h2>
+
 <p>
 现在Emacs的版本管理已经转为Git，获取源码已经很方便了。
 </p>
@@ -102,12 +98,10 @@ Git自动改换行符的功能(autocrlf)很讨厌，关掉它：
 git config core.autocrlf false
 </pre>
 </div>
-</div>
-</div>
 
-<div class="outline-2">
+
 <h2>编译</h2>
-<div class="outline-text-2">
+
 <p>
 运行C:\msys64里的mingw64_shell.bat，注意必须是它，这会启动一个MinGW-w64的环境。在这个窗口里切换到源码所在的目录，运行下面的命令编译Emacs并且安装到C:\emacs。如果是从开发版编译，第一行是必须的，否则
 </p>
@@ -196,15 +190,13 @@ Cloud Han回复说可以用下面的命令 我还没有试 先记录下来
 <p>
 双击C:\emacs\bin目录里的runemacs.exe，如果没有错误，你已经成功编译了一个64位的GNU Emacs。
 </p>
-</div>
-</div>
 
-<div class="outline-2">
+
 <h2>lwindow问题定位</h2>
-<div class="outline-text-2">
+
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2019-09-26 周四 16:44] </span></span> 下午定位
-<a href="http://git.savannah.gnu.org/cgit/emacs.git/commit/src/w32term.h?id=97d7a0b8db4ce32a8e489dec48634b7e85212eaa">http://git.savannah.gnu.org/cgit/emacs.git/commit/src/w32term.h?id=97d7a0b8db4ce32a8e489dec48634b7e85212eaa</a>
+bug在 <a href="http://git.savannah.gnu.org/cgit/emacs.git/commit/src/w32term.h?id=97d7a0b8db4ce32a8e489dec48634b7e85212eaa">http://git.savannah.gnu.org/cgit/emacs.git/commit/src/w32term.h?id=97d7a0b8db4ce32a8e489dec48634b7e85212eaa</a>
 </p>
 
 <p>
@@ -246,8 +238,6 @@ debug时
 唉，<a href="https://blog.csdn.net/foruok/article/details/53283620">https://blog.csdn.net/foruok/article/details/53283620</a> Windows按键（VK_LWIN和VK_RWIN）死活出不来，查半天发现是360安全卫士的问题。它的驱动防护拦截了这个按键发送调用。
 </p></li>
 </ol>
-</div>
-</div>
 </div>
 </body>
 </html>
