@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-08-09 周五 17:16 -->
+<!-- 2019-10-15 周二 13:03 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ansible跳板机</title>
@@ -14,11 +14,11 @@
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2019-05-31 周五 17:45]</span></span>
 </p>
-<div id="outline-container-orgac3543f" class="outline-2">
-<h2 id="orgac3543f">场景</h2>
-<div class="outline-text-2" id="text-orgac3543f">
+<div class="outline-2">
+<h2>场景</h2>
+<div class="outline-text-2">
 <p>
-内网的机器无法直连，需要一个跳板机才能连。
+公司内网的机器是不允许直连的，所以需要一个跳板机才能连。
 </p>
 
 <p>
@@ -41,13 +41,13 @@
 </div>
 </div>
 
-<div id="outline-container-org8de1926" class="outline-2">
-<h2 id="org8de1926">ssh配置</h2>
-<div class="outline-text-2" id="text-org8de1926">
+<div class="outline-2">
+<h2>ssh配置</h2>
+<div class="outline-text-2">
 </div>
-<div id="outline-container-orgf663c36" class="outline-3">
-<h3 id="orgf663c36">建立虚机到跳板机的ssh信任关系</h3>
-<div class="outline-text-3" id="text-orgf663c36">
+<div class="outline-3">
+<h3>建立虚机到跳板机的ssh信任关系</h3>
+<div class="outline-text-3">
 <p>
 虚机和跳板机之间直接使用秘钥登录，这样就不需要输入跳板机的密码。
 </p>
@@ -66,9 +66,9 @@ ssh-copy-id -i id_dsa -p 2222 jumpbox_user@10.200.200.2
 </p>
 </div>
 
-<div id="outline-container-org7de42fa" class="outline-4">
-<h4 id="org7de42fa">测试</h4>
-<div class="outline-text-4" id="text-org7de42fa">
+<div class="outline-4">
+<h4>测试</h4>
+<div class="outline-text-4">
 <p>
 在虚机中执行
 </p>
@@ -84,9 +84,9 @@ ssh -vvv -p 22 internal_user@internal_ip
 </div>
 </div>
 </div>
-<div id="outline-container-org38fe4c1" class="outline-3">
-<h3 id="org38fe4c1">配置</h3>
-<div class="outline-text-3" id="text-org38fe4c1">
+<div class="outline-3">
+<h3>配置</h3>
+<div class="outline-text-3">
 <p>
 ProxyCommand 指定一个命令(或程序, 称为 Proxy), SSH 客户端将通过标准输入输出和这个命令启动后的进程进行正常的 SSH 通信, 而 Proxy 连接着 SSH 服务器(一般是一个 Server Proxy, 再由该 Server Proxy 连接服务器). Proxy 和 Server Proxy 之间组成了一条隧道. 如果两者之间用 HTTP 协议进行通信, 则整个系统便称为”tunneling SSH over HTTP”, 当然也可以使用 UDP, TCP, IP 以及其它任意的可行的协议.
 </p>
@@ -138,9 +138,9 @@ Host 10.100.100.*
 </div>
 </div>
 
-<div id="outline-container-org449366a" class="outline-2">
-<h2 id="org449366a">ansible</h2>
-<div class="outline-text-2" id="text-org449366a">
+<div class="outline-2">
+<h2>ansible</h2>
+<div class="outline-text-2">
 <p>
 ssh到内部ip，想让ansible使用密码登录，不想在每个内部机器上都配置我的虚机用户的秘钥。
 </p>
@@ -150,9 +150,9 @@ ssh到内部ip，想让ansible使用密码登录，不想在每个内部机器�
 </p>
 </div>
 
-<div id="outline-container-org6f8fa1b" class="outline-3">
-<h3 id="org6f8fa1b">ansible安装</h3>
-<div class="outline-text-3" id="text-org6f8fa1b">
+<div class="outline-3">
+<h3>ansible安装</h3>
+<div class="outline-text-3">
 <p>
 pip安装的版本是ansible 2.8。
 </p>
@@ -164,9 +164,9 @@ pip安装的版本是ansible 2.8。
 </div>
 </div>
 
-<div id="outline-container-org2b52078" class="outline-3">
-<h3 id="org2b52078">使用密码登录内部机器需要安装sshpass</h3>
-<div class="outline-text-3" id="text-org2b52078">
+<div class="outline-3">
+<h3>使用密码登录内部机器需要安装sshpass</h3>
+<div class="outline-text-3">
 <div class="org-src-container">
 <pre class="src src-sh">[albert@master ~]$ ansible -i internal_hosts 10.100.100.2 -m shell -a <span style="color: #deb887;">"hostname;/usr/sbin/ip a"</span>
 10.100.100.2 | FAILED | <span style="color: #4eee94;">rc</span>=-1 &gt;&gt;
@@ -184,9 +184,9 @@ to use the <span style="color: #deb887;">'ssh'</span> connection type with passw
 </div>
 </div>
 
-<div id="outline-container-org3b3c28e" class="outline-3">
-<h3 id="org3b3c28e">ansible的配置文件 - ~/.ansible.cfg</h3>
-<div class="outline-text-3" id="text-org3b3c28e">
+<div class="outline-3">
+<h3>ansible的配置文件 - ~/.ansible.cfg</h3>
+<div class="outline-text-3">
 <p>
 默认使用虚机用户home目录下的 <code>~/.ansible.cfg</code> ansible的配置文件，虚机中使用普通用户登录的，不想用/etc/ansible.cfg。
 </p>
@@ -217,9 +217,9 @@ pipelining = True
 </div>
 </div>
 
-<div id="outline-container-orge6d4db6" class="outline-3">
-<h3 id="orge6d4db6">ansible -i : Inventory，指定主机，默认是 <code>/etc/ansible/hosts</code></h3>
-<div class="outline-text-3" id="text-orge6d4db6">
+<div class="outline-3">
+<h3>ansible -i : Inventory，指定主机，默认是 <code>/etc/ansible/hosts</code></h3>
+<div class="outline-text-3">
 <p>
 配置 ansible_ssh_user 和 ansible_ssh_pass ，使用用户名/密码登录内网机器。
 </p>
@@ -248,9 +248,9 @@ pipelining = True
 </div>
 </div>
 
-<div id="outline-container-orgceb6ee0" class="outline-3">
-<h3 id="orgceb6ee0">ssh第一次连接的时候一般会提示输入yes进行确认为将key字符串加入到 ~/.ssh/known_hosts文件中的问题</h3>
-<div class="outline-text-3" id="text-orgceb6ee0">
+<div class="outline-3">
+<h3>ssh第一次连接的时候一般会提示输入yes进行确认为将key字符串加入到 ~/.ssh/known_hosts文件中的问题</h3>
+<div class="outline-text-3">
 <p>
 在 =~/.ansible.cfg中ssh_args加入
 </p>
@@ -263,22 +263,22 @@ ssh_args = -o <span style="color: #4eee94;">StrictHostKeyChecking</span>=no
 </div>
 </div>
 
-<div id="outline-container-org66e2623" class="outline-3">
-<h3 id="org66e2623">ansible执行 <code>ip a</code> 报错的问题</h3>
-<div class="outline-text-3" id="text-org66e2623">
+<div class="outline-3">
+<h3>ansible执行 <code>ip a</code> 报错的问题</h3>
+<div class="outline-text-3">
 <p>
 ansible在执行命令时会包一层 <code>sh -c</code> , 所以要用全路径 <code>/usr/sbin/ip</code> 。
 </p>
 </div>
 </div>
 
-<div id="outline-container-org9f2fcb6" class="outline-3">
-<h3 id="org9f2fcb6">ansible命令参数速度优化</h3>
-<div class="outline-text-3" id="text-org9f2fcb6">
+<div class="outline-3">
+<h3>ansible命令参数速度优化</h3>
+<div class="outline-text-3">
 </div>
-<div id="outline-container-org3ca06d9" class="outline-4">
-<h4 id="org3ca06d9">-C 好像打开ssh压缩的速度也不是很快</h4>
-<div class="outline-text-4" id="text-org3ca06d9">
+<div class="outline-4">
+<h4>-C 好像打开ssh压缩的速度也不是很快</h4>
+<div class="outline-text-4">
 <div class="org-src-container">
 <pre class="src src-sh">vim ~/.ansible.cfg
 
@@ -288,18 +288,18 @@ ansible在执行命令时会包一层 <code>sh -c</code> , 所以要用全路径
 </div>
 </div>
 
-<div id="outline-container-orga4a1aba" class="outline-4">
-<h4 id="orga4a1aba">pipeline</h4>
-<div class="outline-text-4" id="text-orga4a1aba">
+<div class="outline-4">
+<h4>pipeline</h4>
+<div class="outline-text-4">
 <p>
 在 ~/.ansible.cfg 中配置 pipelining = True。貌似ansible在单个机器上执行命令的时间从16s降到了8s。
 </p>
 </div>
 </div>
 
-<div id="outline-container-orga9152d5" class="outline-4">
-<h4 id="orga9152d5">-t /tmp/a</h4>
-<div class="outline-text-4" id="text-orga9152d5">
+<div class="outline-4">
+<h4>-t /tmp/a</h4>
+<div class="outline-text-4">
 <p>
 ansible的"-t"或"&#x2013;tree"选项是将ansible的执行结果按主机名保存在指定目录下的文件中。
 </p>
@@ -318,9 +318,9 @@ ansible的"-t"或"&#x2013;tree"选项是将ansible的执行结果按主机名保
 </div>
 </div>
 
-<div id="outline-container-orgcaf9b8a" class="outline-4">
-<h4 id="orgcaf9b8a">-f 并发数</h4>
-<div class="outline-text-4" id="text-orgcaf9b8a">
+<div class="outline-4">
+<h4>-f 并发数</h4>
+<div class="outline-text-4">
 <p>
 默认是同步5个并发，5个同步任务执行完后再执行下一批任务。
 </p>
