@@ -166,7 +166,7 @@ div.inner {
     border: 1px solid LightGrey;
 }
 
-div.content {
+#content {
     margin: 0% 14%;
     padding: 2% 8% 4% 8%; 
     border: 1px solid LightGrey;
