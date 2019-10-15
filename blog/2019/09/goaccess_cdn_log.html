@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-10-15 周二 11:42 -->
+<!-- 2019-10-15 周二 14:50 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>用goaccess解析阿里cdn的log</title>
@@ -12,42 +12,39 @@
 <div id="content">
 <h1 class="title">用goaccess解析阿里cdn的log</h1>
 <p>
-多年前一直用awstats解析门户网站的访问log。最近需要分析cdn的log，考虑到awstats安装配置有点麻烦，又不太喜欢perl，所以在网上找到了goaccess。
+以前使用awstats解析过某门户网站的apache log。最近需要分析ali云cdn的log，考虑到awstats安装配置有点麻烦，又不太喜欢perl，所以在网上找到了goaccess。
 </p>
 
 <p>
-goaccess是c写的。goaccess图文并茂，可以用命令行，也可以生成html。而且速度快，每秒8W的日志记录解析速度，比awstats快不少，同时可以用websocket 10秒刷新实时统计数据。
+goaccess是c写的。goaccess的输出图文并茂，既可以用命令行，又可以生成html，而且速度快，每秒8W+的日志记录解析速度，比awstats快不少，同时可以用websocket 10秒刷新实时统计数据。那就试试吧。
 </p>
 
-<div class="outline-2">
+
 <h2>安装</h2>
-<div class="outline-text-2">
-</div>
-<div class="outline-3">
+
+
+
 <h3>rpm安装</h3>
-<div class="outline-text-3">
+
 <p>
-最新的goaccess是 <code>v1.3</code> 。centos 7上使用epel源安装的goaccess是 <code>v1.2</code> 的。如果觉得版本低，可以用源代码安装。
+最新的goaccess是 <code>v1.3</code> 。 <code>centos 7</code> 上使用epel源安装的goaccess是 <code>v1.2</code> 的。如果觉得版本低，可以用源代码安装。
 </p>
 
 <div class="org-src-container">
 <pre class="src src-sh">yum install goaccess
 </pre>
 </div>
-</div>
-</div>
 
-<div class="outline-3">
+
 <h3>源代码安装</h3>
-<div class="outline-text-3">
-<p>
-rpm安装的版本低了一点，改为使用源代码安装。
-</p>
-</div>
 
-<div class="outline-4">
+<p>
+rpm安装的版本低了一点，用源代码安装。
+</p>
+
+
 <h4>安装编译goaccess时依赖开发包</h4>
-<div class="outline-text-4">
+
 <div class="org-src-container">
 <pre class="src src-sh">sudo yum install -y ncurses-devel openssl-devel tokyocabinet-devel libmaxminddb-devel
 </pre>
@@ -62,12 +59,10 @@ rpm安装的版本低了一点，改为使用源代码安装。
 <dt>libmaxminddb-devel</dt><dd>使用maxminddb格式的geoip地址库</dd>
 <dt>tokyocabinet-devel</dt><dd>goaccess默认将数据存储在内存的Hash Table中，如果数据量太大，就需要存到硬盘，使用TokyoCabinet数据存储</dd>
 </dl>
-</div>
-</div>
 
-<div class="outline-4">
+
 <h4>make &amp;&amp; make install</h4>
-<div class="outline-text-4">
+
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">&#26597;&#30475;&#32534;&#35793;&#36873;&#39033;</span>
 ./configure --help 
@@ -100,14 +95,10 @@ make &amp;&amp; make install
 
 <li>&#x2013;enable-tcb goaccess默认将数据存储在内存的Hash Table中，如果数据量太大，就需要存到硬盘，使用TokyoCabinet数据存储。</li>
 </ol>
-</div>
-</div>
-</div>
-</div>
 
-<div class="outline-2">
+
 <h2>log format</h2>
-<div class="outline-text-2">
+
 <p>
 goacesss的log format参考 <a href="https://goaccess.io/man">https://goaccess.io/man</a> 
 </p>
@@ -133,12 +124,10 @@ goacesss的log format参考 <a href="https://goaccess.io/man">https://goaccess.i
 <li>"文件类型"，goaccess没找到对应的格式，用 <code>%^</code> 忽略掉这个字段，在配置文件里有一些文件类型的配置。</li>
 </ol></li>
 </ul>
-</div>
-</div>
 
-<div class="outline-2">
+
 <h2>命令行生成html报表</h2>
-<div class="outline-text-2">
+
 <ol class="org-ol">
 <li>&#x2013;real-time-html web界面查看实时日志分析</li>
 <li>-o /path/to/report.html 指定生成报表路径</li>
@@ -151,12 +140,10 @@ goacesss的log format参考 <a href="https://goaccess.io/man">https://goaccess.i
 <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">--geoip-database ip&#22320;&#22336;&#25968;&#25454;&#24211;</span>
 </pre>
 </div>
-</div>
-</div>
 
-<div class="outline-2">
+
 <h2>命令行显示报表</h2>
-<div class="outline-text-2">
+
 <div class="org-src-container">
 <pre class="src src-sh">goaccess -f cdn-log_2019_09_19_090000_100000 -H -M -a
 
@@ -165,12 +152,10 @@ goacesss的log format参考 <a href="https://goaccess.io/man">https://goaccess.i
 <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">&#25353; ENTER &#22788;&#29702;&#25991;&#20214;</span>
 </pre>
 </div>
-</div>
-</div>
 
-<div class="outline-2">
+
 <h2>配置文件</h2>
-<div class="outline-text-2">
+
 <ol class="org-ol">
 <li>rpm安装的默认配置文件在 <code>/etc/goaccess.conf</code></li>
 
@@ -194,12 +179,10 @@ log-format [%d:%t %^] %h %^ %L \"%R\" \"%m %U\" %s %^ %b %^ \"%u\" %^
 
 geoip-database /usr/local/share/GeoIP/GeoLite2-City.mmdb
 </pre>
-</div>
-</div>
 
-<div class="outline-2">
+
 <h2>GeoIP和纯真IP库显示IP地理位置信息</h2>
-<div class="outline-text-2">
+
 <p>
 显示ip的地理位置，geoip城市ip数据包 <a href="https://dev.maxmind.com/geoip/geoip2/geolite2/">https://dev.maxmind.com/geoip/geoip2/geolite2/</a>
 </p>
@@ -215,8 +198,6 @@ GeoLite2 Free是免费的，每周二更新一次。不过不如收费的MaxMind
 <p>
 <a href="https://blog.csdn.net/matthewei6/article/details/50536609">https://blog.csdn.net/matthewei6/article/details/50536609</a> IP数据库的比较和选择
 </p>
-</div>
-</div>
 </div>
 </body>
 </html>

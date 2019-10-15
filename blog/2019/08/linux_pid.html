@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-08-09 周五 16:02 -->
+<!-- 2019-10-15 周二 15:08 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>linux报Resource temporarily unavailable的问题</title>
@@ -12,28 +12,25 @@
 <div id="content">
 <h1 class="title">linux报Resource temporarily unavailable的问题</h1>
 
-<div id="outline-container-orgccc4449" class="outline-2">
-<h2 id="orgccc4449">问题</h2>
-<div class="outline-text-2" id="text-orgccc4449">
+
+<h2>问题</h2>
+
 <p>
 某物理机在重启java的进程后，经常报 <code>Resource temporarily unavailable</code> 的错误，但是kill掉java进程后，系统恢复正常。
 </p>
-</div>
-</div>
 
-<div id="outline-container-orge4629a7" class="outline-2">
-<h2 id="orge4629a7">一般报错的原因</h2>
-<div class="outline-text-2" id="text-orge4629a7">
+
+<h3><code>Resource temporarily unavailable</code> 错误的原因分类</h3>
+
 <ol class="org-ol">
 <li>物理内存耗尽。</li>
 <li>进程启动超过了用户的ulimit限制。</li>
 <li>进程、线程启动过多，linux无法分配新的pid。</li>
 </ol>
-</div>
 
-<div id="outline-container-orga1c091c" class="outline-3">
-<h3 id="orga1c091c">物理内存耗尽</h3>
-<div class="outline-text-3" id="text-orga1c091c">
+
+<h3>物理内存耗尽</h3>
+
 <p>
 常见的 <code>Resource temporarily unavailable</code>  报错原因，一般是虚机一般内存都比较小，如8G内存，由于java程序起了太多的线程，很容易把物理内存吃光。直接看物理内存还有多少。
 </p>
@@ -93,12 +90,10 @@ bash: fork: retry: No child processes
 bash: fork: retry: No child processes
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-org76a9fac" class="outline-3">
-<h3 id="org76a9fac">进程启动的数量超过了用户的ulimit限制</h3>
-<div class="outline-text-3" id="text-org76a9fac">
+
+<h3>进程启动的数量超过了用户的ulimit限制</h3>
+
 <p>
 另外一个导致报错的原因，一般是超过了max user processes。centos默认4096，可以调整最大进程数解决。
 </p>
@@ -115,12 +110,10 @@ bash: fork: retry: No child processes
 <p>
 显然，max user processes不是导致报错原因。
 </p>
-</div>
-</div>
 
-<div id="outline-container-org14cdf26" class="outline-3">
-<h3 id="org14cdf26">进程、线程启动过多，linux无法分配新的pid</h3>
-<div class="outline-text-3" id="text-org14cdf26">
+
+<h3>进程、线程启动过多，linux无法分配新的pid</h3>
+
 <ol class="org-ol">
 <li>/proc/sys/kernel/pid_max
 （操作系统进程、线程ID的最大值）系统支持的最大线程数
@@ -187,13 +180,10 @@ kernel.pid_max = 2060562
 <p>
 zombie进程不怎么吃cpu。top是实时显示当前系统中的进程，会把所有的pid(10万+的pid)都查一遍，对系统中的进程，按cpu使用率排序从大到小显示，所以top进程占用的cpu就高了，直接吃掉了一个core的cpu。
 </p>
-</div>
-</div>
-</div>
 
-<div id="outline-container-orge74c021" class="outline-2">
-<h2 id="orge74c021">解决方案</h2>
-<div class="outline-text-2" id="text-orge74c021">
+
+<h2>解决方案</h2>
+
 <ol class="org-ol">
 <li>不重启系统，动态调整pid_max。
 重启物理机动静比较大，先治标，解决问题。</li>
@@ -201,12 +191,10 @@ zombie进程不怎么吃cpu。top是实时显示当前系统中的进程，会�
 <li>重启系统，就不会有这么多zombie进程占用pid，导致可分配的pid变少，也可以释放zombie进程占用的其他资源。
 重启治百病啊。</li>
 </ol>
-</div>
-</div>
 
-<div id="outline-container-orgbcc5d22" class="outline-2">
-<h2 id="orgbcc5d22">Linux的进程和线程</h2>
-<div class="outline-text-2" id="text-orgbcc5d22">
+
+<h2>Linux的进程和线程</h2>
+
 <p>
 Linux的进程和线程有很多异同点，可以Google下。但只要能清楚地理解一下几点，则足够理解Linux中各种ID的含义。
 </p>
@@ -279,11 +267,10 @@ Linux的进程和线程有很多异同点，可以Google下。但只要能清楚
 <p>
 在这里可以清晰的看到，创建一个新的进程会操作系统分配一个新的PID和TGID，并且2个值相同，当主线程创建一个新的线程的时候，会分配一个新的PID，并且TGID和之前开始的进程一致。
 </p>
-</div>
 
-<div id="outline-container-orgeea18c8" class="outline-3">
-<h3 id="orgeea18c8">Linux通过进程查看线程的方法</h3>
-<div class="outline-text-3" id="text-orgeea18c8">
+
+<h3>Linux通过进程查看线程的方法</h3>
+
 <ol class="org-ol">
 <li><p>
 htop 
@@ -344,11 +331,10 @@ htop is an interactive text-mode process viewer for Linux, similar to top(1).
 <p>
 推荐程度按数字从小到大。
 </p>
-</div>
 
-<div id="outline-container-orgcc4bfcf" class="outline-4">
-<h4 id="orgcc4bfcf">pidstat -t [-p ${pid}] 打印出线程之间的关系 - pidstat 命令详解</h4>
-<div class="outline-text-4" id="text-orgcc4bfcf">
+
+<h4>pidstat -t [-p ${pid}] 打印出线程之间的关系 - pidstat 命令详解</h4>
+
 <p>
 pidstat -t [-p pid] 打印出线程之间的关系。
 </p>
@@ -391,10 +377,6 @@ CentOS/Fedora/RHEL版本的linux中则使用下面的命令：
 </pre>
 </div></li>
 </ul>
-</div>
-</div>
-</div>
-</div>
 </div>
 </body>
 </html>
