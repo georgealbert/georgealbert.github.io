@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2019-10-16 周三 14:40 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tcpdump抓包分析LLDP协议</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">tcpdump抓包分析LLDP协议</h1>
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-10-16 周三 17:38]</span></span>
+</p>
+
+<p>
+有时候需要知道服务器连接到了哪个交换机的哪个端口。这是如果连接的交换机支持LLDP或CDP协议，并启用了该协议。那我们就可以用过tcpdump来抓取物理连接信息。
+</p>
+
+<p>
+<a href="http://noops.me/?p=1184">http://noops.me/?p=1184</a> 一个采集服务器所接交换机端口信息的脚本（支持CISCO和H3C的交换机）- 使用tcpdump分析lldp协议报文
+</p>
+
+<p>
+<a href="http://mini.eastday.com/mobile/190324021029603.html">http://mini.eastday.com/mobile/190324021029603.html</a># 使用tcpdump抓取LLDP包得到网络拓扑
+</p>
+
+<p>
+对于LLDP，协议号是0x88cc。tcpdump抓一个包就够了。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">tcpdump -i eth0 ether proto 0x88cc -A -s0 -t -c 1
+</pre>
+</div>
+
+<p>
+从tcpdump只能粗略看报文中的asc码，详细的LLDP报文可以保存下来，用wireshark看。
+</p>
+
+
+<h2>上联S5720，配置了vlan</h2>
+
+<p>
+VLAN 0001不是指vlan 1，而是vlan的名字，vlan id是100。具体可以用wireshark查看。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">tcpdump -i eth0 ether proto 0x88cc -A -s0 -t -c 1</span>
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on eth0, link-type EN10MB (Ethernet), capture size 65535 bytes
+LLDP, length 362: ASW-A002-A07-S-1
+....3.......GigabitEthernet0/0/41...x..<span style="color: #deb887;">"Link_to_xxx_Server"</span>
+.ASW-A002-A07-S-1..S5720-52P-LI-AC
+Huawei Versatile Routing Platform Software
+<span style="color: #daa520;">VRP</span> (R) software, Version 5.170 (S5720 V200R011C10SPC600)
+<span style="color: #daa520;">Copyright</span> (C) 2000-2018 HUAWEI TECH Co., Ltd...........
+.%.....9...+.....[..)............
+.................       VLAN 0001.      .....|.............     ...............$...
+1 packet captured
+1 packet received by filter
+0 packets dropped by kernel
+</pre>
+</div>
+
+
+<h2>上联CE6855，端口没有配置vlan</h2>
+
+<p>
+可以看见交换机名、端口名、端口描述、版本号。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">[/root] <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">tcpdump -i eth0 ether proto 0x88cc -A -s0 -t -c 1</span>
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on eth0, link-type EN10MB (Ethernet), capture size 65535 bytes
+LLDP, length 341: ASW-VM-G1-1
+...$.m......10GE1/0/33...x..<span style="color: #deb887;">"Link_to_server#1"</span>
+.ASW-VM-G1-1..Huawei Versatile Routing Platform Software
+<span style="color: #daa520;">VRP</span> (R) software, Version 8.150 (CE6855HI V200R002C50SPC800)
+<span style="color: #daa520;">Copyright</span> (C) 2012-2017 Huawei Technologies Co., Ltd.
+HUAWEI CE6855-48S6Q-HI
+..........
+.X.....=...+.....[..).......................    ..........      ...............$...
+1 packet captured
+13 packets received by filter
+0 packets dropped by kernel
+</pre>
+</div>
+
+
+<h2>上联CE6855，配置了vlan</h2>
+
+<p>
+这里的VLAN10是指vlan id 10。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #ffd700;">#tcpdump</span> -i eth0 ether proto 0x88cc -A -s0 -t -c 1
+<span style="color: #a2cd5a;">tcpdump</span>: verbose <span style="color: #98f5ff;">output</span> <span style="color: #4eee94;">suppressed</span>, <span style="color: #4eee94;">use</span> -v or -vv <span style="color: #00bfff;">for</span> full protocol decode
+listening on eth0, <span style="color: #daa520;">link</span>-type EN10MB (Ethernet), <span style="color: #4eee94;">capture</span> size 65535 bytes
+LLDP, <span style="color: #daa520;">length</span> 332: ASW-A002-A01
+...`....1.
+.10GE1/0/1...x
+.ASW-A002-A01..Huawei Versatile Routing Platform Software
+VRP (R) software, Version 8.150 (<span style="color: #98f5ff;">CE6855HI</span> <span style="color: #4eee94;">V200R002C50SPC800</span>)
+<span style="color: #daa520;">Copyright</span> (C) 2012-2017 Huawei Technologies Co., Ltd.
+HUAWEI CE6855-48S6Q-HI
+..........
+}r.....&gt;...+.....[..)............
+..........
+.VLAN10.        ..........      ...............$...
+1 packet captured
+69 packets received by filter
+22 packets dropped by kernel
+</pre>
+</div>
+</div>
+</body>
+</html>

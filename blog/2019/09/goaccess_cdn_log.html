@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-10-15 周二 14:50 -->
+<!-- 2019-10-16 周三 12:05 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>用goaccess解析阿里cdn的log</title>
@@ -128,10 +128,10 @@ goacesss的log format参考 <a href="https://goaccess.io/man">https://goaccess.i
 
 <h2>命令行生成html报表</h2>
 
-<ol class="org-ol">
-<li>&#x2013;real-time-html web界面查看实时日志分析</li>
-<li>-o /path/to/report.html 指定生成报表路径</li>
-</ol>
+<pre class="example">
+1. --real-time-html : web界面查看实时日志分析
+2. -o /path/to/report.html : 指定生成报表路径
+</pre>
 
 <div class="org-src-container">
 <pre class="src src-sh">goaccess -f /var/log/nginx/access.log  --log-format=<span style="color: #deb887;">"[%d:%t %^] %h %^ %L \"%R\" \"%m %U\" %s %^ %b %^ \"%u\" %^"</span> --date-format=<span style="color: #deb887;">"%d/%b/%Y"</span> --time-format=%H:%M:%S -a --geoip-database=/usr/local/goaccess-1.1/GeoLiteCity.dat -o /tmp/nginx-log-<span style="color: #ffd700;">`date +%F-%H-%M-%S`</span>.html
@@ -196,7 +196,7 @@ GeoLite2 Free是免费的，每周二更新一次。不过不如收费的MaxMind
 </p>
 
 <p>
-<a href="https://blog.csdn.net/matthewei6/article/details/50536609">https://blog.csdn.net/matthewei6/article/details/50536609</a> IP数据库的比较和选择
+IP数据库的比较和选择，参考 <a href="https://blog.csdn.net/matthewei6/article/details/50536609">https://blog.csdn.net/matthewei6/article/details/50536609</a> 
 </p>
 </div>
 </body>
