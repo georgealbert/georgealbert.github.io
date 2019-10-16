@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-08-09 周五 16:02 -->
+<!-- 2019-10-16 周三 10:23 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>emacs 和 X11</title>
 <meta name="generator" content="Org mode">
-<link rel="stylesheet" type="text/css" href="/main.css" />
+<link rel="stylesheet" type="text/css" href="/main.css"/>
 </head>
 <body>
 <div id="content">
@@ -295,7 +295,7 @@ pc 104和 pc105的layout是不是应该用pc104的layout
 </p>
 
 <p>
-但是Shift+Ins paste到emacs里面还是一对的 000。先凑合着用吧。
+但是Shift+Ins paste到x11的emacs里面是一堆的0。先凑合着用吧。
 </p>
 
 <p>
@@ -304,9 +304,11 @@ pc 104和 pc105的layout是不是应该用pc104的layout
 <a href="https://stackoverflow.com/questions/64360/how-to-copy-text-from-emacs-to-another-application-on-linux">https://stackoverflow.com/questions/64360/how-to-copy-text-from-emacs-to-another-application-on-linux</a>
 </p>
 
-
 <p>
 <a href="https://stackoverflow.com/questions/9985316/how-to-paste-to-emacs-from-clipboard-on-osx">https://stackoverflow.com/questions/9985316/how-to-paste-to-emacs-from-clipboard-on-osx</a>
+</p>
+
+<p>
 (global-set-key  [(shift insert)] 'x-insert-selection)
 </p>
 
@@ -317,9 +319,12 @@ This works on Linux and Windows, I guess on Mac it's the same.
 
 <p>
 在evil中无效啊。
-(global-set-key  [(shift insert)] 'clipboard-yank)
-(global-set-key (kbd "S-&lt;insert&gt;") 'clipboard-yank)
 </p>
+<div class="org-src-container">
+<pre class="src src-lisp"><span style="color: #ffe4b5;">(</span>global-set-key  <span style="color: #ffe4b5;">[(</span>shift insert<span style="color: #ffe4b5;">)]</span> 'clipboard-yank<span style="color: #ffe4b5;">)</span>
+<span style="color: #ffe4b5;">(</span>global-set-key <span style="color: #ffe4b5;">(</span>kbd <span style="color: #deb887;">"S-&lt;insert&gt;"</span><span style="color: #ffe4b5;">)</span> 'clipboard-yank<span style="color: #ffe4b5;">)</span>
+</pre>
+</div>
 
 <p>
 <a href="https://github.com/wbolster/evil-colemak-basics">https://github.com/wbolster/evil-colemak-basics</a> 调整evil的key binding，可以参考一下。
@@ -346,7 +351,7 @@ This works on Linux and Windows, I guess on Mac it's the same.
 <h2 id="org367f1a4">速度</h2>
 <div class="outline-text-2" id="text-org367f1a4">
 <p>
-感觉x中的emacs在打卡emacs的配置文件时有点卡，可以试试修改渲染方式为 direct draw ? 打开opengl的硬件加速后还是卡，我的集显有问题？需要用nv的独显?
+感觉x中的emacs在打开配置文件时有点卡，可以试试修改渲染方式为 direct draw ? 打开opengl的硬件加速后还是卡，我的集显有问题？需要用nv的独显?
 </p>
 </div>
 </div>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2018-12-22 周六 00:20 -->
+<!-- 2019-10-16 周三 10:10 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>nginx的proxy cache MISS问题</title>
@@ -52,9 +52,9 @@ curl测试发现请求静态资源怎么总是返回都是 <code>MISS</code> 。
 在location中打开
 </p>
 <div class="org-src-container">
-<pre class="src src-conf"><span style="color: #98f5ff;">location ~ (^/).*\.(gif|jpg|jpeg|png|js|css|html|cab|bmp)$</span>
+<pre class="src src-c">location ~ (^/).*\.(gif|jpg|jpeg|png|js|css|html|cab|bmp)$
 {
-    proxy_buffering on<span style="color: #7f7f7f;">;</span>
+    <span style="color: #98f5ff;">proxy_buffering</span> <span style="color: #4eee94;">on</span>;
 }
 </pre>
 </div>
@@ -102,7 +102,7 @@ ngx_http_proxy_handler(<span style="color: #98f5ff;">ngx_http_request_t</span> *
 
 ...
 
-    <span style="color: #00bfff;">if</span> (!u-&gt;buffering) {
+    <span style="color: #00bfff;">if</span> (<span style="color: #ffd700;">!</span>u-&gt;buffering) {
 
 ...
 </pre>
@@ -114,57 +114,57 @@ ngx_http_proxy_handler(<span style="color: #98f5ff;">ngx_http_request_t</span> *
 <h3 id="orge3a1002">配置</h3>
 <div class="outline-text-3" id="text-orge3a1002">
 <div class="org-src-container">
-<pre class="src src-conf"><span style="color: #98f5ff;">http</span>
+<pre class="src src-c">http
 {
-  # &#32531;&#23384;&#20020;&#26102;&#30446;&#24405;&#12290;&#21518;&#31471;&#30340;&#21709;&#24212;&#24182;&#19981;&#30452;&#25509;&#36820;&#22238;&#23458;&#25143;&#31471;&#65292;&#32780;&#26159;&#20808;&#20889;&#21040;&#19968;&#20010;&#20020;&#26102;&#25991;&#20214;&#20013;&#65292;&#28982;&#21518;&#34987;rename&#19968;&#19979;&#24403;&#20570;&#32531;&#23384;&#25918;&#22312; proxy_cache_path&#12290;
-  proxy_temp_path  /dev/shm/proxy_temp_dir<span style="color: #7f7f7f;">; </span>
+<span style="color: #ffd700;">  # &#32531;&#23384;&#20020;&#26102;&#30446;&#24405;</span>&#12290;&#21518;&#31471;&#30340;&#21709;&#24212;&#24182;&#19981;&#30452;&#25509;&#36820;&#22238;&#23458;&#25143;&#31471;&#65292;&#32780;&#26159;&#20808;&#20889;&#21040;&#19968;&#20010;&#20020;&#26102;&#25991;&#20214;&#20013;&#65292;&#28982;&#21518;&#34987;rename&#19968;&#19979;&#24403;&#20570;&#32531;&#23384;&#25918;&#22312; proxy_cache_path&#12290;
+  proxy_temp_path  /dev/shm/proxy_temp_dir; 
 
-  # &#32531;&#23384;&#30446;&#24405;&#65292;&#30446;&#24405;&#37324;&#30340;&#25991;&#20214;&#21517;&#26159; cache_key &#30340;MD5&#20540;&#12290;
-  <span style="color: #4eee94;"># levels</span>=1:2 &#34920;&#31034;&#37319;&#29992;2&#32423;&#30446;&#24405;&#32467;&#26500;&#65307;
-  <span style="color: #4eee94;"># keys_zone</span>=cache_one:128m inactive=2h max_size=1g<span style="color: #7f7f7f;">;</span>
-  # &#32531;&#23384;&#21306;&#21517;&#31216;&#20026;cache_one&#65307;
-  # &#32531;&#23384;&#30340;&#20869;&#23384;&#31354;&#38388;&#20026;100M&#65292;&#20869;&#23384;&#31354;&#38388;&#21487;&#22810;&#27425;&#20351;&#29992;&#65307;
-  # &#40664;&#35748;&#36807;&#26399;&#26102;&#38388;&#20026;2&#23567;&#26102;&#65292;&#36229;&#36807;2&#23567;&#26102;&#26410;&#34987;&#35775;&#38382;&#25991;&#20214;&#33258;&#21160;&#28165;&#38500;&#65307;
-  # &#26368;&#22823;&#25991;&#20214;&#23384;&#20648;&#20026;1G&#65292;&#36229;&#36807;&#21518;&#28165;&#38500;&#26368;&#23569;&#20351;&#29992;&#30340;&#25968;&#25454;&#12290;
-  <span style="color: #4eee94;">proxy_cache_path  /dev/shm/proxy_cache_dir levels</span>=1:2 keys_zone=cache_one:128m inactive=2h max_size=1g<span style="color: #7f7f7f;">;</span>
+<span style="color: #ffd700;">  # &#32531;&#23384;&#30446;&#24405;</span>&#65292;&#30446;&#24405;&#37324;&#30340;&#25991;&#20214;&#21517;&#26159; cache_key &#30340;MD5&#20540;&#12290;
+<span style="color: #ffd700;">  # levels</span>=1:2 &#34920;&#31034;&#37319;&#29992;2&#32423;&#30446;&#24405;&#32467;&#26500;&#65307;
+<span style="color: #ffd700;">  # keys_zone</span>=cache_one:128m inactive=2h max_size=1g;
+<span style="color: #ffd700;">  # &#32531;&#23384;&#21306;&#21517;&#31216;&#20026;cache_one</span>&#65307;
+<span style="color: #ffd700;">  # &#32531;&#23384;&#30340;&#20869;&#23384;&#31354;&#38388;&#20026;100M</span>&#65292;&#20869;&#23384;&#31354;&#38388;&#21487;&#22810;&#27425;&#20351;&#29992;&#65307;
+<span style="color: #ffd700;">  # &#40664;&#35748;&#36807;&#26399;&#26102;&#38388;&#20026;2&#23567;&#26102;</span>&#65292;&#36229;&#36807;2&#23567;&#26102;&#26410;&#34987;&#35775;&#38382;&#25991;&#20214;&#33258;&#21160;&#28165;&#38500;&#65307;
+<span style="color: #ffd700;">  # &#26368;&#22823;&#25991;&#20214;&#23384;&#20648;&#20026;1G</span>&#65292;&#36229;&#36807;&#21518;&#28165;&#38500;&#26368;&#23569;&#20351;&#29992;&#30340;&#25968;&#25454;&#12290;
+  proxy_cache_path  /dev/shm/proxy_cache_dir levels=1:2 keys_zone=cache_one:128m inactive=2h max_size=1g;
 }
 
-<span style="color: #98f5ff;">location ~ (^/).*\.(gif|jpg|jpeg|png|js|css|html|cab|bmp)$</span>
+location ~ (^/).*\.(gif|jpg|jpeg|png|js|css|html|cab|bmp)$
 {
-  # &#24341;&#29992;&#21069;&#38754;&#23450;&#20041;&#30340;&#32531;&#23384;&#21306; cache_one&#12290;
-  proxy_cache  cache_one<span style="color: #7f7f7f;">; </span>
+<span style="color: #ffd700;">  # &#24341;&#29992;&#21069;&#38754;&#23450;&#20041;&#30340;&#32531;&#23384;&#21306;</span> cache_one&#12290;
+  <span style="color: #98f5ff;">proxy_cache</span>  <span style="color: #4eee94;">cache_one</span>; 
 
-  # &#23450;&#20041;cache_key&#12290;
-  proxy_cache_key  $host$uri<span style="color: #7f7f7f;">;</span>
+<span style="color: #ffd700;">  # &#23450;&#20041;cache_key</span>&#12290;
+  proxy_cache_key  $host$uri;
 
-  # &#20026;&#19981;&#21516;&#30340;&#21709;&#24212;&#29366;&#24577;&#30721;&#35774;&#32622;&#19981;&#21516;&#30340;&#32531;&#23384;&#26102;&#38388;&#65292;&#27604;&#22914;200&#12289;302&#31561;&#27491;&#24120;&#32467;&#26524;&#21487;&#20197;&#32531;&#23384;&#30340;&#26102;&#38388;&#38271;&#28857;&#65292;&#32780;404&#12289;500&#31561;&#32531;&#23384;&#26102;&#38388;&#35774;&#32622;&#30701;&#19968;&#20123;&#65292;&#36825;&#20010;&#26102;&#38388;&#21040;&#20102;&#25991;&#20214;&#23601;&#20250;&#36807;&#26399;&#65292;&#32780;&#19981;&#35770;&#26159;&#21542;&#21018;&#34987;&#35775;&#38382;&#36807;&#12290;
-  proxy_cache_valid  200 304 1h<span style="color: #7f7f7f;">;</span>
+<span style="color: #ffd700;">  # &#20026;&#19981;&#21516;&#30340;&#21709;&#24212;&#29366;&#24577;&#30721;&#35774;&#32622;&#19981;&#21516;&#30340;&#32531;&#23384;&#26102;&#38388;</span>&#65292;&#27604;&#22914;200&#12289;302&#31561;&#27491;&#24120;&#32467;&#26524;&#21487;&#20197;&#32531;&#23384;&#30340;&#26102;&#38388;&#38271;&#28857;&#65292;&#32780;404&#12289;500&#31561;&#32531;&#23384;&#26102;&#38388;&#35774;&#32622;&#30701;&#19968;&#20123;&#65292;&#36825;&#20010;&#26102;&#38388;&#21040;&#20102;&#25991;&#20214;&#23601;&#20250;&#36807;&#26399;&#65292;&#32780;&#19981;&#35770;&#26159;&#21542;&#21018;&#34987;&#35775;&#38382;&#36807;&#12290;
+  proxy_cache_valid  200 304 1h;
 
-  proxy_next_upstream http_502 http_504 error timeout invalid_header<span style="color: #7f7f7f;">;</span>
+  proxy_next_upstream http_502 http_504 error <span style="color: #98f5ff;">timeout</span> <span style="color: #4eee94;">invalid_header</span>;
 
-  # &#24573;&#30053;Cache-Control&#30340;&#35831;&#27714;&#22836;&#25511;&#21046;&#65292;&#20381;&#28982;&#36827;&#34892;&#32531;&#23384;&#12290;&#20363;&#22914;&#23545;&#35831;&#27714;&#22836;&#35774;&#32622;cookie&#21518;&#65292;&#40664;&#35748;&#26159;&#19981;&#32531;&#23384;&#30340;&#65292;&#38656;&#35201;&#22686;&#21152;&#24573;&#30053;&#37197;&#32622;&#12290;
-  # &#24573;&#30053;&#25481;&#35774;&#32622;cookie&#30340;header&#65292;&#38745;&#24577;&#36164;&#28304;&#19981;&#38656;&#35201;&#65292;&#32780;&#19988;&#20250;&#35753;session&#22833;&#25928;&#12290;
-  proxy_ignore_headers Set-Cookie<span style="color: #7f7f7f;">;</span>
+<span style="color: #ffd700;">  # &#24573;&#30053;Cache</span>-Control&#30340;&#35831;&#27714;&#22836;&#25511;&#21046;&#65292;&#20381;&#28982;&#36827;&#34892;&#32531;&#23384;&#12290;&#20363;&#22914;&#23545;&#35831;&#27714;&#22836;&#35774;&#32622;cookie&#21518;&#65292;&#40664;&#35748;&#26159;&#19981;&#32531;&#23384;&#30340;&#65292;&#38656;&#35201;&#22686;&#21152;&#24573;&#30053;&#37197;&#32622;&#12290;
+<span style="color: #ffd700;">  # &#24573;&#30053;&#25481;&#35774;&#32622;cookie&#30340;header</span>&#65292;&#38745;&#24577;&#36164;&#28304;&#19981;&#38656;&#35201;&#65292;&#32780;&#19988;&#20250;&#35753;session&#22833;&#25928;&#12290;
+  <span style="color: #98f5ff;">proxy_ignore_headers</span> <span style="color: #4eee94;">Set</span>-Cookie;
 
-  proxy_hide_header Cookie<span style="color: #7f7f7f;">;</span>
+  <span style="color: #98f5ff;">proxy_hide_header</span> <span style="color: #4eee94;">Cookie</span>;
 
-  proxy_http_version 1.1<span style="color: #7f7f7f;">;</span>
+  proxy_http_version 1.1;
 
-  proxy_set_header Connection <span style="color: #deb887;">""</span><span style="color: #7f7f7f;">;</span>
+  <span style="color: #98f5ff;">proxy_set_header</span> <span style="color: #4eee94;">Connection</span> <span style="color: #deb887;">""</span>;
 
-  # &#22312;response&#30340;http header&#20013;&#22686;&#21152;&#19968;&#20010;header&#65292;&#26174;&#31034;cache&#30340;&#29366;&#24577;&#26159;HIT/MISS/STALE&#65292;&#26041;&#20415;curl&#26102;&#26597;&#30475;&#29366;&#24577;&#12290;
-  add_header  Nginx-Cache <span style="color: #deb887;">"$upstream_cache_status"</span><span style="color: #7f7f7f;">;</span>
+<span style="color: #ffd700;">  # &#22312;response&#30340;http</span> header&#20013;&#22686;&#21152;&#19968;&#20010;header&#65292;&#26174;&#31034;cache&#30340;&#29366;&#24577;&#26159;HIT/MISS/STALE&#65292;&#26041;&#20415;curl&#26102;&#26597;&#30475;&#29366;&#24577;&#12290;
+  <span style="color: #98f5ff;">add_header</span>  <span style="color: #4eee94;">Nginx</span>-Cache <span style="color: #deb887;">"$upstream_cache_status"</span>;
 
-  # &#40664;&#35748;&#26159;&#25171;&#24320;&#30340;&#65292;on&#24847;&#21619;&#30528;&#20174;upstream&#36820;&#22238;&#30340;respone&#20250;&#34987;cache&#65292;&#19968;&#30452;&#21040;&#25509;&#25910;&#23436;&#12290;long poll&#30340;&#22330;&#26223;&#19979;&#38656;&#35201;&#20851;&#38381;proxy_buffering&#12290;
-  proxy_buffering   on<span style="color: #7f7f7f;">;</span>
+<span style="color: #ffd700;">  # &#40664;&#35748;&#26159;&#25171;&#24320;&#30340;</span>&#65292;on&#24847;&#21619;&#30528;&#20174;upstream&#36820;&#22238;&#30340;respone&#20250;&#34987;cache&#65292;&#19968;&#30452;&#21040;&#25509;&#25910;&#23436;&#12290;<span style="color: #98f5ff;">long</span> poll&#30340;&#22330;&#26223;&#19979;&#38656;&#35201;&#20851;&#38381;proxy_buffering&#12290;
+  <span style="color: #98f5ff;">proxy_buffering</span>   <span style="color: #4eee94;">on</span>;
 
-  # python -m SimpleHTTPServer<span style="color: #7f7f7f;">; </span><span style="color: #7f7f7f;">python -m http.server</span>
-  proxy_pass http://127.0.0.1:8000<span style="color: #7f7f7f;">;</span>
+<span style="color: #ffd700;">  # python</span> -m SimpleHTTPServer; python -m http.server
+  <span style="color: #98f5ff;">proxy_pass</span> <span style="color: #4eee94;">http</span>:<span style="color: #B0BED8;">//</span><span style="color: #B0BED8;">127.0.0.1:8000;</span>
 
-  # &#22312;&#21709;&#24212;&#22836;&#37324;&#35774;&#32622;Expires:&#25110;Cache-Control:max-age&#65292;&#36820;&#22238;&#32473;&#23458;&#25143;&#31471;&#30340;&#27983;&#35272;&#22120;&#32531;&#23384;&#22833;&#25928;&#26102;&#38388;&#12290;
-  expires 1d<span style="color: #7f7f7f;">;</span>
+<span style="color: #ffd700;">  # &#22312;&#21709;&#24212;&#22836;&#37324;&#35774;&#32622;Expires</span>:&#25110;Cache-Control:max-age&#65292;&#36820;&#22238;&#32473;&#23458;&#25143;&#31471;&#30340;&#27983;&#35272;&#22120;&#32531;&#23384;&#22833;&#25928;&#26102;&#38388;&#12290;
+  expires 1d;
 
-  access_log <span style="color: #deb887;">"pipe:/usr/local/sbin/cronolog /home/admin/nginx/logs/static_%Y-%m-%d_log"</span> static<span style="color: #7f7f7f;">;</span>
+  access_log <span style="color: #deb887;">"pipe:/usr/local/sbin/cronolog /home/admin/nginx/logs/static_%Y-%m-%d_log"</span> <span style="color: #00bfff;">static</span>;
 }
 </pre>
 </div>
@@ -185,31 +185,31 @@ proxy cache当然要配合使用压缩功能，对文本格式的内容进行压
 <div class="org-src-container">
 <pre class="src src-conf"># &#22312;http&#27573;&#37197;&#32622;
 # &#24320;&#21551;giz&#27169;&#22359;&#65292;&#40664;&#35748;&#26159;&#20851;&#38381;&#30340;&#12290;
-gzip  on<span style="color: #7f7f7f;">;</span>
+gzip  on<span style="color: #B0BED8;">;</span>
 
 # &#35774;&#32622;http&#21327;&#35758;&#29256;&#26412;&#30340;&#26368;&#20302;&#29256;&#26412;&#65292;&#23545;1.0&#29256;&#26412;&#20197;&#19978;&#36827;&#34892;&#21387;&#32553;&#12290;&#20197;&#21069;&#21457;&#29616;&#26377;&#20123;&#29256;&#26412;&#30340;&#30828;&#36127;&#36733;radware&#36716;&#21457;&#35831;&#27714;&#26159;http 1.0&#21327;&#35758;&#65292;F5&#26080;&#27492;&#38382;&#39064;.
-gzip_http_version 1.0<span style="color: #7f7f7f;">;</span>
+gzip_http_version 1.0<span style="color: #B0BED8;">;</span>
 
 # gzip&#21387;&#32553;&#27604;/&#21387;&#32553;&#32423;&#21035;&#65292;&#21387;&#32553;&#32423;&#21035;:1-9&#65292;&#32423;&#21035;&#36234;&#39640;&#21387;&#32553;&#29575;&#36234;&#22823;&#65292;&#24403;&#28982;&#21387;&#32553;&#26102;&#38388;&#20063;&#23601;&#36234;&#38271;&#65288;&#20256;&#36755;&#24555;&#20294;&#27604;&#36739;&#28040;&#32791;cpu&#65289;&#12290;&#21387;&#32553;&#32423;&#21035;&#20026;1&#20063;&#26159;&#19981;&#38169;&#30340;&#36873;&#25321;&#65292;&#26426;&#22120;&#30340;cpu&#20250;&#21387;&#21147;&#23567;&#20123;&#12290;
-gzip_comp_level 6<span style="color: #7f7f7f;">;</span>
+gzip_comp_level 6<span style="color: #B0BED8;">;</span>
 
 # &#20801;&#35768;&#21387;&#32553;&#30340;&#39029;&#38754;&#26368;&#23567;&#23383;&#33410;&#25968;&#65292;&#40664;&#35748;&#26159;&#20840;&#37096;&#37117;&#21387;&#32553;&#65292;&#26368;&#22909;&#19981;&#35201;&#23567;&#20110;1k&#65292;&#22240;&#20026;&#23567;&#20110;1k&#20250;&#36234;&#21387;&#36234;&#22823;&#12290;
-gzip_min_length 1024<span style="color: #7f7f7f;">;</span>
+gzip_min_length 1024<span style="color: #B0BED8;">;</span>
 
 # enables compression for all proxied requests.
-gzip_proxied    any<span style="color: #7f7f7f;">;</span>
+gzip_proxied    any<span style="color: #B0BED8;">;</span>
 
 # &#32473;http&#35831;&#27714;&#22686;&#21152;vary&#23383;&#27573;&#65292;&#19981;&#25903;&#25345;gzip&#30340;&#19981;&#36827;&#34892;&#21387;&#32553;&#22788;&#29702;.
-gzip_vary       on<span style="color: #7f7f7f;">;</span>
+gzip_vary       on<span style="color: #B0BED8;">;</span>
 
 # ie6&#19981;&#21387;&#32553;. &#20854;&#23454;&#35774;&#19981;&#35774;&#19968;&#20010;&#26679;&#65292;&#29616;&#22312;&#36824;&#26377;&#29992;ie6&#30340;&#21527;?
-gzip_disable    msie6<span style="color: #7f7f7f;">;</span>
+gzip_disable    msie6<span style="color: #B0BED8;">;</span>
 
 # &#35774;&#32622;&#31995;&#32479;&#33719;&#21462;&#20960;&#20010;&#21333;&#20301;&#30340;&#32531;&#23384;&#29992;&#20110;&#23384;&#20648;gzip&#30340;&#21387;&#32553;&#32467;&#26524;&#25968;&#25454;&#27969;&#12290;96 16k&#20195;&#34920;&#20197;16k&#20026;&#21333;&#20301;&#30340;buffer&#65292;96&#20010;buffer.
-gzip_buffers    96 8k<span style="color: #7f7f7f;">;</span>
+gzip_buffers    96 8k<span style="color: #B0BED8;">;</span>
 
 # &#35774;&#32622;&#21387;&#32553;&#25991;&#20214;&#31867;&#22411;&#65292;xml/html/js/css&#25171;&#24320;&#21387;&#32553;.
-gzip_types      text/xml text/plain text/css application/javascript application/x-javascript application/rss+xml application/atom+xml application/xml<span style="color: #7f7f7f;">; </span>
+gzip_types      text/xml text/plain text/css application/javascript application/x-javascript application/rss+xml application/atom+xml application/xml<span style="color: #B0BED8;">; </span>
 </pre>
 </div>
 </div>

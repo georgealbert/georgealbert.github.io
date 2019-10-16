@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-08-09 周五 15:44 -->
+<!-- 2019-10-16 周三 10:23 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>emacs tramp、putty和openssl无密码登录</title>
@@ -12,8 +12,12 @@
 <div id="content">
 <h1 class="title">emacs tramp、putty和openssl无密码登录</h1>
 <p>
-emacs可以用tramp编辑一个远程server上的问题，在windows上通过plink(putty自带)来访问，但是每次都要提示输入密码有点麻烦。是不是有办法不提示输入密码，putty不像secure crt和mobaXterm可以保存键盘输入的密码，只能通过秘钥的方式。plink不输入密码可以在putty中save一个session，在session中把private key加进去。所以要生成一对rsa公私钥。
+emacs可以使用 <b>tramp</b> 编辑一个远程server上的文件，在windows上通过 <b>plink</b> (putty自带)来访问，但是每次都要提示输入密码有点麻烦。是不是有办法不提示输入密码，putty不像secure crt和mobaXterm可以保存键盘输入的密码，只能通过秘钥的方式。plink不输入密码可以在putty中save一个session，在session中把private key加进去。所以要生成一对rsa公私钥。
 </p>
+
+<ul class="org-ul">
+<li>windows的emacs通过tramp编辑虚机中的文件速度非常慢，不如直接在虚机上编辑。放弃了。</li>
+</ul>
 
 <div id="outline-container-org434d311" class="outline-2">
 <h2 id="org434d311">emacs tramp</h2>

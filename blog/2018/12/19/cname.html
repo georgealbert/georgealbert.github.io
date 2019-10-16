@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2018-12-21 周五 17:34 -->
+<!-- 2019-10-16 周三 10:08 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>使用bind和dnsmasq的阿里云CDN 本地DNS CNAME配置</title>
@@ -54,7 +54,7 @@
 <h2 id="org37b6ec4">dnsmasq</h2>
 <div class="outline-text-2" id="text-org37b6ec4">
 <p>
-因为在dnsmas的配置文件中只要新增配置一行CNAME配置就可以，比bind的配置简单多了，所以先用dnsmasq。测试了半天发现总是解析不到cname，原来dnsmasq的CNAME配置对target是有要求的。
+在dnsmas的配置文件中只要新增配置一行CNAME配置就可以，比bind的配置简单多了，所以先用dnsmasq进行测试。测试了半天发现总是解析不到cname，原来dnsmasq的CNAME配置对target是有要求的。
 </p>
 
 <p>
@@ -101,8 +101,7 @@ dnsmasq的CNAME中的target要在/etc/hosts中配，就算可以配置多个，�
 
 <div class="org-src-container">
 <pre class="src src-sh">[root@node2 ~]# cat /etc/named.rfc1912.zones
-
-<span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#30465;&#30053;&#20854;&#20182;&#30340;zone&#37197;&#32622;</span>
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#30465;&#30053;&#20854;&#20182;&#30340;zone&#37197;&#32622;</span>
 ...
 
 zone <span style="color: #deb887;">"albert.com"</span> IN {
@@ -111,18 +110,17 @@ zone <span style="color: #deb887;">"albert.com"</span> IN {
 };
 
 ...
-
 </pre>
 </div>
 
 
 <div class="org-src-container">
-<pre class="src src-sh"><span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#20462;&#25913;bind&#30340;zone&#65292;&#22686;&#21152;download.albertzhou.net&#30340;CNAME</span>
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#20462;&#25913;bind&#30340;zone&#65292;&#22686;&#21152;download.albertzhou.net&#30340;CNAME</span>
 vim /var/named/albertzhou.net.zone
 $<span style="color: #4eee94;">TTL</span> 20 ; 20 seconds
 download     IN    CNAME    download.albertzhou.net.w.kunlunca.com.  
 
-<span style="color: #7f7f7f;"># </span><span style="color: #7f7f7f;">&#37325;&#26032;&#21152;&#36733;zone&#37197;&#32622;</span>
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#37325;&#26032;&#21152;&#36733;zone&#37197;&#32622;</span>
 rndc reload
 </pre>
 </div>
@@ -141,39 +139,39 @@ dig测试域名的解析。
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh">[root@node2 ~]# dig download.albertzhou.net
+<pre class="src src-c">[root@node2 ~]# dig download.albertzhou.net
 
 ; &lt;&lt;&gt;&gt; DiG 9.9.4-RedHat-9.9.4-61.el7_5.1 &lt;&lt;&gt;&gt; download.albertzhou.net
-;; global options: +cmd
-;; Got answer:
+;; <span style="color: #98f5ff;">global</span> <span style="color: #4eee94;">options</span>: +cmd
+;; <span style="color: #98f5ff;">Got</span> <span style="color: #4eee94;">answer</span>:
 ;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 57938
-<span style="color: #ffff00; font-weight: bold;">;; flags: qr aa rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 2, ADDITIONAL: 7</span>
+;; <span style="color: #a2cd5a;">flags</span>: qr aa <span style="color: #98f5ff;">rd</span> <span style="color: #4eee94;">ra</span>; <span style="color: #a2cd5a;">QUERY</span>: 1, ANSWER: 2, AUTHORITY: 2, ADDITIONAL: 7
 
-<span style="color: #ffff00; font-weight: bold;">;; OPT PSEUDOSECTION:</span>
-<span style="color: #ffff00; font-weight: bold;">; EDNS: version: 0, flags:; udp: 4096</span>
-<span style="color: #ffff00; font-weight: bold;">;; QUESTION SECTION:</span>
-<span style="color: #ffff00; font-weight: bold;">;download.albertzhou.net.   IN      A</span>
+;; <span style="color: #98f5ff;">OPT</span> <span style="color: #4eee94;">PSEUDOSECTION</span>:
+; <span style="color: #a2cd5a;">EDNS</span>: <span style="color: #a2cd5a;">version</span>: 0, flags:; <span style="color: #a2cd5a;">udp</span>: 4096
+;; <span style="color: #98f5ff;">QUESTION</span> <span style="color: #4eee94;">SECTION</span>:
+;download.albertzhou.net.   IN      A
 
-<span style="color: #ffff00; font-weight: bold;">;; ANSWER SECTION:</span>
-<span style="color: #ffff00; font-weight: bold;">download.albertzhou.net. 60 IN      CNAME   download.albertzhou.net.w.kunlunca.com.</span>
-<span style="color: #ffff00; font-weight: bold;">download.albertzhou.net.w.kunlunca.com. 180 IN A 123.129.244.229</span>
+;; <span style="color: #98f5ff;">ANSWER</span> <span style="color: #4eee94;">SECTION</span>:
+download.albertzhou.net. 60 IN      CNAME   download.albertzhou.net.w.kunlunca.com.
+download.albertzhou.net.w.kunlunca.com. 180 IN A 123.129.244.229
 
-<span style="color: #ffff00; font-weight: bold;">;; AUTHORITY SECTION:</span>
-<span style="color: #ffff00; font-weight: bold;">w.kunlunca.com.         10799   IN      NS      ns3.kunlunca.com.</span>
-<span style="color: #ffff00; font-weight: bold;">w.kunlunca.com.         10799   IN      NS      ns4.kunlunca.com.</span>
+;; <span style="color: #98f5ff;">AUTHORITY</span> <span style="color: #4eee94;">SECTION</span>:
+w.kunlunca.com.         10799   IN      NS      ns3.kunlunca.com.
+w.kunlunca.com.         10799   IN      NS      ns4.kunlunca.com.
 
-<span style="color: #ffff00; font-weight: bold;">;; ADDITIONAL SECTION:</span>
-<span style="color: #ffff00; font-weight: bold;">ns3.kunlunca.com.       10799   IN      A       121.43.18.42</span>
-<span style="color: #ffff00; font-weight: bold;">ns3.kunlunca.com.       10799   IN      A       203.107.0.204</span>
-<span style="color: #ffff00; font-weight: bold;">ns3.kunlunca.com.       10799   IN      A       203.107.0.205</span>
-<span style="color: #ffff00; font-weight: bold;">ns4.kunlunca.com.       10799   IN      A       120.25.118.73</span>
-<span style="color: #ffff00; font-weight: bold;">ns4.kunlunca.com.       10799   IN      A       203.107.0.204</span>
-<span style="color: #ffff00; font-weight: bold;">ns4.kunlunca.com.       10799   IN      A       101.200.28.73</span>
+;; <span style="color: #98f5ff;">ADDITIONAL</span> <span style="color: #4eee94;">SECTION</span>:
+ns3.kunlunca.com.       10799   IN      A       121.43.18.42
+ns3.kunlunca.com.       10799   IN      A       203.107.0.204
+ns3.kunlunca.com.       10799   IN      A       203.107.0.205
+ns4.kunlunca.com.       10799   IN      A       120.25.118.73
+ns4.kunlunca.com.       10799   IN      A       203.107.0.204
+ns4.kunlunca.com.       10799   IN      A       101.200.28.73
 
-<span style="color: #ffff00; font-weight: bold;">;; Query time: 404 msec</span>
-<span style="color: #ffff00; font-weight: bold;">;; SERVER: 127.0.0.1#53(127.0.0.1)</span>
-<span style="color: #ffff00; font-weight: bold;">;; WHEN: Wed Dec 19 15:22:42 CST 2018</span>
-<span style="color: #ffff00; font-weight: bold;">;; MSG SIZE  rcvd: 260</span>
+;; <span style="color: #98f5ff;">Query</span> <span style="color: #4eee94;">time</span>: 404 msec
+;; <span style="color: #a2cd5a;">SERVER</span>: 127.0.0.1#53(127.0.0.1)
+;; <span style="color: #a2cd5a;">WHEN</span>: <span style="color: #98f5ff;">Wed</span> <span style="color: #4eee94;">Dec</span> 19 15:22:42 CST 2018
+;; MSG <span style="color: #98f5ff;">SIZE</span>  <span style="color: #4eee94;">rcvd</span>: 260
 </pre>
 </div>
 

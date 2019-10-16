@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-10-16 周三 09:28 -->
+<!-- 2019-10-16 周三 09:37 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>screen配置</title>
@@ -11,16 +11,12 @@
 <body>
 <div id="content">
 <h1 class="title">screen配置</h1>
-<p>
-;#+HTML_DOCTYPE: html5
-;#+OPTIONS: toc:nil d:nil
-</p>
 
 <div id="outline-container-org6a9eead" class="outline-2">
 <h2 id="org6a9eead">.screenrc <span class="timestamp-wrapper"><span class="timestamp">[2018-09-25 周二 16:51]</span></span></h2>
 <div class="outline-text-2" id="text-org6a9eead">
 <ul class="org-ul">
-<li>编码设置成utf8后，显示GBK编码的时候是乱码。</li>
+<li>编码设置成utf8后，显示GBK编码的时候是乱码</li>
 </ul>
 <div class="org-src-container">
 <pre class="src src-conf"># http://www.gnu.org/software/screen/manual/screen.html
@@ -57,53 +53,53 @@ vbell off
 # Automatically detach on hangup.
 autodetach on
 
-# If a screen dies, don<span style="color: #deb887;">'t freeze the whole screen waiting for it.</span>
-<span style="color: #deb887;"># Enable non-blocking mode to better cope with flaky ssh connections.</span>
-<span style="color: #deb887;">nonblock on</span>
+# If a screen dies, dont freeze the whole screen waiting for it.
+# Enable non-blocking mode to better cope with flaky ssh connections.
+nonblock on
 
-<span style="color: #deb887;"># default windows</span>
-<span style="color: #deb887;">screen -t vim 1</span>
-<span style="color: #deb887;">screen -t bash 0</span>
+# default windows
+screen -t vim 1
+screen -t bash 0
 
-<span style="color: #deb887;">#Keboard binding</span>
-<span style="color: #deb887;">#bind Alt+z to move to previous window</span>
-<span style="color: #deb887;">bindkey ^[z prev</span>
-<span style="color: #deb887;"># bind Alt+x to move to next window</span>
-<span style="color: #deb887;">bindkey ^[x next </span>
+#Keboard binding
+#bind Alt+z to move to previous window
+bindkey ^[z prev
+# bind Alt+x to move to next window
+bindkey ^[x next 
 
-<span style="color: #deb887;"># bind Alt`~= to screen0~12</span>
-<span style="color: #deb887;">bindkey "^[`" select 0</span>
-<span style="color: #deb887;">bindkey "^[1" select 1</span>
-<span style="color: #deb887;">bindkey "^[2" select 2</span>
-<span style="color: #deb887;">bindkey "^[3" select 3</span>
-<span style="color: #deb887;">bindkey "^[4" select 4</span>
-<span style="color: #deb887;">bindkey "^[5" select 5</span>
-<span style="color: #deb887;">bindkey "^[6" select 6</span>
-<span style="color: #deb887;">bindkey "^[7" select 7</span>
-<span style="color: #deb887;">bindkey "^[8" select 8</span>
-<span style="color: #deb887;">bindkey "^[9" select 9</span>
-<span style="color: #deb887;">bindkey "^[0" select 10</span>
-<span style="color: #deb887;">bindkey "^[-" select 11</span>
-<span style="color: #deb887;">bindkey "^[=" select 12</span>
-<span style="color: #deb887;"># bind F5 to create a new screen</span>
-<span style="color: #deb887;">bindkey -k k5 screen</span>
-<span style="color: #deb887;"># bind F6 to detach screen session (to background)</span>
-<span style="color: #deb887;">bindkey -k k6 detach</span>
-<span style="color: #deb887;"># bind F7 to kill current screen window</span>
-<span style="color: #deb887;">bindkey -k k7 kill</span>
-<span style="color: #deb887;"># bind F8 to rename current screen window</span>
-<span style="color: #deb887;">bindkey -k k8 title</span>
+<span style="color: #4eee94;"># bind Alt`~</span>= to screen0~12
+bindkey <span style="color: #deb887;">"^[`"</span> select 0
+bindkey <span style="color: #deb887;">"^[1"</span> select 1
+bindkey <span style="color: #deb887;">"^[2"</span> select 2
+bindkey <span style="color: #deb887;">"^[3"</span> select 3
+bindkey <span style="color: #deb887;">"^[4"</span> select 4
+bindkey <span style="color: #deb887;">"^[5"</span> select 5
+bindkey <span style="color: #deb887;">"^[6"</span> select 6
+bindkey <span style="color: #deb887;">"^[7"</span> select 7
+bindkey <span style="color: #deb887;">"^[8"</span> select 8
+bindkey <span style="color: #deb887;">"^[9"</span> select 9
+bindkey <span style="color: #deb887;">"^[0"</span> select 10
+bindkey <span style="color: #deb887;">"^[-"</span> select 11
+bindkey <span style="color: #deb887;">"^[="</span> select 12
+# bind F5 to create a new screen
+bindkey -k k5 screen
+# bind F6 to detach screen session (to background)
+bindkey -k k6 detach
+# bind F7 to kill current screen window
+bindkey -k k7 kill
+# bind F8 to rename current screen window
+bindkey -k k8 title
 
-<span style="color: #deb887;"># Remove some stupid / dangerous key bindings</span>
-<span style="color: #deb887;">bind ^k</span>
-<span style="color: #deb887;">#bind L</span>
-<span style="color: #deb887;">bind ^\</span>
-<span style="color: #deb887;"># Make them better</span>
-<span style="color: #deb887;">bind \\ quit</span>
-<span style="color: #deb887;">bind K kill</span>
-<span style="color: #deb887;">bind I login on</span>
-<span style="color: #deb887;">bind O login off</span>
-<span style="color: #deb887;">bind } history</span>
+# Remove some stupid / dangerous key bindings
+bind ^k
+#bind L
+bind ^\
+# Make them better
+bind \\ quit
+bind K kill
+bind I login on
+bind O login off
+bind } history
 </pre>
 </div>
 </div>

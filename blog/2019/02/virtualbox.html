@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-08-09 周五 17:16 -->
+<!-- 2019-10-16 周三 10:23 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>virtualbox中的nat和host-only双网卡配置</title>
@@ -46,7 +46,7 @@
 <dt>nat</dt><dd>启动DHCP，默认的
 <ol class="org-ol">
 <li>“管理” -&gt; “主机网络管理器” -&gt; 单击 “DHCP服务器” tab -&gt; 勾选 “启用服务器”
-虽然启用了dhcp，但是在centos的ifcfg-eth0中仍然可以设置静态ip，这样访问起来不会乱。</li>
+虽然启用了dhcp，但是在centos的 <b>ifcfg-eth0</b> 中仍然可以设置静态ip，这样访问起来不会乱。</li>
 </ol></dd>
 </dl>
 </div>
@@ -60,7 +60,7 @@
 </p>
 
 <p>
-注释掉ifcfg-eth0中的GATEWAY=192.168.56.1， <code>systemctl restart network</code> 重启网络服务后，只剩下一条默认路由。
+注释掉ifcfg-eth0中的 <code>GATEWAY=192.168.56.1</code> ， <code>systemctl restart network</code> 重启网络服务后，只剩下一条默认路由。
 </p>
 
 <p>

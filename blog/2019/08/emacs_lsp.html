@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-08-09 周五 17:31 -->
+<!-- 2019-10-16 周三 10:23 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>emacs python和go的lsp配置</title>
@@ -12,22 +12,18 @@
 <div id="content">
 <h1 class="title">emacs python和go的lsp配置</h1>
 <p>
-一直都用emacs写python、c和go的代码。微软推出lsp后，让emacs和vim之类纯文本编辑器可以摆脱tag的方式，直接对语言进行语法、语义分析、代码检查、重构、intelliSense、查看定义、跳转。emacs的福音啊。
-</p>
-
-<p>
-那么就要用起来。
+emacs是写python、c和go的代码神器。微软推出lsp后，让emacs和vim之类纯文本编辑器可以摆脱tag的方式，可以直接对语言进行语法、语义分析、代码检查、重构、intelliSense、查看定义、跳转。emacs和vim的神器啊。
 </p>
 
 <div id="outline-container-org8ac9116" class="outline-2">
 <h2 id="org8ac9116">python</h2>
 <div class="outline-text-2" id="text-org8ac9116">
 <p>
-python的lsp比elpy稍微好用点。
+python的lsp比以前常用的 <b>elpy</b> 稍微好用点。
 </p>
 
 <p>
-原来一直用elpy，但是elpy在windows上的体验非常差。卡顿、后台起来过多的python进程。而在linux就非常稳定，不会起很多python进程。
+写python代码，以前一直用的是elpy，但是elpy在windows上的体验非常差。卡顿、 每次 <b>C-c C-c</b> 后会起一个python进程，执行多了会有一大堆python进程。但是在linux就非常稳定，不会起很多python进程。
 </p>
 
 <p>
