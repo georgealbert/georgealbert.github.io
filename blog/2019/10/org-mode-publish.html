@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-10-15 周二 17:43 -->
+<!-- 2019-10-16 周三 11:52 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>org-mode publish时去掉多余的&lt;div&gt;和id</title>
@@ -90,10 +90,8 @@ blog是用org mode写的，在publish时，会自动很多&lt;div&gt;和div的id
         <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">let</span> <span style="color: #ffe4b5;">((</span>extra-class <span style="color: #ffe4b5;">(</span>org-element-property <span style="color: #f08080;">:HTML_CONTAINER_CLASS</span> headline<span style="color: #ffe4b5;">))</span>
               <span style="color: #ffe4b5;">(</span>first-content <span style="color: #ffe4b5;">(</span>car <span style="color: #ffe4b5;">(</span>org-element-contents headline<span style="color: #ffe4b5;">))))</span>
           <span style="color: #ffe4b5;">(</span>format <span style="color: #deb887;">"%s%s\n"</span>
-                  <span style="color: #ffe4b5;">(</span>format <span style="color: #deb887;">"\n&lt;h%d id=\"%s\"&gt;%s%s&lt;/h%d&gt;\n"</span>
+                  <span style="color: #ffe4b5;">(</span>format <span style="color: #deb887;">"\n&lt;h%d&gt;%s&lt;/h%d&gt;\n"</span>
                           level
-                          preferred-id
-                          extra-ids
                           <span style="color: #ffe4b5;">(</span>concat
                            <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">and</span> numberedp
                                 <span style="color: #ffe4b5;">(</span>format

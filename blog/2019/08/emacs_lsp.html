@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-10-16 周三 10:23 -->
+<!-- 2019-10-16 周三 11:49 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>emacs python和go的lsp配置</title>
@@ -12,12 +12,12 @@
 <div id="content">
 <h1 class="title">emacs python和go的lsp配置</h1>
 <p>
-emacs是写python、c和go的代码神器。微软推出lsp后，让emacs和vim之类纯文本编辑器可以摆脱tag的方式，可以直接对语言进行语法、语义分析、代码检查、重构、intelliSense、查看定义、跳转。emacs和vim的神器啊。
+微软在2017年提出lsp后，让emacs和vim之类纯文本编辑器可以摆脱tag的方式，可以直接对语言进行语法、语义分析、代码检查、重构、intelliSense、查看定义、跳转。emacs和vim的神器啊。
 </p>
 
-<div id="outline-container-org8ac9116" class="outline-2">
-<h2 id="org8ac9116">python</h2>
-<div class="outline-text-2" id="text-org8ac9116">
+
+<h2>python - msplys</h2>
+
 <p>
 python的lsp比以前常用的 <b>elpy</b> 稍微好用点。
 </p>
@@ -29,11 +29,10 @@ python的lsp比以前常用的 <b>elpy</b> 稍微好用点。
 <p>
 lsp有python的和微软的。推荐使用微软的 <b>mspyls</b> 。
 </p>
-</div>
 
-<div id="outline-container-org1612670" class="outline-3">
-<h3 id="org1612670">mspyls on windows</h3>
-<div class="outline-text-3" id="text-org1612670">
+
+<h3>mspyls on windows</h3>
+
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2019-07-04 周四 09:58]</span></span>
 </p>
@@ -51,12 +50,10 @@ dotnet build
 dotnet publish -c Release -r win-x64
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-org2cc95d3" class="outline-3">
-<h3 id="org2cc95d3">mspyls on linux</h3>
-<div class="outline-text-3" id="text-org2cc95d3">
+
+<h3>mspyls on linux</h3>
+
 <p>
 linux的rid使用 <b>linux-x64</b> 。
 </p>
@@ -103,13 +100,10 @@ $<span style="color: #4eee94;">dotnet</span> publish -c Release -r linux-x64
 <p>
 参考 <a href="https://github.com/emacs-lsp/lsp-python-ms">https://github.com/emacs-lsp/lsp-python-ms</a>
 </p>
-</div>
-</div>
-</div>
 
-<div id="outline-container-orgef857ec" class="outline-2">
-<h2 id="orgef857ec">go - bingo and golsp</h2>
-<div class="outline-text-2" id="text-orgef857ec">
+
+<h2>go - bingo and golsp</h2>
+
 <p>
 go的lsp可以用 <b>bingo</b> 和 <b>golsp</b> 。
 </p>
@@ -152,11 +146,10 @@ go在linux中的环境变量
 </pre>
 </div></li>
 </ul>
-</div>
 
-<div id="outline-container-org4914656" class="outline-3">
-<h3 id="org4914656">Install gopls</h3>
-<div class="outline-text-3" id="text-org4914656">
+
+<h3>Install gopls</h3>
+
 <dl class="org-dl">
 <dt>gopls安装目录</dt><dd>~/go/bin</dd>
 </dl>
@@ -171,12 +164,10 @@ git pull -v
 go install
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-orgfd9c86c" class="outline-3">
-<h3 id="orgfd9c86c">Install bingo</h3>
-<div class="outline-text-3" id="text-orgfd9c86c">
+
+<h3>Install bingo</h3>
+
 <p>
 bingo在windows上速度非常慢。linux上没有试过。
 </p>
@@ -218,17 +209,18 @@ go get -u github.com/saibing/bingo
 go get -v github.com/saibing/bingo
 </pre>
 </div>
-</div>
-</div>
-</div>
 
-<div id="outline-container-orge036668" class="outline-2">
-<h2 id="orge036668">emacs配置</h2>
-<div class="outline-text-2" id="text-orge036668">
-</div>
-<div id="outline-container-orgb642b0f" class="outline-3">
-<h3 id="orgb642b0f">lsp-mode <span class="timestamp-wrapper"><span class="timestamp">[2019-06-14 周五 21:30]</span></span></h3>
-<div class="outline-text-3" id="text-orgb642b0f">
+
+<h2>emacs配置</h2>
+
+
+
+<h3>lsp-mode</h3>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-06-14 周五 21:30]</span></span>
+</p>
+
 <p>
 <b>M-x lsp-workspace-folders-add</b> 把目录加到lsp里去。
 </p>
@@ -327,11 +319,9 @@ pyls比mspyls会多起不少python进程，可能是jedi起来的，很讨厌。
         <span style="color: #deb887;">"e:/workspace/python-language-server/output/bin/Release/Microsoft.Python.LanguageServer.exe"</span><span style="color: #ffe4b5;">))</span>
 </pre>
 </div>
-</div>
-</div>
-<div id="outline-container-org165fe60" class="outline-3">
-<h3 id="org165fe60">显示行、列号</h3>
-<div class="outline-text-3" id="text-org165fe60">
+
+<h3>显示行、列号</h3>
+
 <p>
 列号是从0开始的。
 </p>
@@ -353,9 +343,6 @@ pyls比mspyls会多起不少python进程，可能是jedi起来的，很讨厌。
 <span style="color: #ffe4b5;">(</span>add-hook 'sh-mode-hook 'display-line-numbers-mode<span style="color: #ffe4b5;">)</span>
 <span style="color: #ffe4b5;">(</span>add-hook 'go-mode-hook 'display-line-numbers-mode<span style="color: #ffe4b5;">)</span>
 </pre>
-</div>
-</div>
-</div>
 </div>
 </div>
 </body>
