@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2019-10-17 周四 17:32 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ssh报"no hostkey alg"错误</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">ssh报"no hostkey alg"错误</h1>
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-10-17 周四 17:07]</span></span>
+</p>
+
+<p>
+从1.1.1.1 ssh 2.2.2.2 报 <b>"no hostkey alg"</b> 。
+</p>
+
+<ul class="org-ul">
+<li>1.1.1.1的ssh版本: 5.0</li>
+<li>2.2.2.2的ssh版本: 8.0</li>
+</ul>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-10-17 周四 16:40]</span></span>
+应该是2.2.2.2的 <code>/etc/ssh</code> 中的key的权限不对，只有 <b>ssh_host_ed25519_key</b> 是 <b>root:root</b> ，所以只能用ed25519，但是client是5.0的版本，没有ed25519。
+</p>
+
+
+<h2>先检查了user用户的.ssh权限和.ssh目录下的文件权限是ok的。</h2>
+
+<p>
+<b>$HOME/.ssh</b> 中有没有id_rsa都可以。没有的话用 <b>/etc/ssh/ssh_host_rsa_key</b> 和 <b>/etc/ssh/ssh_host_rsa_key.pub</b> ，没办法测试，不知道属主不是root:root会不会有问题。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">[user@1.1.1.1 ~]$ ls -ld .ssh
+drwxr-xr-x 2 user user     4096 Mar 25  2018 .ssh
+
+[user@1.1.1.1 ~]$ chmod 700 .ssh
+
+[user@1.1.1.1 ~]$ ls -ld .ssh
+drwx------ 2 user user     4096 Mar 25  2018 .ssh
+</pre>
+</div>
+
+
+<h2>在1.1.1.1上 ssh -vvv 2.2.2.2 的报错log</h2>
+
+<p>
+ssh -vvv 2.2.2.2的报错
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[user@1.1.1.1 ~]$ ssh -vvv 2.2.2.2
+OpenSSH_5.3p1, OpenSSL 1.0.1e-fips 11 Feb 2013
+debug1: Reading configuration data /etc/ssh/ssh_config
+debug1: Applying options for *
+debug2: ssh_connect: needpriv 0
+debug1: Connecting to 2.2.2.2 [2.2.2.2] port 22.
+debug1: Connection established.
+
+debug1: match: OpenSSH_8.0 pat OpenSSH*
+debug1: Enabling compatibility mode for protocol 2.0
+debug1: Local version string SSH-2.0-OpenSSH_5.3
+debug2: fd 3 setting O_NONBLOCK
+...
+debug2: mac_setup: found hmac-sha1
+debug1: kex: server-&gt;client aes128-ctr hmac-sha1 none
+debug2: mac_setup: found hmac-sha1
+debug1: kex: client-&gt;server aes128-ctr hmac-sha1 none
+no hostkey alg <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#36825;&#37324;&#25253;&#38169;&#20102;</span>
+</pre>
+</div>
+
+<p>
+ssh -vvv 3.3.3.3 正常的log
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[user@1.1.1.1 ~]$ ssh -vvv 3.3.3.3
+...
+debug2: mac_setup: found hmac-sha1
+debug1: kex: server-&gt;client aes128-ctr hmac-sha1 none
+debug2: mac_setup: found hmac-sha1
+debug1: kex: client-&gt;server aes128-ctr hmac-sha1 none
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#33021;&#30475;&#35265;&#19979;&#38754;&#30340;log&#65292;&#23601;&#19981;&#20250;&#25253; "no hostkey alg" &#20102;</span>
+debug1: SSH2_MSG_KEX_DH_GEX_REQUEST(1024&lt;2048&lt;8192) sent
+debug1: expecting SSH2_MSG_KEX_DH_GEX_GROUP
+debug3: Wrote 24 bytes for a total of 1005
+debug2: dh_gen_key: priv key bits set: 160/320
+...
+</pre>
+</div>
+
+
+<h2>指定HostKeyAlgorithms用ssh-rsa，报错。</h2>
+
+<p>
+ssh的hostkey虽然可以支持多种算法，但是从debug log看，服务端指定用 <b>ed25519</b> ，所以报 <b>"no hostkey alg"</b> 错误。
+</p>
+
+<p>
+ssh -vvv的debug log，注意hostkey用的是哪个算法。
+</p>
+
+<p>
+ssh指定 <b>hostkey alg</b> 参考: <a href="https://blog.qiqitori.com/?p=436">https://blog.qiqitori.com/?p=436</a>
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">ssh v5.0&#19981;&#25903;&#25345;ecdsa&#65292;&#20855;&#20307;&#21487;&#20197;man ssh-keygen</span>
+ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key
+ssh -o <span style="color: #4eee94;">HostKeyAlgorithms</span>=ecdsa-sha2-nistp256,ssh-rsa 12.34.56.78
+</pre>
+</div>
+
+<p>
+在client(1.1.1.1)ssh -vvv时看见，5.0的版本比较低，v5.0不能用 <b>ssh -Q key</b> 查看支持的hostkey算法。v8.0可以。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">[user@1.1.1.1 ~]$ ssh -o <span style="color: #4eee94;">HostKeyAlgorithms</span>=ssh-rsa 2.2.2.2 
+...
+debug2: kex_parse_kexinit: none,zlib@openssh.com,zlib
+debug2: kex_parse_kexinit: none,zlib@openssh.com,zlib
+debug2: kex_parse_kexinit:
+debug2: kex_parse_kexinit:
+debug2: kex_parse_kexinit: first_kex_follows 0
+debug2: kex_parse_kexinit: reserved 0
+debug2: kex_parse_kexinit: curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256,diffie-hellman-group14-sha1
+debug2: kex_parse_kexinit: rsa-sha2-512,rsa-sha2-256,ssh-rsa,ecdsa-sha2-nistp256,ssh-ed25519
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#36825;&#26159;&#25253;&#38169;&#30340;&#65292;&#20351;&#29992;&#20102;hostkey ssh-ed25519&#65292;ssh 5.0&#26159;&#27809;&#26377;&#36825;&#20010;&#31639;&#27861;&#30340;</span>
+debug2: kex_parse_kexinit: ssh-ed25519
+...
+</pre>
+</div>
+
+<p>
+在一个安装了8.0版本的ssh的机器上， <b>ssh-keygen -t ed25519</b> 生成 <b>id_ed25519和id_ed25519.pub</b> ，然后copy到1.1.1.1上，ssh报错，ssh 5.0不支持ed25519
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[user@1.1.1.1 .ssh]$ ssh -o <span style="color: #4eee94;">HostKeyAlgorithms</span>=ssh-ed25519 2.2.2.2
+command-line line 0: Bad protocol 2 host key algorithms <span style="color: #deb887;">'ssh-ed25519'</span>.
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#36825;&#20010;vm&#30340;ssh&#26159;8.0&#30340;&#65292;&#21487;&#33021;&#29992;&#19981;&#20102;ed25519&#65292;&#20294;&#26159;&#21487;&#20197;&#29992;rsa&#21644;dsa&#65292;&#26435;&#38480;ok</span>
+[root@iZi9p0685 ~]# ls -tlr /etc/ssh
+total 284
+-rw-r--r-- 1 root root       2208 Apr 12  2017 ssh_config
+-rw-r--r-- 1 root root     242153 Apr 12  2017 moduli
+-rw------- 1 root root       4122 Jul 29 22:59 sshd_config
+-rw-r--r-- 1 root root        410 Jul 29 23:01 ssh_host_rsa_key.pub
+-rw------- 1 root root       1675 Jul 29 23:01 ssh_host_rsa_key
+-rw------- 1 root root        668 Jul 29 23:01 ssh_host_dsa_key
+-rw-r--r-- 1 root root        618 Jul 29 23:01 ssh_host_dsa_key.pub
+-rw-r--r-- 1 root root        190 Jul 29 23:01 ssh_host_ecdsa_key.pub
+-rw------- 1 root root        227 Jul 29 23:01 ssh_host_ecdsa_key
+-rw-r--r-- 1 root root         82 Jul 29 23:01 ssh_host_ed25519_key.pub
+-rw-r----- 1 root ssh_keys    387 Jul 29 23:01 ssh_host_ed25519_key
+</pre>
+</div>
+
+<p>
+确认 <code>ssh 2.2.2.2</code> 用的是ed25519。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[root@iZi9p0685 ~]# cat ~/.ssh/known_hosts
+...
+
+2.2.2.2 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHxOfSn4HtkwHW5056lpu0/Dw81IwNjMFXLyeaR6InCZ
+
+...
+</pre>
+</div>
+
+<p>
+hostkey的顺序是怎么确定的? 为什么是ssh-rsa在前面？
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[root@iZi9p0685 ~]# ssh -Q key
+ssh-rsa
+ssh-dss
+ssh-ed25519
+ecdsa-sha2-nistp256
+ecdsa-sha2-nistp384
+ecdsa-sha2-nistp521
+ssh-rsa-cert-v01@openssh.com
+ssh-dss-cert-v01@openssh.com
+ecdsa-sha2-nistp256-cert-v01@openssh.com
+ecdsa-sha2-nistp384-cert-v01@openssh.com
+ecdsa-sha2-nistp521-cert-v01@openssh.com
+ssh-rsa-cert-v00@openssh.com
+ssh-dss-cert-v00@openssh.com
+ssh-ed25519-cert-v01@openssh.com
+null
+</pre>
+</div>
+</div>
+</body>
+</html>

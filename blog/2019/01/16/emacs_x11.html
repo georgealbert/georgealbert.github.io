@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-10-16 周三 10:23 -->
+<!-- 2019-10-29 周二 10:39 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>emacs 和 X11</title>
@@ -12,23 +12,15 @@
 <div id="content">
 <h1 class="title">emacs 和 X11</h1>
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-08-09 周五 15:57] </span></span> 几个月前，在尝试不同的x server时，发现 <code>XMing 6.9</code> 不需要修改key binding。而且XMing支持ttf字体，字体配置比mobaXterm方便。
+<span class="timestamp-wrapper"><span class="timestamp">[2019-08-09 周五 15:57] </span></span> 几个月前，在尝试不同的x server时，发现 <code>XMing 6.9</code> 不需要修改key binding。而且XMing支持ttf字体，字体配置比mobaXterm方便。但是高版本的XMing和VCXSrv都有问题。
 </p>
 
 <p>
-高版本的XMing和VCXSrv都有问题。
+最近需要在linux上开发nginx的module。ssh到vm中用字符界面的emacs写代码非常稳定，功能正常，但是gui的中文的显示更漂亮，而且可以全屏显示，能多看几行，所以就折腾了一下xwindow。
 </p>
 
 <p>
-最近需要在linux上开发、debug nginx。
-</p>
-
-<p>
-用mobaXterm作为xserver，虚机作为xclient，emacs gui。
-</p>
-
-<p>
-字符界面的emacs非常稳定，功能正常，但是图形界面的中文的显示更漂亮，而且可以全屏显示，能多看几行，因此就开始了折腾。
+最开始是用mobaXterm作为xserver，虚机作为xclient。后来用XMing和VCXSrv。
 </p>
 
 <p>
@@ -36,17 +28,17 @@
 </p>
 
 <p>
-字符界面的问题
+字符界面的问题：
 </p>
 <ol class="org-ol">
-<li>esc 键按下去后有时候感觉响应比较慢，后续的按键容易出错</li>
-<li>gdb debug时能看的内容有点少。字符都是一个大小，显示不如gui中那么好看。</li>
-<li>显示行号后，copy时总把行号给copy下来。</li>
+<li>&lt;esc&gt;键按下去后有时候感觉响应比较慢，后续的按键容易出错</li>
+<li><code>gdb debug</code> 时能看的内容有点少。字符都是一个大小，显示不如gui那么好看。</li>
+<li>显示行号后，copy时总是把行号给copy下来。</li>
 </ol>
 
-<div id="outline-container-org28fcd30" class="outline-2">
-<h2 id="org28fcd30">用yum安装X11相关包</h2>
-<div class="outline-text-2" id="text-org28fcd30">
+
+<h2>用yum安装X11相关包</h2>
+
 <p>
 我的emacs 25.3是用源代码编译安装的。centos默认只有字符界面，需要安装X11相关的rpm包，尤其是开发包才能重新编译emacs，让emacs支持gui。
 </p>
@@ -74,7 +66,7 @@ After that you can choose one of these available Desktop groups to install.
 </div>
 
 <p>
-不一定要装桌面，如gnome kde或者gtk，反正不在centos上启动桌面，只是Xclient罢了，XServer由mobaXterm来做.
+不一定要装window manager，如gnome kde或者gtk，反正不在centos上启动桌面，只是XClient罢了，XServer由mobaXterm来做。
 </p></li>
 
 <li><p>
@@ -82,7 +74,7 @@ After that you can choose one of these available Desktop groups to install.
 </p>
 
 <p>
-在configure时提示需要几个图片格式的包，先来2个吧。
+在configure时提示需要几个图片格式的包，先装png和jpeg两个吧。
 </p>
 <div class="org-src-container">
 <pre class="src src-sh">[root@master emacs-25.3]# yum install libpng* libjpeg
@@ -106,12 +98,10 @@ make &amp;&amp; make install
 </pre>
 </div></li>
 </ol>
-</div>
-</div>
 
-<div id="outline-container-org7f59899" class="outline-2">
-<h2 id="org7f59899">中文字体</h2>
-<div class="outline-text-2" id="text-org7f59899">
+
+<h2>中文字体</h2>
+
 <p>
 mobaXterm貌似只能用点阵字体（pcf格式），ttf一类的怎么设置都不行。
 </p>
@@ -151,7 +141,7 @@ Font Path:
 </div>
 
 <p>
-增加font path后需要执行 <code>xset fp rehash</code> ,使服务器重读当前字体路径下的字体数据库。通常只在运行 <code>mkfontdir</code> 重新创建字体数据库后添加新字体到字体目录时才会使用。
+增加font path后需要执行 <code>xset fp rehash</code> ，使服务器重读当前字体路径下的字体数据库。通常只在运行 <code>mkfontdir</code> 重新创建字体数据库后添加新字体到字体目录时才会使用。
 </p>
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">for xorg = mobaX</span>
@@ -169,37 +159,34 @@ Font Path:
 <li>fonts.alias
 是否存在都不影响，mobaXterm自带的是有fonts.alias的，在emacs中执行 <code>M-x menu-set-font</code> menu选择时看着会比较短。</li>
 </ul>
-</div>
 
-<div id="outline-container-org9ee236f" class="outline-3">
-<h3 id="org9ee236f">wqy-unibit等宽点阵字体 <span class="timestamp-wrapper"><span class="timestamp">[2019-01-17 周四 22:40]</span></span></h3>
-<div class="outline-text-3" id="text-org9ee236f">
+
+<h3>wqy-unibit等宽点阵字体 <span class="timestamp-wrapper"><span class="timestamp">[2019-01-17 周四 22:40]</span></span></h3>
+
+<p>
+文泉驿的等宽点阵字体很漂亮。
+</p>
 <div class="org-src-container">
 <pre class="src src-sh">xset +fp <span style="color: #deb887;">"E:\backup\emacs_font\wqy\wqy-unibit"</span> &amp;&amp; xset q &amp;&amp; xset fp rehash &amp;&amp; xlsfonts |grep wq
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-orgfab7412" class="outline-3">
-<h3 id="orgfab7412">consolas with yahei ttf <span class="timestamp-wrapper"><span class="timestamp">[2019-01-30 周三 12:45]</span></span></h3>
-<div class="outline-text-3" id="text-orgfab7412">
+
+<h3>consolas with yahei ttf <span class="timestamp-wrapper"><span class="timestamp">[2019-01-30 周三 12:45]</span></span></h3>
+
 <div class="org-src-container">
 <pre class="src src-sh">xset +fp <span style="color: #deb887;">"E:\backup\emacs_font\Consolas-with-Yahei"</span> &amp;&amp; xset q &amp;&amp; xset fp rehash &amp;&amp; xlsfonts |grep Yahei
 </pre>
 </div>
-</div>
-</div>
-</div>
-<div id="outline-container-orgfe24576" class="outline-2">
-<h2 id="orgfe24576">输入法</h2>
-<div class="outline-text-2" id="text-orgfe24576">
+
+<h2>输入法</h2>
+
 <p>
-在x window中想让emacs真的用好了，实在是太难了。输入法就是个问题。在没安装gnome等桌面的情况下，不知道直接装sougou输入法是不是能成功。
+在x window中想把emacs真的用好了，实在是太难了。输入法就是个问题。在没安装gnome等桌面的情况下，不知道直接装sougou输入法是不是能成功。
 </p>
 
 <p>
-先考虑emacs内的输入法 <code>pyim</code> 。pyim在github上很活跃，安装简单。
+可以在emacs中用 <code>pyim</code> 。pyim在github上很活跃，安装简单。就是用的感觉有点奇怪，而且内存占用很大。
 </p>
 
 <div class="org-src-container">
@@ -218,23 +205,20 @@ Font Path:
 <li>内存占用很高
 小字库已经用了快100MB的内存，虚机的内存紧张。</li>
 </ol>
-</div>
-</div>
 
-<div id="outline-container-orgd3f015e" class="outline-2">
-<h2 id="orgd3f015e">键盘</h2>
-<div class="outline-text-2" id="text-orgd3f015e">
+
+<h2>键盘</h2>
+
 <p>
-mobaXterm的xserver坑最深的就是键盘。我的要求很简单，就是把 esc 还给我，在x window中的emacs，esc键的行为非常奇怪，按下去一点反应都没有，只有先按 alt 键，再按 esc才行。按2个键，这绝对不能接受。
+mobaXterm的xserver坑最深的就是键盘。我的要求很简单，就是把 <code>&lt;esc&gt;</code> 还给我，在x window中的emacs，esc键的行为非常奇怪，按下去一点反应都没有，只有先按 alt 键，再按esc才行。按2个键，这是不能忍受的。
 </p>
 
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2019-02-10 周日 15:59] </span></span> Ctrl-[ 可以输入 Escape ，就是不习惯，不好用。
 </p>
-</div>
-<div id="outline-container-org6e76c36" class="outline-3">
-<h3 id="org6e76c36">xmodmap</h3>
-<div class="outline-text-3" id="text-org6e76c36">
+
+<h3>用xmodmap改变键盘映射</h3>
+
 <p>
 执行 <code>xev</code> 命令，发现先按 ALT ，再按 esc 的keycode = 9， 再按个字母键后按 esc 的keycode都是8，而且会不停的显示log，就像键 lock住了，按下去一直不弹起来一样。
 </p>
@@ -266,12 +250,10 @@ keycode 113 = Escape
 xmodmap ~/.Xmodmap
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-orgbe3635e" class="outline-3">
-<h3 id="orgbe3635e">xkb</h3>
-<div class="outline-text-3" id="text-orgbe3635e">
+
+<h3>用xkb改变键盘映射</h3>
+
 <p>
 这东西是出了名的难用。坑了我一个下午和整个晚上，还是搞不定。为什么keycode是从8开始的，而且8、9都对应esc键，和键盘的layout有关系吗？
 </p>
@@ -279,19 +261,16 @@ xmodmap ~/.Xmodmap
 <p>
 pc 104和 pc105的layout是不是应该用pc104的layout
 </p>
-</div>
-</div>
-</div>
 
-<div id="outline-container-org9c0c8f1" class="outline-2">
-<h2 id="org9c0c8f1">剪切板 clipboard</h2>
-<div class="outline-text-2" id="text-org9c0c8f1">
+
+<h2>剪切板 clipboard</h2>
+
 <p>
 是字符集还是mobaxterm的clipborad的问题，从win往linux上粘贴时，只能paste进去一堆0，这个问题解决了emacs的gui就基本就可以用了。
 </p>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-01-30 周三 10:40] </span></span> 好像没什么配置，突然就用鼠标中键可以用了。为什么呢？只是因为我安装了epel源后，装上了xsel和xclip
+<span class="timestamp-wrapper"><span class="timestamp">[2019-01-30 周三 10:40] </span></span> 好像不需要配置，按鼠标中键粘贴即可。为什么呢？我安装了epel源后，装上了xsel和xclip？
 </p>
 
 <p>
@@ -345,16 +324,12 @@ This works on Linux and Windows, I guess on Mac it's the same.
 <span style="color: #B0BED8;">;     </span><span style="color: #B0BED8;">(setq interprogram-paste-function 'xsel-paste-function)))</span>
 </pre>
 </div>
-</div>
-</div>
-<div id="outline-container-org367f1a4" class="outline-2">
-<h2 id="org367f1a4">速度</h2>
-<div class="outline-text-2" id="text-org367f1a4">
+
+<h2>速度</h2>
+
 <p>
-感觉x中的emacs在打开配置文件时有点卡，可以试试修改渲染方式为 direct draw ? 打开opengl的硬件加速后还是卡，我的集显有问题？需要用nv的独显?
+感觉mobaXterm的xserver中的emacs在打开配置文件时有点卡，可以试试修改渲染方式为 direct draw ? 打开opengl的硬件加速后还是卡，我的集显有问题？需要用nv的独显？2D显示用不了nv的独显进行加速。
 </p>
-</div>
-</div>
 </div>
 </body>
 </html>
