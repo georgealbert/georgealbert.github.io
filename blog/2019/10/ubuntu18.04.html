@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-10-31 周四 16:14 -->
+<!-- 2019-10-31 周四 16:57 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>安装、配置Ubuntu 18.04和KVM、群晖</title>
@@ -470,7 +470,7 @@ root@E6400:~# readlink /sys/bus/usb/devices/usb2
 检测iommu_group是否绑定成功，会发现 <code>/dev/vfio</code> 下多了1(intel 82576LM千兆网卡)和5(usb controller)2个组号
 </p>
 <div class="org-src-container">
-<pre class="src src-sh">[root@albert /dev/vfio] <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">ls /dev/vfio</span>
+<pre class="src src-sh">[root@E6400 /dev/vfio] <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">ls /dev/vfio</span>
 1  5 vfio
 </pre>
 </div></li>
@@ -494,6 +494,114 @@ albert@E6400:~$ lspci -nnvv -s 00:1d.7
         Kernel driver<span style="color: #00bfff;"> in</span> use: vfio-pci
 </pre>
 </div>
+
+
+<h3>nic passthrough</h3>
+
+<ol class="org-ol">
+<li><p>
+确认IOMMU开启，就是BIOS与IOMMU相关选项打开（Intel VT-d或者AMD IOV）
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[albert@E6400 /home/albert]
+$<span style="color: #4eee94;">dmesg</span>|grep IOMM
+[    0.091598] DMAR: IOMMU enabled
+[    0.581651] DMAR: Disabling IOMMU for graphics on this chipset
+</pre>
+</div></li>
+
+<li><p>
+查看kvm内核模块是否已加载
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">root@E6400:~# lsmod|grep kvm
+kvm_intel             212992  3
+kvm                   598016  1 kvm_intel
+irqbypass              16384  5 kvm
+</pre>
+</div></li>
+
+<li><p>
+确认Passthrough的设备
+</p>
+
+<p>
+使用 <code>lspci -nn</code> 列出所有PCI设备和地址，记录下intel 82567LM ids为 [8086:10f5]
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">root@E6400:~# lspci -nn|grep Eth
+00:19.0 Ethernet controller [0200]: Intel Corporation 82567LM Gigabit Network Connection [8086:10f5] (rev 03)
+
+root@E6400:~# find /sys/kernel/iommu_groups/ -type l|grep 19
+/sys/kernel/iommu_groups/1/devices/0000:00:19.0
+</pre>
+</div>
+
+<p>
+查看这两个设备属于的IOMMU组，如果没有显示任何内容，要确认BIOS中相应Intel VT-d打开与否。查找之前记录的网卡id，属于group1。如果在该组中化存在其他设备需要为kernel添加ACS Patch，相应的方法参见链接。如果只有一个组，则进行下一步。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">root@E6400:~# find /sys/kernel/iommu_groups/ -type l
+/sys/kernel/iommu_groups/7/devices/0000:00:1f.2
+/sys/kernel/iommu_groups/7/devices/0000:00:1f.0
+/sys/kernel/iommu_groups/7/devices/0000:00:1f.3
+/sys/kernel/iommu_groups/5/devices/0000:00:1d.1 ---&gt; 4&#20010;&#37117;&#35201;unbind?
+/sys/kernel/iommu_groups/5/devices/0000:00:1d.2
+/sys/kernel/iommu_groups/5/devices/0000:00:1d.0
+/sys/kernel/iommu_groups/5/devices/0000:00:1d.7 ---&gt; usb2.0 &#24038;&#19978;&#65311;
+/sys/kernel/iommu_groups/3/devices/0000:00:1b.0
+/sys/kernel/iommu_groups/1/devices/0000:00:19.0 ---&gt; intel 82567LM
+/sys/kernel/iommu_groups/6/devices/0000:03:01.1
+/sys/kernel/iommu_groups/6/devices/0000:00:1e.0
+/sys/kernel/iommu_groups/6/devices/0000:03:01.2
+/sys/kernel/iommu_groups/6/devices/0000:03:01.0
+/sys/kernel/iommu_groups/4/devices/0000:0c:00.0
+/sys/kernel/iommu_groups/4/devices/0000:00:1c.0
+/sys/kernel/iommu_groups/4/devices/0000:00:1c.3
+/sys/kernel/iommu_groups/4/devices/0000:00:1c.1
+/sys/kernel/iommu_groups/4/devices/0000:00:1c.2
+/sys/kernel/iommu_groups/2/devices/0000:00:1a.1
+/sys/kernel/iommu_groups/2/devices/0000:00:1a.2
+/sys/kernel/iommu_groups/2/devices/0000:00:1a.0
+/sys/kernel/iommu_groups/2/devices/0000:00:1a.7
+/sys/kernel/iommu_groups/0/devices/0000:00:00.0
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">echo</span> <span style="color: #deb887;">"options vfio_iommu_type1 allow_unsafe_interrupts=1"</span> &gt; /etc/modprobe.d/vfio_iommu_type1.conf
+
+<span style="color: #f08080;">echo</span> <span style="color: #deb887;">"options vfio-pci ids=10f5:8086"</span> &gt; /etc/modprobe.d/vfio.conf
+<span style="color: #f08080;">echo</span> <span style="color: #deb887;">"options vfio_iommu_type1 allow_unsafe_interrupts=1"</span> &gt; /etc/modprobe.d/iommu_unsafe_interrupts.conf
+<span style="color: #f08080;">echo</span> <span style="color: #deb887;">"options kvm ignore_msrs=1"</span> &gt; /etc/modprobe.d/kvm.conf
+</pre>
+</div></li>
+</ol>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-08-18 周日 20:33]</span></span>
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[root@E6400 /root]
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">virsh start openwrt</span>
+error: Failed to start domain openwrt
+error: internal error: process exited while connecting to monitor: 2019-08-18T12:33:10.046528Z qemu-system-x86_64: -device vfio-pci,<span style="color: #4eee94;">host</span>=00:19.0,<span style="color: #4eee94;">id</span>=hostdev0,<span style="color: #4eee94;">bus</span>=pci.0,<span style="color: #4eee94;">addr</span>=0x3: vfio error: 0000:00:19.0: failed to setup container for group 1: failed to set iommu for container: Operation not permitted
+</pre>
+</div>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-08-18 周日 22:52] </span></span> 做个记号，virt中网卡pass through的配置，使用vfio。
+</p>
+<pre class="example">
+&lt;hostdev mode='subsystem' type='pci' managed='yes'&gt;
+  &lt;driver name='vfio'/&gt;
+  &lt;source&gt;
+    &lt;address domain='0x0000' bus='0x00' slot='0x19' function='0x0'/&gt;
+  &lt;/source&gt;
+  &lt;address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x0'/&gt;
+&lt;/hostdev&gt;
+</pre>
 
 
 <h3>定位cpu高的问题 - 都是和各种timer有关 <span class="timestamp-wrapper"><span class="timestamp">[2019-09-17 周二 14:43]</span></span></h3>
