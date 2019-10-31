@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2019-10-31 周四 16:14 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>安装、配置Ubuntu 18.04和KVM、群晖</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">安装、配置Ubuntu 18.04和KVM、群晖</h1>
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-09-14 周六 00:56]</span></span>
+</p>
+
+
+<h2>安装Ubuntu 18.04</h2>
+
+<p>
+安装过程很简单。插上u盘，启动后需要等几分钟才能进系统，E6400的usb 2.0的速度太慢了。一路Next。因为只有一块SSD，就不需要LVM，也可以不划/boot和/swap分区，让Ubuntu自动创建。如果需要划/boot分区，至少分512MB。原来/boot分了128MB，在Ubuntu升级了几次内核后，/boot分区 100%了，又没有用LVM，扩都不好扩。
+</p>
+
+<p>
+现在把一块256G的msata SSD挂到光驱位了，把硬盘位留给机械硬盘。
+</p>
+
+
+<h2>安装常用软件</h2>
+
+
+
+<h3>更新源</h3>
+
+<div class="org-src-container">
+<pre class="src src-sh">apt-get update
+</pre>
+</div>
+
+<h3>安装screen</h3>
+
+<p>
+窗口管理器，用惯了screen，有空再试试tmux。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">apt-get install screen
+</pre>
+</div>
+
+
+<h3>安装vim</h3>
+
+<p>
+装个完整的vim会比较顺手。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">apt-get install vim
+</pre>
+</div>
+
+<h3>安装kvm</h3>
+
+<p>
+vlan是给单臂路由的场景用的。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">apt-get install qemu-kvm qemu-system libvirt-bin virt-manager bridge-utils vlan
+</pre>
+</div>
+
+
+<h3>安装温度监控 <span class="timestamp-wrapper"><span class="timestamp">[2019-09-14 周六 02:37]</span></span></h3>
+
+<div class="org-src-container">
+<pre class="src src-sh">sudo apt-get install lm-sensors
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#23433;&#35013;&#23436;&#21518;</span>
+sensors
+</pre>
+</div>
+
+
+<h3>安装htop</h3>
+
+<p>
+颜色好看，可以看进程中的线程。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">apt-get install htop
+</pre>
+</div>
+
+
+<h3>编译、安装tsar，记录性能数据</h3>
+
+<p>
+本来想让ssd能少写点数据，但是没有tsar记录系统资源使用情况有点不方便。只能装了。
+</p>
+
+
+<h3>编译、安装emacs 27.0.50</h3>
+
+<p>
+系统稳定以后，有空再装了。
+</p>
+
+<h2>系统常用配置</h2>
+
+
+
+<h3>笔记本合盖不休眠</h3>
+
+<p>
+机器是7*24小时开机的，在合盖后机器不休眠。
+<a href="https://blog.csdn.net/ezhchai/article/details/80548130">https://blog.csdn.net/ezhchai/article/details/80548130</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">vim /etc/systemd/logind.conf
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">HandleLidSwitch=suspend</span>
+&#25913;&#25104;&#65306;
+<span style="color: #4eee94;">HandleLidSwitch</span>=ignore
+</pre>
+</div>
+
+<p>
+重启服务
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">systemctl restart system-logind
+</pre>
+</div>
+
+
+<h3>修改hostname</h3>
+
+<p>
+hostname如果在安装的时候没配对，可以修改 <b>/etc/hostname</b> 。
+</p>
+
+
+<h3>修改网卡名为eth0/wlan0</h3>
+
+<p>
+默认的名字是按总线命名的，看着不习惯，改回原来的方式。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">root@E6400:~# vim /etc/default/grub
+<span style="color: #4eee94;">GRUB_CMDLINE_LINUX</span>=<span style="color: #deb887;">"net.ifnames=0 biosdevname=0"</span>
+
+root@E6400:~# update-grub
+</pre>
+</div>
+
+
+<h3>修改.profile，让时间戳和提示符更好看</h3>
+
+<ol class="org-ol">
+<li>改为英文，看中文的时间戳不习惯。</li>
+<li>提示符也改成带颜色的。</li>
+</ol>
+<div class="org-src-container">
+<pre class="src src-sh">vim ~/.profile
+<span style="color: #f08080;">set</span> -o vi
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">LC_ALL</span>=en_US.UTF8
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">PS1</span>=<span style="color: #deb887;">'\n\e[1;37m[\e[m\e[1;32m\u\e[m\e[1;33m@\e[m\e[1;35m\H\e[m \e[4m`pwd`\e[m\e[1;37m]\e[m\e[1;36m\e[m\n\$'</span>
+</pre>
+</div>
+
+
+<h3>关闭不用的服务</h3>
+
+<div class="org-src-container">
+<pre class="src src-sh">systemctl disable cups
+</pre>
+</div>
+
+
+<h2>安装驱动</h2>
+
+
+
+<h3>安装bcm43224无线网卡驱动</h3>
+
+<ul class="org-ul">
+<li>问题
+<ol class="org-ol">
+<li>使用不同的驱动，发现有些驱动会导致ping的延时高</li>
+</ol></li>
+</ul>
+
+<p>
+参考： <a href="https://help.ubuntu.com/community/WifiDocs/Driver/bcm43xx#brcmfmac_driver_.28Open-source.29">https://help.ubuntu.com/community/WifiDocs/Driver/bcm43xx#brcmfmac_driver_.28Open-source.29</a>
+</p>
+
+<p>
+Installing STA drivers
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">root@E6400:~# apt-get --reinstall install bcmwl-kernel-source
+
+root@E6400:~# apt-get --reinstall install broadcom-sta-common
+</pre>
+</div>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-09-14 周六 02:31]</span></span>
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">Switching between drivers</span>
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">If you card is supported by more than one driver then use the modprobe command to test the drivers. First unload all conflicting drivers (this includes removing the driver you're trying to install):</span>
+sudo modprobe -r b43 bcma
+sudo modprobe -r brcmsmac bcma
+sudo modprobe -r wl
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">To load a specific driver use one of the following commands:</span>
+sudo modprobe b43
+sudo modprobe brcmsmac
+sudo modprobe wl
+</pre>
+</div>
+
+<p>
+这是用了b43(不知道是什么)和brcmsmac(开源驱动，支持bcm43224芯片)的。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">root@E6400:~# lsmod|grep wl
+wl                   6447104  0
+cfg80211              675840  4 wl,b43,mac80211,brcmsmac
+</pre>
+</div>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-10-31 周四 10:44] </span></span> 安装b43驱动
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">sudo apt-get install firmware-b43-installer
+</pre>
+</div>
+
+
+<h2>dsm5.2 <span class="timestamp-wrapper"><span class="timestamp">[2019-09-14 周六 16:03]</span></span></h2>
+
+<p>
+dsm5.2的功能正常，可以网卡直通。就是版本稍微有点低。
+</p>
+
+<p>
+创建vm：
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">virt-install --name dsm5.2 --memory 2000 --vcpus <span style="color: #4eee94;">sockets</span>=1,<span style="color: #4eee94;">cores</span>=1,<span style="color: #4eee94;">threads</span>=1 --disk <span style="color: #4eee94;">device</span>=cdrom,<span style="color: #4eee94;">path</span>=/home/albert/dsm/dsm5.2/XPEnoboot_DS3615xs_5.2-5967.1.iso  --network <span style="color: #4eee94;">bridge</span>=br0,<span style="color: #4eee94;">model</span>=e1000e --noautoconsole --accelerate --hvm --graphics vnc,<span style="color: #4eee94;">listen</span>=0.0.0.0,<span style="color: #4eee94;">port</span>=20008 --video vga --input tablet,<span style="color: #4eee94;">bus</span>=usb --cpu host-passthrough
+</pre>
+</div>
+
+
+<h3>硬盘优化</h3>
+
+<p>
+参考pve的 <a href="https://pve.proxmox.com/wiki/Pci_passthrough">https://pve.proxmox.com/wiki/Pci_passthrough</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#22686;&#21152;iommu&#30340;&#25903;&#25345;</span>
+$<span style="color: #4eee94;">vim</span> /etc/default/grub
+<span style="color: #4eee94;">GRUB_CMDLINE_LINUX_DEFAULT</span>=<span style="color: #deb887;">"quiet splash intel_iommu=on"</span>
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26356;&#26032;&#20869;&#26680;&#21442;&#25968;&#65292;&#37325;&#21551;&#29983;&#25928;</span>
+$<span style="color: #4eee94;">update</span>-grub
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26816;&#26597;iommu&#30340;&#21442;&#25968;&#26159;&#21542;&#29983;&#25928;</span>
+root@E6400:~# dmesg|grep IOMM
+[    0.091713] DMAR: IOMMU enabled
+[    0.467216] DMAR: Disabling IOMMU for graphics on this chipset
+</pre>
+</div>
+
+<p>
+使用vfio。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">echo</span> <span style="color: #deb887;">"options vfio_iommu_type1 allow_unsafe_interrupts=1"</span> &gt; /etc/modprobe.d/iommu_unsafe_interrupts.conf
+</pre>
+</div>
+
+<p>
+<a href="https://forums.unraid.net/topic/46634-passthrough-hard-drive-to-vm/">https://forums.unraid.net/topic/46634-passthrough-hard-drive-to-vm/</a>
+</p>
+
+<p>
+<a href="https://turlucode.com/qemu-disk-io-performance-comparison-native-or-threads-windows-10-version/#1528572626148-2b30f3e4-f00f">https://turlucode.com/qemu-disk-io-performance-comparison-native-or-threads-windows-10-version/#1528572626148-2b30f3e4-f00f</a> kvm的各种模式的解释和对比
+</p>
+
+
+<h4>Centos6配置KVM使用virtio-scsi（multi-queues）</h4>
+
+<p>
+<a href="https://blog.csdn.net/bobpen/article/details/41515119">https://blog.csdn.net/bobpen/article/details/41515119</a> Centos6下Virtio-SCSI(multi-queues)/Virtio-SCSI/Virtio-blk性能对比 - 多队列的性能也一般
+</p>
+
+<p>
+<a href="https://www.jianshu.com/p/0288235387c7">https://www.jianshu.com/p/0288235387c7</a> 深入浅出KVM（三） 丨 I/O 全虚拟化和准虚拟化
+</p>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-09-15 周日 16:45] </span></span> 只有一个vcpu，设不设都一样
+添加driver queues字段至xml文件中，driver queues等于vcpu队列数
+</p>
+
+<pre class="example">
+&lt;disk type='block' device='disk'&gt;
+  &lt;driver name='qemu' type='raw' cache='none' io='threads'/&gt;
+  &lt;source dev='/dev/disk/by-id/ata-ST320LT007-9ZV142_W0Q5K6ZN'/&gt;
+  &lt;backingStore/&gt;
+  &lt;target dev='sdb' bus='scsi'/&gt;
+  &lt;alias name='scsi0-0-0-1'/&gt;
+  &lt;address type='drive' controller='0' bus='0' target='0' unit='1'/&gt;
+&lt;/disk&gt;
+
+&lt;/controller&gt;
+  &lt;controller type='scsi' index='0' model='virtio-scsi'&gt;
+  &lt;address type='pci' domain='0x0000' bus='0x00' slot='0x08' function='0x0'/&gt;
+  &lt;dirver queues='8' /&gt;
+&lt;/controller&gt;
+</pre>
+
+<p>
+<a href="https://blog.csdn.net/bobpen/article/details/41515263">https://blog.csdn.net/bobpen/article/details/41515263</a>
+</p>
+
+
+<h3>内存优化 - 使用HugePage</h3>
+
+<p>
+给虚机分配2G内存，需要1000个2MB的页。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#25351;&#23450;&#22823;&#39029;&#38656;&#35201;&#30340;&#20869;&#23384;&#39029;&#38754;&#25968;&#65292;&#27704;&#20037;&#29983;&#25928;&#65292;1024*2MB=2048MB&#20869;&#23384;&#20316;&#20026;hugepages</span>
+sysctl -w vm.nr_hugepages=1024
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#25110;&#32773;</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">vim /etc/sysctl.conf</span>
+vm.nr_hugepages=1024
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#35753;&#37197;&#32622;&#29983;&#25928;</span>
+sysctl -p
+</pre>
+</div>
+
+<p>
+检查HugePage是否ok：
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[root@E6400 /root]
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">cat /proc/meminfo |grep Huge</span>
+AnonHugePages:         0 kB
+ShmemHugePages:        0 kB
+HugePages_Total:    1024
+HugePages_Free:     1024
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+Hugetlb:         2097152 kB
+</pre>
+</div>
+
+
+<h4>KSM优化</h4>
+
+<p>
+只起了一个虚机，不需要os来压缩vm的内存。可以关掉ksm。
+</p>
+
+<p>
+为什么没地方停ksm呢？
+</p>
+
+<p>
+<a href="https://serverfault.com/questions/470093/why-kernel-shared-memory-is-0-on-ubuntu-12-04">https://serverfault.com/questions/470093/why-kernel-shared-memory-is-0-on-ubuntu-12-04</a>#
+</p>
+
+<pre class="example">
+How to use the Kernel Samepage Merging feature
+
+run         - set 0 to stop ksmd from running but keep merged pages,
+              set 1 to run ksmd e.g. "echo 1 &gt; /sys/kernel/mm/ksm/run",
+              set 2 to stop ksmd and unmerge all pages currently merged,
+                    but leave mergeable areas registered for next run
+              Default: 0 (must be changed to 1 to activate KSM,
+                          except if CONFIG_SYSFS is disabled)
+</pre>
+
+<p>
+只能把扫描时间加长了？提到的配置文件找不到 <a href="https://forum.proxmox.com/threads/ksm-is-using-about-30-of-cpu-time.3857/page-2">https://forum.proxmox.com/threads/ksm-is-using-about-30-of-cpu-time.3857/page-2</a>
+</p>
+
+
+<h3>usb passthrough <span class="timestamp-wrapper"><span class="timestamp">[2019-09-15 周日 21:47]</span></span></h3>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-09-15 周日 22:42] </span></span> 为什么group 5的4个设备都要删除，kvm才不会报错？
+</p>
+
+<p>
+<a href="https://forums.unraid.net/topic/35112-guide-passthrough-entire-pci-usb-controller/">https://forums.unraid.net/topic/35112-guide-passthrough-entire-pci-usb-controller/</a>
+</p>
+
+<p>
+确定usb设备的总线位置，可以插个u盘上去后，看u盘对应的总线号。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">root@E6400:~# lsusb
+Bus 002 Device 005: ID 0781:5567 SanDisk Corp. Cruzer Blade - &#24038;&#19979;esata
+Bus 002 Device 003: ID 0ed1:6981 WinMaxGroup - &#24038;&#19978;
+Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub - &#21491;&#19978;
+Bus 008 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 007 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 006 Device 002: ID 046d:c52b Logitech, Inc. Unifying Receiver - &#21491;&#19979;
+Bus 006 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 005 Device 002: ID 0a5c:5801 Broadcom Corp. BCM5880 Secure Applications Processor with fingerprint swipe sensor
+Bus 005 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 004 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 003 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+
+root@E6400:~# readlink /sys/bus/usb/devices/usb2
+../../../devices/pci0000:00/0000:00:1d.7/usb2
+</pre>
+</div>
+
+<ol class="org-ol">
+<li><p>
+将iommu_group下的设备unbind，将设备unbind之后，目录下面的driver目录会被删除
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">echo</span> <span style="color: #deb887;">"0000:00:1d.7"</span> &gt;&gt;/sys/bus/pci/devices/0000<span style="color: #deb887;">\:</span>00<span style="color: #deb887;">\:</span>1d.7/driver/unbind
+
+<span style="color: #f08080;">echo</span> <span style="color: #deb887;">"0000:00:1d.0"</span> &gt;&gt;/sys/bus/pci/devices/0000<span style="color: #deb887;">\:</span>00<span style="color: #deb887;">\:</span>1d.0/driver/unbind
+<span style="color: #f08080;">echo</span> <span style="color: #deb887;">"0000:00:1d.1"</span> &gt;&gt;/sys/bus/pci/devices/0000<span style="color: #deb887;">\:</span>00<span style="color: #deb887;">\:</span>1d.1/driver/unbind
+<span style="color: #f08080;">echo</span> <span style="color: #deb887;">"0000:00:1d.2"</span> &gt;&gt;/sys/bus/pci/devices/0000<span style="color: #deb887;">\:</span>00<span style="color: #deb887;">\:</span>1d.2/driver/unbind
+</pre>
+</div>
+
+<p>
+执行后/sys/bus/pci/devices/0000\:00\:1d.7/下的driver目录被删除
+</p>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-09-15 周日 22:39] </span></span> group5下面的4个usb controller全部都要删除掉
+</p></li>
+
+<li><p>
+将设备地vendorid和deviceid绑定到new_id
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">usb ehci&#25511;&#21046;&#22120;</span>
+<span style="color: #f08080;">echo</span> <span style="color: #deb887;">"8086 293a"</span> &gt;/sys/bus/pci/drivers/vfio-pci/new_id
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">17.0</span>
+<span style="color: #f08080;">echo</span> <span style="color: #deb887;">"8086 2934"</span> &gt;/sys/bus/pci/drivers/vfio-pci/new_id
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">17.1</span>
+<span style="color: #f08080;">echo</span> <span style="color: #deb887;">"8086 2935"</span> &gt;/sys/bus/pci/drivers/vfio-pci/new_id
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">17.2</span>
+<span style="color: #f08080;">echo</span> <span style="color: #deb887;">"8086 2936"</span> &gt;/sys/bus/pci/drivers/vfio-pci/new_id
+</pre>
+</div></li>
+
+<li><p>
+检测iommu_group是否绑定成功，会发现 <code>/dev/vfio</code> 下多了1(intel 82576LM千兆网卡)和5(usb controller)2个组号
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[root@albert /dev/vfio] <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">ls /dev/vfio</span>
+1  5 vfio
+</pre>
+</div></li>
+</ol>
+
+<p>
+查看网卡和usb驱动是否为vfio-pci
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26597;&#30475;pci&#20855;&#20307;&#26576;&#20010;bdf&#30340;&#20449;&#24687; [2019-09-15 &#21608;&#26085; 22:41:29]</span>
+albert@E6400:~$ lspci -nnvv -s 00:1d.7
+00:1d.7 USB controller [0c03]: Intel Corporation 82801I (ICH9 Family) USB2 EHCI Controller <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">1 [8086:293a] (rev 03) (prog-if 20 [EHCI])</span>
+        Subsystem: Dell 82801I (ICH9 Family) USB2 EHCI Controller [1028:0233]
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B- DisINTx-
+        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- <span style="color: #4eee94;">DEVSEL</span>=medium &gt;TAbort- &lt;TAbort- &lt;MAbort- &gt;SERR- &lt;PERR- INTx-
+        Latency: 0
+        Interrupt: pin A routed to IRQ 20
+        Region 0: Memory at fed1c000 (32-bit, non-prefetchable) [<span style="color: #4eee94;">size</span>=1K]
+        Capabilities: &lt;access denied&gt;
+        Kernel driver<span style="color: #00bfff;"> in</span> use: vfio-pci
+</pre>
+</div>
+
+
+<h3>定位cpu高的问题 - 都是和各种timer有关 <span class="timestamp-wrapper"><span class="timestamp">[2019-09-17 周二 14:43]</span></span></h3>
+
+<p>
+top时看见没有压力的情况下，宿主机的cpu就到15%。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">perf top -p pid
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#21457;&#29616; read_hpet &#21344;&#24471;&#26368;&#39640;&#65292;&#19981;&#27491;&#24120;</span>
+</pre>
+</div>
+
+<p>
+删除了usb tablet，删除了usb设备，重新把ich9的ehci加上去就ok了。
+</p>
+
+
+<h4>&lt;timer name='hpet' present='yes'/&gt; - 改了以后到2.3%了 <span class="timestamp-wrapper"><span class="timestamp">[2019-09-17 周二 21:25]</span></span></h4>
+
+<p>
+看看qemu的cpu还是不是有4%左右
+</p>
+
+<p>
+<a href="https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/Virtualization_Deployment_and_Administration_Guide/sect-Virtualization-Tips_and_tricks-Libvirt_Managed_Timers.html">https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/Virtualization_Deployment_and_Administration_Guide/sect-Virtualization-Tips_and_tricks-Libvirt_Managed_Timers.html</a>
+</p>
+
+<p>
+参考了这个 <a href="https://askubuntu.com/questions/1033985/kvm-high-host-cpu-load-after-upgrading-vm-to-windows-10-1803">https://askubuntu.com/questions/1033985/kvm-high-host-cpu-load-after-upgrading-vm-to-windows-10-1803</a> 
+</p>
+
+<p>
+<a href="https://forum.proxmox.com/threads/high-cpu-load-for-windows-10-guests-when-idle.44531/">https://forum.proxmox.com/threads/high-cpu-load-for-windows-10-guests-when-idle.44531/</a>
+</p>
+
+<p>
+<a href="https://serverfault.com/questions/955439/why-windows-10-virtual-machine-show-high-cpu-load-on-kvm-hyprvisor">https://serverfault.com/questions/955439/why-windows-10-virtual-machine-show-high-cpu-load-on-kvm-hyprvisor</a>
+</p>
+
+
+<h4>&lt;timer name='pit' tickpolicy='delay'/&gt; <span class="timestamp-wrapper"><span class="timestamp">[2019-09-17 周二 21:34]</span></span></h4>
+
+<p>
+tickpolicy改为 <b>discard</b> 。
+</p>
+
+<p>
+<a href="https://unix.stackexchange.com/questions/64297/host-cpu-does-not-scale-frequency-when-kvm-guest-needs-it">https://unix.stackexchange.com/questions/64297/host-cpu-does-not-scale-frequency-when-kvm-guest-needs-it</a>
+</p>
+
+<p>
+<a href="https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/Virtualization_Deployment_and_Administration_Guide/sect-Virtualization-Tips_and_tricks-Libvirt_Managed_Timers.html">https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/Virtualization_Deployment_and_Administration_Guide/sect-Virtualization-Tips_and_tricks-Libvirt_Managed_Timers.html</a>
+</p>
+
+
+<h4>增加 synic和stimer - cpu &#x2014;&gt; 1.5%以下了 <span class="timestamp-wrapper"><span class="timestamp">[2019-09-18 周三 01:05]</span></span></h4>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-09-18 周三 01:24] </span></span> 不知道为什么配置了以后，硬盘找不到了，启动的时候可能是时钟相关的 hv_ 模块报错了，但是vnc太快了看不见
+</p>
+
+<p>
+<a href="https://libvirt.org/formatdomain.html">https://libvirt.org/formatdomain.html</a>
+</p>
+<pre class="example">
+  &lt;features&gt;
+    &lt;acpi/&gt;
+    &lt;apic/&gt;
+    &lt;hyperv&gt;
+      &lt;synic state='on'/&gt;
+      &lt;stimer state='on'&gt;
+       &lt;direct state='on'/&gt;
+      &lt;/stimer&gt;
+    &lt;/hyperv&gt;
+  &lt;/features&gt;
+  
+synic	Enable Synthetic Interrupt Controller (SynIC)	on, off	1.3.3 (QEMU 2.6)
+stimer	Enable SynIC timers, optionally with Direct Mode support
+</pre>
+
+<p>
+好像和 kvm:kvm_hv_timer_state event有关
+</p>
+
+
+<h4>65,201      kvm:kvm_write_tsc_offset <span class="timestamp-wrapper"><span class="timestamp">[2019-09-18 周三 01:19]</span></span></h4>
+
+<p>
+里面有tsc相关内容，不调整了，tsc比较重要 <a href="https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/Virtualization_Deployment_and_Administration_Guide/sect-Virtualization-Tips_and_tricks-Libvirt_Managed_Timers.html">https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/Virtualization_Deployment_and_Administration_Guide/sect-Virtualization-Tips_and_tricks-Libvirt_Managed_Timers.html</a> 
+</p>
+
+
+<h2>dsm6.2 <span class="timestamp-wrapper"><span class="timestamp">[2019-09-16 周一 16:35]</span></span></h2>
+
+<p>
+dsm6.2是各种问题，搞不定。
+</p>
+
+<h3>修改img - 非LVM分区挂载方法</h3>
+
+<p>
+调整img中的启动选项的时间，timeout太快了，都来不及选。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">albert@E6400:~/dsm/dsm6.2$ fdisk -ul synoboot-ds3617_6.2-1.02b-uefi.img
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: B3CAAA25-3CA1-48FA-A5B6-105ADDE4793F
+
+Device                              Start    End Sectors Size Type
+synoboot-ds3617_6.2-1.02b-uefi.img1  2048  32767   30720  15M EFI System
+synoboot-ds3617_6.2-1.02b-uefi.img2 32768  94207   61440  30M Linux filesystem
+synoboot-ds3617_6.2-1.02b-uefi.img3 94208 102366    8159   4M BIOS boot
+</pre>
+</div>
+
+<p>
+可以看见linux的文件系统是从第2048块开始的，所以挂载的时候应该从这个地方开始挂载。
+</p>
+
+<p>
+由这条信息可以的出，扇区大小为512。
+</p>
+
+<pre class="example">
+Units = sectors of 1 * 512 = 512 bytes
+</pre>
+
+<p>
+所以我们需要从512*2048出开始挂载，计算以字节为单位的偏移量。
+</p>
+<pre class="example">
+2048 * 512 = 1048576
+</pre>
+
+<div class="org-src-container">
+<pre class="src src-sh">mount -o loop,<span style="color: #4eee94;">offset</span>=1048576 synoboot-ds3617_6.2-1.02b-uefi.img /mnt/dsm6.2
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#33756;&#21333;&#36873;&#39033;&#25913;&#20026;20s</span>
+<span style="color: #f08080;">cd</span> /mnt/dsm6.2
+vim grub/grub.cfg
+<span style="color: #f08080;">set</span> <span style="color: #4eee94;">timeout</span>=<span style="color: #deb887;">'20'</span>
+
+mount -o loop,<span style="color: #4eee94;">offset</span>=1048576 synoboot-ds3617_6.2-1.02b-uefi.img /mnt/dsm6.2
+</pre>
+</div>
+
+
+<h2>dsm6.1 <span class="timestamp-wrapper"><span class="timestamp">[2019-09-25 周三 16:22]</span></span></h2>
+
+<p>
+从这里下载 <a href="http://down.nas2x.com/synology/dsm/6.1/6.1.7/ds3617xs/">http://down.nas2x.com/synology/dsm/6.1/6.1.7/ds3617xs/</a>
+</p>
+
+<p>
+dsm 6.1.7是ok的。cpu指定broadwell，可能性能不会太好。
+</p>
+
+<p>
+这个版本的问题是没有virtio-scsi的驱动，总是不认盘。
+</p>
+
+<h3>read_hpet导致cpu高问题</h3>
+
+<p>
+原来的配置
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">&lt;clock <span style="color: #4eee94;">offset</span>=<span style="color: #deb887;">'utc'</span>&gt;
+  &lt;timer <span style="color: #4eee94;">name</span>=<span style="color: #deb887;">'rtc'</span> <span style="color: #4eee94;">tickpolicy</span>=<span style="color: #deb887;">'catchup'</span>/&gt;
+  &lt;timer <span style="color: #4eee94;">name</span>=<span style="color: #deb887;">'pit'</span> <span style="color: #4eee94;">tickpolicy</span>=<span style="color: #deb887;">'discard'</span>/&gt;
+  &lt;timer <span style="color: #4eee94;">name</span>=<span style="color: #deb887;">'hpet'</span> <span style="color: #4eee94;">present</span>=<span style="color: #deb887;">'no'</span>/&gt;
+&lt;/clock&gt;
+</pre>
+</div>
+
+<h3>virtio和scsi都不认盘</h3>
+
+<pre class="example">
+&lt;source file='/home/albert/dsm/dsm6.1/DS3617xs_DSM6.1_Broadwell.img'/&gt;
+</pre>
+
+<p>
+用virtio后，盘是vd开头的，dsm只认sd开头的。所以dsm不认盘，没法用virtio。只能把sata控制器pass through，但是dsm中要有sata控制器的驱动。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[   15.907316] md: Autodetecting RAID arrays.
+[   15.907332] This is not a kind of scsi disk 252
+[   15.908231] md: deny vda1.
+[   15.908233] md: export_rdev(vda1)
+[   15.908245] This is not a kind of scsi disk 252
+[   15.908557] md: deny vda2.
+[   15.908559] md: export_rdev(vda2)
+[   15.908565] This is not a kind of scsi disk 252
+[   15.908654] md: invalid raid superblock magic on vda3
+[   15.910197] md: vda3 does not have a valid v0.90 superblock, not importing!
+[   15.910201] md: Scanned 3 and added 0 devices.
+[   15.910202] md: autorun ...
+[   15.910203] md: ... autorun DONE.
+[   18.800910] sd 0:0:0:0: Attached scsi generic sg0 type 0
+</pre>
+</div>
+
+<h2>DS3617xs_DSM6.1_Broadwell.img <span class="timestamp-wrapper"><span class="timestamp">[2019-09-27 周五 11:20]</span></span></h2>
+
+<p>
+用virtio-scsi就报错，core，不识别scsi_dispatch_cmd。为什么呢？
+</p>
+
+<p>
+用virtio就不认盘。
+</p>
+
+<ul class="org-ul">
+<li>ide
+认盘，但是性能不好。</li>
+
+<li>sata <span class="timestamp-wrapper"><span class="timestamp">[2019-09-27 周五 14:03]</span></span>
+认盘，但是性能不用virtio好</li>
+
+<li>scsi <span class="timestamp-wrapper"><span class="timestamp">[2019-09-27 周五 14:06]</span></span>
+dmesg直接就看不见有这个盘的log。</li>
+
+<li>virtio
+不认盘，dsm就是要把盘认成scsi，但是却不是scsi的，本来用virtio以后就不是scsi的，如何才能让dsm把vda认为不是scsi的呢?
+<span class="timestamp-wrapper"><span class="timestamp">[2019-09-27 周五 16:58] </span></span> 搞不定</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-sh">qemu-system-x86_64 -enable-kvm -name <span style="color: #4eee94;">guest</span>=dsm6.2,debug-threads=on -S -machine pc-i440fx-bionic,<span style="color: #4eee94;">accel</span>=kvm,<span style="color: #4eee94;">usb</span>=off,dump-guest-core=off -cpu Broadwell,hv_synic,hv_stimer -m 2000 -realtime <span style="color: #4eee94;">mlock</span>=off -smp 2,<span style="color: #4eee94;">sockets</span>=2,<span style="color: #4eee94;">cores</span>=1,<span style="color: #4eee94;">threads</span>=1 -uuid 7b9ee21c-502b-4661-bf67-1f139e2bc246 -no-user-config -nodefaults -rtc <span style="color: #4eee94;">base</span>=localtime,<span style="color: #4eee94;">clock</span>=vm,<span style="color: #4eee94;">driftfix</span>=slew -global kvm-pit.lost_tick_policy=discard -no-shutdown -global PIIX4_PM.disable_s3=1 -global PIIX4_PM.disable_s4=1 -boot <span style="color: #4eee94;">strict</span>=on -device ich9-usb-ehci1,<span style="color: #4eee94;">id</span>=usb,<span style="color: #4eee94;">bus</span>=pci.0,<span style="color: #4eee94;">addr</span>=0x4.0x7 -device ich9-usb-uhci1,<span style="color: #4eee94;">masterbus</span>=usb.0,<span style="color: #4eee94;">firstport</span>=0,<span style="color: #4eee94;">bus</span>=pci.0,<span style="color: #4eee94;">multifunction</span>=on,<span style="color: #4eee94;">addr</span>=0x4 -device ich9-usb-uhci2,<span style="color: #4eee94;">masterbus</span>=usb.0,<span style="color: #4eee94;">firstport</span>=2,<span style="color: #4eee94;">bus</span>=pci.0,<span style="color: #4eee94;">addr</span>=0x4.0x1 -device ich9-usb-uhci3,<span style="color: #4eee94;">masterbus</span>=usb.0,<span style="color: #4eee94;">firstport</span>=4,<span style="color: #4eee94;">bus</span>=pci.0,<span style="color: #4eee94;">addr</span>=0x4.0x2 -device lsi,<span style="color: #4eee94;">id</span>=scsi0,<span style="color: #4eee94;">bus</span>=pci.0,<span style="color: #4eee94;">addr</span>=0x6 -device ahci,<span style="color: #4eee94;">id</span>=sata0,<span style="color: #4eee94;">bus</span>=pci.0,<span style="color: #4eee94;">addr</span>=0x7 -drive <span style="color: #4eee94;">file</span>=/home/albert/dsm/dsm6.1/DS3617xs_DSM6.1_Broadwell.img,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">if</span>=none,<span style="color: #4eee94;">id</span>=drive-ide0-0-0 -device ide-hd,<span style="color: #4eee94;">bus</span>=ide.0,<span style="color: #4eee94;">unit</span>=0,<span style="color: #4eee94;">drive</span>=drive-ide0-0-0,<span style="color: #4eee94;">id</span>=ide0-0-0,<span style="color: #4eee94;">bootindex</span>=1 -drive <span style="color: #4eee94;">file</span>=/var/lib/libvirt/images/dsm-scsi.img,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">if</span>=none,<span style="color: #4eee94;">id</span>=drive-virtio-disk0,<span style="color: #4eee94;">cache</span>=none,<span style="color: #4eee94;">aio</span>=native -device virtio-blk-pci,<span style="color: #4eee94;">scsi</span>=on,<span style="color: #4eee94;">bus</span>=pci.0,<span style="color: #4eee94;">addr</span>=0x8,<span style="color: #4eee94;">drive</span>=drive-virtio-disk0,<span style="color: #4eee94;">id</span>=virtio-disk0 -chardev pty,<span style="color: #4eee94;">id</span>=charserial0 -device isa-serial,<span style="color: #4eee94;">chardev</span>=charserial0,<span style="color: #4eee94;">id</span>=serial0 -device usb-tablet,<span style="color: #4eee94;">id</span>=input0,<span style="color: #4eee94;">bus</span>=usb.0,<span style="color: #4eee94;">port</span>=1 -vnc 0.0.0.0:14109 -device VGA,<span style="color: #4eee94;">id</span>=video0,<span style="color: #4eee94;">vgamem_mb</span>=16,<span style="color: #4eee94;">bus</span>=pci.0,<span style="color: #4eee94;">addr</span>=0x2 -device vfio-pci,<span style="color: #4eee94;">host</span>=00:19.0,<span style="color: #4eee94;">id</span>=hostdev0,<span style="color: #4eee94;">bus</span>=pci.0,<span style="color: #4eee94;">addr</span>=0x3 -device virtio-balloon-pci,<span style="color: #4eee94;">id</span>=balloon0,<span style="color: #4eee94;">bus</span>=pci.0,<span style="color: #4eee94;">addr</span>=0x5 -msg <span style="color: #4eee94;">timestamp</span>=on
+
+2019-09-27T07:02:12.535671Z qemu-system-x86_64: -device virtio-blk-pci,<span style="color: #4eee94;">scsi</span>=on,<span style="color: #4eee94;">bus</span>=pci.0,<span style="color: #4eee94;">addr</span>=0x8,<span style="color: #4eee94;">drive</span>=drive-virtio-disk0,<span style="color: #4eee94;">id</span>=virtio-disk0: Please set <span style="color: #4eee94;">scsi</span>=off for virtio-blk devices<span style="color: #00bfff;"> in</span> order to use virtio 1.0
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">fdisk /dev/vda
+d <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#21024;&#38500;&#20998;&#21306;</span>
+n <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">create partition</span>
+p <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">primary partition</span>
++4000M <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#19968;&#20010;&#20998;&#21306;4G</span>
+t <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">partition tag</span>
+fd <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">raid tag</span>
+</pre>
+</div>
+
+<p>
+用同一个盘建RAID1会提示用了同一个盘。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">mdadm -Cv /dev/md0 -a yes -l 0 -n 2 /dev/vda{1,2}
+</pre>
+</div>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-09-27 周五 15:34] </span></span> 手工创建RAID1，但是在安装时报格式化磁盘失败。(35)
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">DiskStation&gt; mdadm -Cv /dev/md0 -l1 -n2 /dev/vda[12]
+mdadm: Note: this array has metadata at the start and
+    may not be suitable as a boot device.  If you plan to
+    store <span style="color: #deb887;">'/boot'</span> on this device please ensure that
+    your boot-loader understands md/v1.x metadata, or use
+    --metadata=0.90
+mdadm: size set to 3905408K
+
+DiskStation&gt; cat /proc/mdstat
+Personalities : [linear] [raid0] [raid1] [raid10] [raid6] [raid5] [raid4] [raidF1]
+md0 : active raid1 vda2[1] vda1[0]
+      3905408 blocks super 1.2 [2/2] [UU]
+      [==&gt;..................]  resync = 14.9% (584448/3905408) <span style="color: #4eee94;">finish</span>=0.4min <span style="color: #4eee94;">speed</span>=116889K/sec
+
+unused devices: &lt;none&gt;
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">fdisk -ul 
+
+mount -o loop,<span style="color: #4eee94;">offset</span>=1048576 /home/albert/dsm/dsm6.1/DS3617xs_DSM6.1_Broadwell.img /mnt/dsm6.2
+
+mount -o loop,<span style="color: #4eee94;">offset</span>=22020096 /home/albert/dsm/dsm6.1/DS3617xs_DSM6.1_Broadwell.img /mnt/dsm6.2_img2
+</pre>
+</div>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-09-27 周五 16:31] </span></span> baidu: udev site:xpenology.com
+考虑使用udev把 /dev/vda 改为 /dev/sda
+</p>
+
+<p>
+<a href="http://blog.chinaunix.net/uid-31410005-id-5789856.html">http://blog.chinaunix.net/uid-31410005-id-5789856.html</a> 如何让KVM虚拟机显示sda而不是vda - 没地方改啊
+</p>
+
+<p>
+<a href="https://xpenology.com/forum/topic/12470-how-to-play-around-with-hdd-mapping-with-sataportmap-and-diskidxmap/">https://xpenology.com/forum/topic/12470-how-to-play-around-with-hdd-mapping-with-sataportmap-and-diskidxmap/</a> 没有用udev改名的内容，但是又 sataportmap的解释
+</p>
+
+<p>
+<a href="https://xpenology.com/forum/topic/5982-how-does-the-xpenology-bootloader-work/?tab=comments#comment-51884">https://xpenology.com/forum/topic/5982-how-does-the-xpenology-bootloader-work/?tab=comments#comment-51884</a> 说了virtio的盘符是vda的问题，但是没解决
+</p>
+
+<p>
+<a href="http://www.gebi1.com/thread-292649-1-1.html">http://www.gebi1.com/thread-292649-1-1.html</a> 关于硬盘直通黑裙的问题！
+</p>
+
+<p>
+<a href="https://xpenology.com/forum/topic/12866-drivers-requests-for-dsm-62/page/3/">https://xpenology.com/forum/topic/12866-drivers-requests-for-dsm-62/page/3/</a> 里面有一些如何编译内核的东西
+</p>
+
+<p>
+<a href="https://github.com/SynologyOpenSource/pkgscripts-ng">https://github.com/SynologyOpenSource/pkgscripts-ng</a> 编译
+</p>
+
+<p>
+<a href="https://github.com/kref/scripts/blob/master/mkramdisk">https://github.com/kref/scripts/blob/master/mkramdisk</a> 到底用哪个？
+</p>
+</div>
+</body>
+</html>
