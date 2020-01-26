@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2020-01-26 周日 22:48 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>在windows上用mingw64编译emacs的feature/native-comp分支</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">在windows上用mingw64编译emacs的feature/native-comp分支</h1>
+<p>
+gcc的libgccjit在mingw64上编译有点麻烦，emacs的native-comp分支也是。
+</p>
+
+<h2>编译支持libgccjit的gcc</h2>
+
+<p>
+在最新的mingw64里，gcc的版本是9.2，从 <code>gcc -v</code> 看是没有把libgccjit编译进去，不支持libgccjit。
+</p>
+
+<p>
+pacman中找不到gcc的libgccjit的package。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#27809;&#26377;gccjit&#30456;&#20851;package</span>
+pacman -Ss jit
+</pre>
+</div>
+
+<p>
+在mingw64上，源代码编译gcc的trunk的最新代码。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">depth=1 &#21482;clone&#26368;&#26032;&#30340;&#65292;gcc&#22826;&#22810;&#20102;&#65292;&#32593;&#36895;&#24930;&#65292;clone&#22826;&#24930;</span>
+git clone --depth 1 git://gcc.gnu.org/git/gcc.git
+</pre>
+</div>
+
+
+<h3>编译</h3>
+
+<p>
+只要支持c和c++就可以了。lto(link time optimize)看文档是默认的。jit看gccjit的文档上有，不知道不加有没有问题。
+</p>
+<pre class="example">
+--enable-languages=c,jit,lto,c++
+</pre>
+
+<p>
+下面这2个参数是编译gccjit需要的。
+</p>
+<pre class="example">
+--enable-host-shared \
+--enable-languages=jit \
+</pre>
+
+<p>
+如果enable的话，configure的时候会比较慢。
+</p>
+<pre class="example">
+--disable-bootstrap
+</pre>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> /e/workspace/gcc/build
+../gcc/configure --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --with-native-system-header-dir=/mingw64/x86_64-w64-mingw32/include --libexecdir=/mingw64/lib --with-arch=x86-64 --with-tune=generic --enable-languages=c,jit,lto,c++ --enable-shared --enable-static --enable-libatomic --enable-threads=posix --enable-graphite --enable-fully-dynamic-string --enable-libstdcxx-filesystem-ts=yes --enable-libstdcxx-time=yes --disable-libstdcxx-pch --disable-libstdcxx-debug --disable-isl-version-check --enable-lto --enable-libgomp --disable-multilib --enable-checking=release --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --enable-plugin --with-libiconv --with-system-zlib --with-gmp=/mingw64 --with-mpfr=/mingw64 --with-mpc=/mingw64 --with-isl=/mingw64 --with-pkgversion=<span style="color: #deb887;">'Rev2, Built by MSYS2 project. Albert 2020.01.20'</span> --with-gnu-as --with-gnu-ld <span style="color: #deb887;">\</span>
+--enable-host-shared <span style="color: #deb887;">\</span>
+--enable-languages=jit <span style="color: #deb887;">\</span>
+--disable-bootstrap
+</pre>
+</div>
+
+
+<h4>路径</h4>
+
+<p>
+不要直接在gcc的目录下执行 <b>configure</b> ，在gcc的同级目录下建 <b>build</b> 目录，然后再configure。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">Albert@Albert MINGW64 /e/workspace/gcc
+$ ls -tlr
+total 20
+drwxr-xr-x 1 Albert None 0 Jan 20 17:37 gcc   <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">gcc&#30340;&#20195;&#30721;</span>
+drwxr-xr-x 1 Albert None 0 Jan 21 16:25 build <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#32534;&#35793;&#30446;&#24405;</span>
+</pre>
+</div>
+
+
+<h3>pic/libiberty.a 报错</h3>
+
+<pre class="example">
+make[3]: *** No rule to make target '../build-x86_64-w64-mingw32/libiberty/pic/libiberty.a', needed by 'build/genmddeps.exe'.  Stop.
+</pre>
+
+<p>
+enable-host-shared后，link的时候找pic目录下的libiberty.a，但是找不到。
+</p>
+
+<pre class="example">
+--enable-host-shared \
+--enable-languages=jit \
+</pre>
+
+
+<h4>解决方法</h4>
+
+<p>
+在libiberty目录下 <code>mkdir pic &amp;&amp; cp -p libiberty.a pic</code> ，手工copy一份，测试是ok的。
+</p>
+
+
+<h3>代码修改</h3>
+
+
+
+<h4>在 jit-tempdir.c 中增加mkdtemp()函数</h4>
+
+<p>
+参考 <a href="https://doxygen.postgresql.org/mkdtemp_8c_source.html">https://doxygen.postgresql.org/mkdtemp_8c_source.html</a>
+</p>
+
+
+<h4>git里面的代码修改 fchmod\dlopen\dlerror</h4>
+
+<p>
+<a href="https://gcc.gnu.org/ml/jit/2015-q3/msg00126.html">https://gcc.gnu.org/ml/jit/2015-q3/msg00126.html</a>
+</p>
+
+<p>
+参考<a href="https://stackoverflow.com/questions/6431345/how-to-specify-dll-onload-function-for-mingw32">https://stackoverflow.com/questions/6431345/how-to-specify-dll-onload-function-for-mingw32</a> 把jit-playback.c里面的
+</p>
+
+<ol class="org-ol">
+<li>用LoadLibrary()替换dlopen()</li>
+
+<li>用SetLastError(0)和GetLastError()替换dlerror()</li>
+</ol>
+
+
+<h5>安装dlfcn</h5>
+
+<p>
+编译gccjit的时候不知道安装dlfcn后还要不要改共享库相关的代码。
+</p>
+
+<p>
+在编译emacs native-comp的时候需要安装 <code>dlfcn</code> 。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#22312;&#25968;&#25454;&#24211;&#20013;search dlfcn&#21253;</span>
+pacman -Ss dlfcn
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#23433;&#35013;dlfcn</span>
+pacman -S dlfcn
+
+$ find /mingw64/ -name <span style="color: #deb887;">'libdl*'</span> -ls
+3659174697621175     20 -rwxr-xr-x   1 Albert   None        20470 6&#26376; 21  2019 /mingw64/bin/libdl.dll
+2533274790778565      8 -rw-r--r--   1 Albert   None         4586 6&#26376; 21  2019 /mingw64/lib/libdl.a
+2251799814067910      4 -rw-r--r--   1 Albert   None         3068 6&#26376; 21  2019 /mingw64/lib/libdl.dll.a
+</pre>
+</div>
+
+
+<h3>报错 - 无法编译xgcc.exe</h3>
+
+<p>
+可能makefile里面的依赖关系不对，需要手工make一下
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> build &amp;&amp; make xgcc.exe
+</pre>
+</div>
+
+
+<h2>emacs的native-comp branch</h2>
+
+
+
+<h3>修改src/comp.c的代码</h3>
+
+<ol class="org-ol">
+<li>mingw64中不支持signal <b>SIGIO</b> ，直接注释掉。</li>
+
+<li>mingw64中configure时居然不支持 <b>setjmp</b> 。在setjmp.h中有 <b>_setjmp</b> ，里面的宏太多了，搞不清楚是用哪个，编译时报错，提示有2个参数。从setjmp.h里看 _setjmp(jmp_buf, void * ptr)，第二个参数一般是0。反正没看懂。先填个0进去了。</li>
+</ol>
+
+<pre class="example">
+$ git diff
+diff --git a/src/comp.c b/src/comp.c
+index 290fc3a9c4..43b5273d45 100644
+--- a/src/comp.c
++++ b/src/comp.c
+
+@@ -69,7 +71,7 @@ #define DECL_BLOCK(name, func)                                \
+ #ifdef HAVE__SETJMP
+ #define SETJMP _setjmp
+ #else
+-#define SETJMP setjmp
++#define SETJMP _setjmp
+ #endif
+ #define SETJMP_NAME SETJMP
+
+@@ -1268,10 +1270,12 @@ emit_limple_push_handler (gcc_jit_rvalue *handler, gcc_jit_rvalue *handler_type,
+          NULL,
+          comp.handler_jmp_field),
+        NULL);
+-
++  /* mingw64 _setjmp need 2 args */
++  args[1] = gcc_jit_context_null(comp.ctxt, comp.void_ptr_type);
+   gcc_jit_rvalue *res;
+   res =
+-    emit_call (intern_c_string (STR (SETJMP_NAME)), comp.int_type, 1, args, false);
++    emit_call (intern_c_string (STR (SETJMP_NAME)), comp.int_type, 2, args, false);
+   emit_cond_jump (res, handler_bb, guarded_bb);
+ }
+
+@@ -1838,7 +1842,9 @@ #define ADD_IMPORTED(f_name, ret_type, nargs, args)                              \
+   ADD_IMPORTED (push_handler, comp.handler_ptr_type, 2, args);
+
+   args[0] = gcc_jit_type_get_pointer (gcc_jit_struct_as_type (comp.jmp_buf_s));
+-  ADD_IMPORTED (SETJMP_NAME, comp.int_type, 1, args);
++  args[1] = comp.void_ptr_type;
++  ADD_IMPORTED (SETJMP_NAME, comp.int_type, 2, args);
+
+   ADD_IMPORTED (record_unwind_protect_excursion, comp.void_type, 0, NULL);
+
+@@ -3148,7 +3154,7 @@ DEFUN ("comp--compile-ctxt-to-file", Fcomp__compile_ctxt_to_file,
+       sigemptyset (&amp;blocked);
+       sigaddset (&amp;blocked, SIGALRM);
+       sigaddset (&amp;blocked, SIGINT);
+-      sigaddset (&amp;blocked, SIGIO);
++      /* sigaddset (&amp;blocked, SIGIO); */
+       pthread_sigmask (SIG_BLOCK, &amp;blocked, &amp;oldset);
+     }
+   emit_ctxt_code ();
+</pre>
+
+
+<h3>编译</h3>
+
+<p>
+改为代码后，如果make时总是报错，最好 <code>make clean</code> 再重新configure。emacs的configure过程太慢了，10分钟都完不了。make时，编译src目录下的可执行文件，几分钟就能完成，在elisp文件编译eln时，会非常慢，可能要1个小时。
+</p>
+
+<p>
+configure的参数参考 <a href="http://chriszheng.science/2015/03/19/Chinese-version-of-Emacs-building-guideline/">http://chriszheng.science/2015/03/19/Chinese-version-of-Emacs-building-guideline/</a> 。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">./autogen.sh
+
+<span style="color: #4eee94;">PKG_CONFIG_PATH</span>=/mingw64/lib/pkgconfig ./configure --host=x86_64-w64-mingw32 <span style="color: #deb887;">\</span>
+--with-wide-int <span style="color: #deb887;">\</span>
+--without-dbus <span style="color: #deb887;">\</span>
+--with-jpeg --with-xpm --with-png --with-tiff --with-rsvg --with-xml2 <span style="color: #deb887;">\</span>
+--with-gnutls=ifavailable <span style="color: #deb887;">\</span>
+--without-compress-install -C <span style="color: #deb887;">'CFLAGS=-g -static -g3'</span> <span style="color: #deb887;">\</span>
+--without-imagemagick --with-nativecomp
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">6&#20010;&#36827;&#31243;&#32534;&#35793;&#20250;&#24555;&#19981;&#23569;&#12290;</span>
+make -j6
+</pre>
+</div>
+
+<ol class="org-ol">
+<li>make时报 <b>error 127</b> ，可能是 <b>byte-run.el、subr.el</b> 等eln编译有问题，导致emacs在生成pdump文件有问题，启动报错，可以rm *.eln，再试试。</li>
+
+<li>有时候native compile某个elisp文件会coredump，只能再执行make。</li>
+
+<li><p>
+debug
+按gdb的提示，把emacs的.gdbinit 加到 ~/.gdbinit中。debug时可以看见elisp执行的堆栈。gdb时emacs会比较慢。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> src
+gdb emacs
+run
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">segfault&#21518;</span>
+bt
+</pre>
+</div></li>
+
+<li><p>
+native comp的有时候会coredump，可能和_setjmp有关，通过gdb没看出来问题在哪里。
+</p>
+
+<p>
+在异常处理时可能会segment fault。
+</p></li>
+</ol>
+
+
+<ol class="org-ol">
+<li>如何知道load了几个eln文件
+在linux上可以在/proc中看 <b>/proc/pid/maps</b> 文件。在windows上，使用 <b>vmmap</b> 。</li>
+</ol>
+
+
+<h3>执行</h3>
+
+<p>
+修改mingw64的环境变量，把编译后的gcc加进去。新增 <b>LIBRARY_PATH</b> ，貌似 LD_LIBRARY_PATH 加了也没用。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">export</span> <span style="color: #4eee94;">PATH</span>=$<span style="color: #4eee94;">PATH</span>:/e/workspace/gcc/build/gcc:/mingw64/lib/gcc/x86_64-w64-mingw32/10.0.1:/mingw64/x86_64-w64-mingw32/lib
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">LIBRARY_PATH</span>=/e/workspace/gcc/build/gcc:/mingw64/x86_64-w64-mingw32/lib:/mingw64/bin
+</pre>
+</div>
+
+
+<h3>功能测试</h3>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> /e/workspace/emacs_src/emacs28
+./emacs/src/emacs -batch -l ert -l ./emacs/test/src/comp-tests.el -f ert-run-tests-batch-and-exit
+</pre>
+</div>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-26 周日 22:09] </span></span> fail了2个test case。
+</p>
+
+<pre class="example">
+2 unexpected results:
+   FAILED  comp-tests-bootstrap
+   FAILED  comp-tests-fixnum
+</pre>
+
+
+<h3>性能测试</h3>
+
+<p>
+在win10上测试，cpu是intel i5-8520U。
+</p>
+
+
+<h4>第一次测试</h4>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26410;&#21152; -batch -Q &#21442;&#25968;&#65292;&#22312;gui&#20013;&#65292;&#21487;&#33021;&#23545;&#27979;&#35797;&#24615;&#33021;&#26377;&#24433;&#21709;&#12290;</span>
+./emacs -l E:/workspace/elisp-benchmarks/elisp-benchmark.el --eval <span style="color: #deb887;">'(elb-run)'</span>
+</pre>
+</div>
+
+<pre class="example">
+Summary results:
+
+bubble.el                 byte time:  48.196685s native time:  22.676739s boost 112.537989%
+bubble-no-cons.el         byte time: 140.633307s native time:  38.527450s boost 265.021062%
+fibn.el                   byte time: 137.998609s native time:  74.574372s boost 85.048302%
+fibn-rec.el               byte time: 111.793463s native time:  38.222614s boost 192.479899%
+fibn-tc.el                byte time: 105.274320s native time:  27.331516s boost 285.175561%
+inclist-tc.el             byte time: 114.527039s native time:   2.016713s boost 5578.896253%
+listlen-tc.el             byte time: 102.875721s native time:   0.843463s boost 12096.826772%
+inclist-no-type-hints.el  byte time: 149.213448s native time:   6.573894s boost 2169.787861%
+inclist-type-hints.el     byte time: 145.497633s native time:   4.850708s boost 2899.513329%
+nbody.el                  byte time: 196.386510s native time: 138.361917s boost 41.936824%
+dhrystone.el              byte time: 612.382567s native time: 499.131995s boost 22.689504%
+                                                                           
+Total                     byte time: 667.153574s native time: 287.974774s boost 131.670839%    
+</pre>
+
+
+<h4>第二次测试</h4>
+
+<div class="org-src-container">
+<pre class="src src-sh">./emacs -batch -l E:/workspace/elisp-benchmarks/elisp-benchmark.el --eval <span style="color: #deb887;">'(elb-run)'</span> -Q
+</pre>
+</div>
+
+<pre class="example">
+bubble.el                 byte time: 100.621556s native time:  20.373809s boost 393.876997%
+bubble-no-cons.el         byte time: 136.691828s native time:  35.343340s boost 286.754132%
+fibn.el                   byte time: 121.392839s native time:  67.133157s boost 80.823969%
+fibn-rec.el               byte time: 109.009100s native time:  38.573689s boost 182.599624%
+fibn-tc.el                byte time: 103.859580s native time:  24.524760s boost 323.488670%
+inclist-tc.el             byte time: 101.627444s native time:   2.023227s boost 4923.037158%
+listlen-tc.el             byte time:  92.898451s native time:   0.697208s boost 13224.352417%
+inclist-no-type-hints.el  byte time: 124.360178s native time:   5.929948s boost 1997.154612%
+inclist-type-hints.el     byte time: 131.778451s native time:   5.045148s boost 2511.983851%
+nbody.el                  byte time: 493.410192s native time: 122.395166s boost 303.128823%
+dhrystone.el              byte time: 349.269993s native time: 216.528584s boost 61.304335%
+
+Total                     byte time: 552.128101s native time: 161.879026s boost 241.074514%
+</pre>
+
+<table border="1" rules="all" frame="border">
+<caption class="t-above"><span class="table-number">Table 1:</span> 第二次测试</caption>
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">name</th>
+<th scope="col" class="org-right">byte-code(s)</th>
+<th scope="col" class="org-right">native-all(s)</th>
+<th scope="col" class="org-right">native-all vs byte-code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">bubble</td>
+<td class="org-right">100.62</td>
+<td class="org-right">20.37</td>
+<td class="org-right">393.87%</td>
+</tr>
+
+<tr>
+<td class="org-left">bubble-no-cons</td>
+<td class="org-right">136.69</td>
+<td class="org-right">35.34</td>
+<td class="org-right">286.75%</td>
+</tr>
+
+<tr>
+<td class="org-left">fibn</td>
+<td class="org-right">121.39</td>
+<td class="org-right">67.13</td>
+<td class="org-right">80.82%</td>
+</tr>
+
+<tr>
+<td class="org-left">fibn-rec</td>
+<td class="org-right">109.00</td>
+<td class="org-right">38.57</td>
+<td class="org-right">182.60%</td>
+</tr>
+
+<tr>
+<td class="org-left">fibn-tc</td>
+<td class="org-right">103.86</td>
+<td class="org-right">24.52</td>
+<td class="org-right">323.48%</td>
+</tr>
+
+<tr>
+<td class="org-left">inclist-tc</td>
+<td class="org-right">101.63</td>
+<td class="org-right">2.02</td>
+<td class="org-right">4923.03%</td>
+</tr>
+
+<tr>
+<td class="org-left">listlen-tc</td>
+<td class="org-right">92.90</td>
+<td class="org-right">0.70</td>
+<td class="org-right">13224.35%</td>
+</tr>
+
+<tr>
+<td class="org-left">inclist-no-type-hints</td>
+<td class="org-right">124.36</td>
+<td class="org-right">5.93</td>
+<td class="org-right">1997.15%</td>
+</tr>
+
+<tr>
+<td class="org-left">inclist-type-hints</td>
+<td class="org-right">131.78</td>
+<td class="org-right">5.05</td>
+<td class="org-right">2511.98%</td>
+</tr>
+
+<tr>
+<td class="org-left">nbody</td>
+<td class="org-right">493.41</td>
+<td class="org-right">122.40</td>
+<td class="org-right">303.13%</td>
+</tr>
+
+<tr>
+<td class="org-left">dhrystone</td>
+<td class="org-right">552.13</td>
+<td class="org-right">161.88</td>
+<td class="org-right">241.07%</td>
+</tr>
+</tbody>
+</table>
+
+
+<h3>问题</h3>
+
+<ol class="org-ol">
+<li>稳定性
+偶尔会segfault。</li>
+
+<li>功能
+<ul class="org-ul">
+<li>evil的visual mode按c-v，列编辑，按I插入不正常。</li>
+<li>M-x org-publish-all执行几次后报错，出现过segfault。</li>
+</ul></li>
+</ol>
+</div>
+</body>
+</html>
