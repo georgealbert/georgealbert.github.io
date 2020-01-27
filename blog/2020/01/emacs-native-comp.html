@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-01-27 周一 21:39 -->
+<!-- 2020-01-27 周一 22:29 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>在windows上用mingw64编译emacs的feature/native-comp分支</title>
@@ -185,6 +185,511 @@ $ find /mingw64/ -name <span style="color: #deb887;">'libdl*'</span> -ls
 </pre>
 </div>
 
+
+
+<h4>具体修改</h4>
+
+<div class="org-src-container">
+<pre class="src src-sh">Albert@Albert MINGW64 /e/workspace/gcc/gcc
+$ git diff
+diff --git a/gcc/jit/jit-playback.c b/gcc/jit/jit-playback.c
+index da687002a..c7d8ca91c 100644
+--- a/gcc/jit/jit-playback.c
++++ b/gcc/jit/jit-playback.c
+@@ -42,6 +42,9 @@ along with GCC; see the file COPYING3.  If not see
+
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;pthread.h&gt;</span>
+
++/* mingw64 */
++#include &lt;windows.h&gt;
++
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-playback.h"</span>
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-result.h"</span>
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-builtins.h"</span>
+@@ -1818,7 +1821,7 @@ block (<span style="color: #00bfff;">function</span> *func,
+
+ /* Compile a playback::context:
+
+-   - Use the context<span style="color: #deb887;">'s options to cconstruct command-line options, and</span>
+<span style="color: #deb887;">+   - Use the context'</span>s options to construct command-line options, and
+      call into the rest of GCC (toplev::main).
+    - Assuming it succeeds, we have a .s file.
+    - We then run the <span style="color: #deb887;">"postprocess"</span> vfunc:
+@@ -2155,15 +2158,15 @@ playback::compile_to_file::copy_file (const char *src_path,
+
+   gcc_assert (total_sz_in == total_sz_out);
+   <span style="color: #00bfff;">if</span> (get_logger ())
+-    get_logger ()-&gt;log (<span style="color: #deb887;">"total bytes copied: %ld"</span>, total_sz_out);
++    get_logger ()-&gt;log (<span style="color: #deb887;">"total bytes copied: %lld"</span>, total_sz_out);
+
+   /* Set the permissions of the copy to those of the original file,
+      <span style="color: #00bfff;">in</span> particular the <span style="color: #deb887;">"executable"</span> bits.  */
+-  if (fchmod (fileno (f_out), stat_buf.st_mode) == -1)
+-    add_error (NULL,
+-              <span style="color: #deb887;">"error setting mode of %s: %s"</span>,
+-              dst_path,
+-              xstrerror (errno));
++  /* if (fchmod (fileno (f_out), stat_buf.st_mode) == -1) */
++  /*   add_error (NULL, */
++  /*          <span style="color: #deb887;">"error setting mode of %s: %s"</span>, */
++  /*          dst_path, */
++  /*          xstrerror (errno)); */
+
+   fclose (f_out);
+ }
+@@ -2641,16 +2644,20 @@ dlopen_built_dso ()
+   JIT_LOG_SCOPE (get_logger ());
+   auto_timevar load_timevar (get_timer (), TV_LOAD);
+   void *handle = NULL;
+-  const char *error = NULL;
++  /* const char *error = NULL; */
++  DWORD error = 0;
+   result *result_obj = NULL;
+
+   /* Clear any existing error.  */
+-  dlerror ();
+-
+-  handle = dlopen (m_tempdir-&gt;get_path_so_file (),
+-                  RTLD_NOW | RTLD_LOCAL);
+-  if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
+-    add_error (NULL, <span style="color: #deb887;">"%s"</span>, error);
++  /* dlerror (); */
++  SetLastError(0);
++
++  /* handle = dlopen (m_tempdir-&gt;get_path_so_file (), */
++  /*              RTLD_NOW | RTLD_LOCAL); */
++  handle = LoadLibrary(m_tempdir-&gt;get_path_so_file ());
++  /* if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
++  if ((error = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
++    add_error (NULL, <span style="color: #deb887;">"%d"</span>, error);
+   }
+   <span style="color: #00bfff;">if</span> (handle)
+     {
+diff --git a/gcc/jit/jit-result.c b/gcc/jit/jit-result.c
+index c10e5a13c..175c0c02d 100644
+--- a/gcc/jit/jit-result.c
++++ b/gcc/jit/jit-result.c
+@@ -22,6 +22,9 @@ along with GCC; see the file COPYING3.  If not see
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "system.h"</span>
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "coretypes.h"</span>
+
++/* mingw64 */
++#include &lt;windows.h&gt;
++
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-common.h"</span>
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-logging.h"</span>
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-result.h"</span>
+@@ -49,7 +52,8 @@ result::~result()
+ {
+   JIT_LOG_SCOPE (get_logger ());
+
+-  dlclose (m_dso_handle);
++  /* dlclose (m_dso_handle); */
++  FreeLibrary((HMODULE)m_dso_handle);
+
+   /* Responsibility for cleaning up the tempdir (including <span style="color: #deb887;">"fake.so"</span> within
+      the filesystem) might have been handed to us by the playback::context,
+@@ -72,14 +76,17 @@ get_code (const char *funcname)
+   JIT_LOG_SCOPE (get_logger ());
+
+   void *code;
+-  const char *error;
++  /* const char *error; */
++  DWORD error;
+
+   /* Clear any existing error.  */
+-  dlerror ();
+-
+-  code = dlsym (m_dso_handle, funcname);
++  /* dlerror (); */
++  SetLastError(0);
+
+-  if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
++  /* code = dlsym (m_dso_handle, funcname); */
++  code = (void *)GetProcAddress((HMODULE)m_dso_handle, funcname);
++  /* if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
++  if ((error = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
+     fprintf(stderr, <span style="color: #deb887;">"%s\n"</span>, error);
+   }
+
+@@ -99,14 +106,18 @@ get_global (const char *name)
+   JIT_LOG_SCOPE (get_logger ());
+
+   void *global;
+-  const char *error;
++  /* const char *error; */
++  DWORD error;
+
+   /* Clear any existing error.  */
+-  dlerror ();
++  /* dlerror (); */
++  SetLastError(0);
+
+-  global = dlsym (m_dso_handle, name);
++  /* global = dlsym (m_dso_handle, name); */
++  global = (void *)GetProcAddress((HMODULE)m_dso_handle, name);
+
+-  if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
++  /* if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
++  if ((error = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
+     fprintf(stderr, <span style="color: #deb887;">"%s\n"</span>, error);
+   }
+
+diff --git a/gcc/jit/jit-tempdir.c b/gcc/jit/jit-tempdir.c
+index 10c528faf..457591708 100644
+--- a/gcc/jit/jit-tempdir.c
++++ b/gcc/jit/jit-tempdir.c
+@@ -24,6 +24,316 @@ along with GCC; see the file COPYING3.  If not see
+
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-tempdir.h"</span>
+
++/*-------------------------------------------------------------------------
++  *
++  * mkdtemp.c
++  *    create a mode-0700 temporary directory
++  *
++  * Portions Copyright (c) 1996-2020, PostgreSQL Global Development Group
++  *
++  *
++  * IDENTIFICATION
++  *    src/port/mkdtemp.c
++  *
++  * This code was taken from NetBSD to provide an implementation for platforms
++  * that lack it.  (Among compatibly-licensed implementations, the OpenBSD
++  * version better resists denial-of-service attacks.  However, it has a
++  * cryptographic dependency.)  The NetBSD copyright terms follow.
++  *-------------------------------------------------------------------------
++  */
++
++#include &lt;stdio.h&gt;
++#include &lt;stdlib.h&gt;
++#include &lt;string.h&gt;
++#include &lt;stddef.h&gt;
++#include &lt;stdarg.h&gt;
++#include &lt;sys/types.h&gt;
++#include &lt;errno.h&gt;
++#include &lt;locale.h&gt;
++
++ /*
++  * Supplement to &lt;sys/stat.h&gt;.
++  *
++  * We must pull<span style="color: #00bfff;"> in</span> sys/stat.h before this part, else our overrides lose.
++  */
++#define lstat(path, sb) stat(path, sb)
++
++#define _DIAGASSERT(x) <span style="color: #00bfff;">do</span> {} <span style="color: #00bfff;">while</span> (0)
++
++
++ /*  $<span style="color: #4eee94;">NetBSD</span>: gettemp.c,v 1.17 2014/01/21 19:09:48 seanb Exp $   */
++
++ /*
++  * Copyright (c) 1987, 1993
++  *  The Regents of the University of California.  All rights reserved.
++  *
++  * Redistribution and use<span style="color: #00bfff;"> in</span> source and binary forms, with or without
++  * modification, are permitted provided that the following conditions
++  * are met:
++  * 1. Redistributions of source code must retain the above copyright
++  *    notice, this list of conditions and the following disclaimer.
++  * 2. Redistributions<span style="color: #00bfff;"> in</span> binary form must reproduce the above copyright
++  *    notice, this list of conditions and the following disclaimer<span style="color: #00bfff;"> in</span> the
++  *    documentation and/or other materials provided with the distribution.
++  * 3. Neither the name of the University nor the names of its contributors
++  *    may be used to endorse or promote products derived from this software
++  *    without specific prior written permission.
++  *
++  * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS <span style="color: #ffd700;">``</span>AS IS<span style="color: #deb887;">''</span> AND
++  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++  * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
++  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++  * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++  * SUCH DAMAGE.
++  */
++
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">if HAVE_NBTOOL_CONFIG_H</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "nbtool_config.h"</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">endif</span>
++
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">if !HAVE_NBTOOL_CONFIG_H || !HAVE_MKSTEMP || !HAVE_MKDTEMP</span>
++
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">ifdef NOT_POSTGRESQL</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;sys/cdefs.h&gt;</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">if defined(LIBC_SCCS) &amp;&amp; !defined(lint)</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">if 0</span>
++ static char sccsid[] = <span style="color: #deb887;">"@(#)mktemp.c    8.1 (Berkeley) 6/4/93"</span>;
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">else</span>
++ __RCSID(<span style="color: #deb887;">"$NetBSD: gettemp.c,v 1.17 2014/01/21 19:09:48 seanb Exp $"</span>);
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">endif</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">endif                          /* LIBC_SCCS and not lint */</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">endif</span>
++
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;sys/types.h&gt;</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;sys/stat.h&gt;</span>
++
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;assert.h&gt;</span>
++ // <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;ctype.h&gt;</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;errno.h&gt;</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;fcntl.h&gt;</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;stdio.h&gt;</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;stdlib.h&gt;</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;unistd.h&gt;</span>
++
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">ifdef NOT_POSTGRESQL</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">if HAVE_NBTOOL_CONFIG_H</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">define GETTEMP     __nbcompat_gettemp</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">else</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "reentrant.h"</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "local.h"</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">define GETTEMP     __gettemp</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">endif</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">endif</span>
++
++ static int
++ GETTEMP(char *path, int *doopen, int domkdir)
++ {
++     char       *start,
++                *trv;
++     struct stat sbuf;
++     int       pid;
++
++     /*
++      * To guarantee multiple calls generate unique names even if the file is
++      * not created. 676 different possibilities with 7 or more X<span style="color: #deb887;">'s, 26 with 6</span>
+<span style="color: #deb887;">+      * or less.</span>
+<span style="color: #deb887;">+      */</span>
+<span style="color: #deb887;">+     // static char xtra[2] = "aa";</span>
+<span style="color: #deb887;">+     static char xtra[2] = "a";</span>
+<span style="color: #deb887;">+     int         xcnt = 0;</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     _DIAGASSERT(path != NULL);</span>
+<span style="color: #deb887;">+     /* doopen may be NULL */</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     pid = getpid();</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     /* Move to end of path and count trailing X'</span>s. */
++     for (trv = path; *trv; ++trv)
++         if (*trv == <span style="color: #deb887;">'X'</span>)
++             xcnt++;
++         else
++             xcnt = 0;
++
++     /* Use at least one from xtra.  Use 2 if more than 6 X<span style="color: #deb887;">'s. */</span>
+<span style="color: #deb887;">+     if (xcnt &gt; 0)</span>
+<span style="color: #deb887;">+     {</span>
+<span style="color: #deb887;">+         *--trv = xtra[0];</span>
+<span style="color: #deb887;">+         xcnt--;</span>
+<span style="color: #deb887;">+     }</span>
+<span style="color: #deb887;">+     if (xcnt &gt; 5)</span>
+<span style="color: #deb887;">+     {</span>
+<span style="color: #deb887;">+         *--trv = xtra[1];</span>
+<span style="color: #deb887;">+         xcnt--;</span>
+<span style="color: #deb887;">+     }</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     /* Set remaining X'</span>s to pid digits with 0<span style="color: #deb887;">'s to the left. */</span>
+<span style="color: #deb887;">+     for (; xcnt &gt; 0; xcnt--)</span>
+<span style="color: #deb887;">+     {</span>
+<span style="color: #deb887;">+         *--trv = (pid % 10) + '</span>0<span style="color: #deb887;">';</span>
+<span style="color: #deb887;">+         pid /= 10;</span>
+<span style="color: #deb887;">+     }</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     /* update xtra for next call. */</span>
+<span style="color: #deb887;">+     if (xtra[0] != '</span>z<span style="color: #deb887;">')</span>
+<span style="color: #deb887;">+         xtra[0]++;</span>
+<span style="color: #deb887;">+     else</span>
+<span style="color: #deb887;">+     {</span>
+<span style="color: #deb887;">+         xtra[0] = '</span>a<span style="color: #deb887;">';</span>
+<span style="color: #deb887;">+         if (xtra[1] != '</span>z<span style="color: #deb887;">')</span>
+<span style="color: #deb887;">+             xtra[1]++;</span>
+<span style="color: #deb887;">+         else</span>
+<span style="color: #deb887;">+             xtra[1] = '</span>a<span style="color: #deb887;">';</span>
+<span style="color: #deb887;">+     }</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     /*</span>
+<span style="color: #deb887;">+      * check the target directory; if you have six X'</span>s and it doesn<span style="color: #deb887;">'t exist</span>
+<span style="color: #deb887;">+      * this runs for a *very* long time.</span>
+<span style="color: #deb887;">+      */</span>
+<span style="color: #deb887;">+     for (start = trv + 1;; --trv)</span>
+<span style="color: #deb887;">+     {</span>
+<span style="color: #deb887;">+         if (trv &lt;= path)</span>
+<span style="color: #deb887;">+             break;</span>
+<span style="color: #deb887;">+         if (*trv == '</span>/<span style="color: #deb887;">')</span>
+<span style="color: #deb887;">+         {</span>
+<span style="color: #deb887;">+             int         e;</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+             *trv = '</span>\0<span style="color: #deb887;">';</span>
+<span style="color: #deb887;">+             e = stat(path, &amp;sbuf);</span>
+<span style="color: #deb887;">+             *trv = '</span>/<span style="color: #deb887;">';</span>
+<span style="color: #deb887;">+             if (e == -1)</span>
+<span style="color: #deb887;">+                 return doopen == NULL &amp;&amp; !domkdir;</span>
+<span style="color: #deb887;">+             if (!S_ISDIR(sbuf.st_mode))</span>
+<span style="color: #deb887;">+             {</span>
+<span style="color: #deb887;">+                 errno = ENOTDIR;</span>
+<span style="color: #deb887;">+                 return doopen == NULL &amp;&amp; !domkdir;</span>
+<span style="color: #deb887;">+             }</span>
+<span style="color: #deb887;">+             break;</span>
+<span style="color: #deb887;">+         }</span>
+<span style="color: #deb887;">+     }</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     for (;;)</span>
+<span style="color: #deb887;">+     {</span>
+<span style="color: #deb887;">+         if (doopen)</span>
+<span style="color: #deb887;">+         {</span>
+<span style="color: #deb887;">+             if ((*doopen =</span>
+<span style="color: #deb887;">+                  open(path, O_CREAT | O_EXCL | O_RDWR, 0600)) &gt;= 0)</span>
+<span style="color: #deb887;">+                 return 1;</span>
+<span style="color: #deb887;">+             if (errno != EEXIST)</span>
+<span style="color: #deb887;">+                 return 0;</span>
+<span style="color: #deb887;">+         }</span>
+<span style="color: #deb887;">+         else if (domkdir)</span>
+<span style="color: #deb887;">+         {</span>
+<span style="color: #deb887;">+             if (mkdir(path, 0700) &gt;= 0)</span>
+<span style="color: #deb887;">+             // if (mkdir(path) &gt;= 0)</span>
+<span style="color: #deb887;">+                 return 1;</span>
+<span style="color: #deb887;">+             if (errno != EEXIST)</span>
+<span style="color: #deb887;">+                 return 0;</span>
+<span style="color: #deb887;">+         }</span>
+<span style="color: #deb887;">+         else if (lstat(path, &amp;sbuf))</span>
+<span style="color: #deb887;">+             return errno == ENOENT ? 1 : 0;</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+         /* tricky little algorithm for backward compatibility */</span>
+<span style="color: #deb887;">+         for (trv = start;;)</span>
+<span style="color: #deb887;">+         {</span>
+<span style="color: #deb887;">+             if (!*trv)</span>
+<span style="color: #deb887;">+                 return 0;</span>
+<span style="color: #deb887;">+             if (*trv == '</span>z<span style="color: #deb887;">')</span>
+<span style="color: #deb887;">+                 *trv++ = '</span>a<span style="color: #deb887;">';</span>
+<span style="color: #deb887;">+             else</span>
+<span style="color: #deb887;">+             {</span>
+<span style="color: #deb887;">+                 // &#19981;&#33021;&#29992;isdigit&#65292;&#35201;&#29992;&#23439;&#23450;&#20041;&#30340;</span>
+<span style="color: #deb887;">+                 if (ISDIGIT((unsigned char) *trv))</span>
+<span style="color: #deb887;">+                     *trv = '</span>a<span style="color: #deb887;">';</span>
+<span style="color: #deb887;">+                 else</span>
+<span style="color: #deb887;">+                     ++*trv;</span>
+<span style="color: #deb887;">+                 break;</span>
+<span style="color: #deb887;">+             }</span>
+<span style="color: #deb887;">+         }</span>
+<span style="color: #deb887;">+     }</span>
+<span style="color: #deb887;">+     /* NOTREACHED */</span>
+<span style="color: #deb887;">+ }</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #endif                          /* !HAVE_NBTOOL_CONFIG_H || !HAVE_MKSTEMP ||</span>
+<span style="color: #deb887;">+                                  * !HAVE_MKDTEMP */</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ /*  $NetBSD: mkdtemp.c,v 1.11 2012/03/15 18:22:30 christos Exp $    */</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ /*</span>
+<span style="color: #deb887;">+  * Copyright (c) 1987, 1993</span>
+<span style="color: #deb887;">+  *  The Regents of the University of California.  All rights reserved.</span>
+<span style="color: #deb887;">+  *</span>
+<span style="color: #deb887;">+  * Redistribution and use in source and binary forms, with or without</span>
+<span style="color: #deb887;">+  * modification, are permitted provided that the following conditions</span>
+<span style="color: #deb887;">+  * are met:</span>
+<span style="color: #deb887;">+  * 1. Redistributions of source code must retain the above copyright</span>
+<span style="color: #deb887;">+  *    notice, this list of conditions and the following disclaimer.</span>
+<span style="color: #deb887;">+  * 2. Redistributions in binary form must reproduce the above copyright</span>
+<span style="color: #deb887;">+  *    notice, this list of conditions and the following disclaimer in the</span>
+<span style="color: #deb887;">+  *    documentation and/or other materials provided with the distribution.</span>
+<span style="color: #deb887;">+  * 3. Neither the name of the University nor the names of its contributors</span>
+<span style="color: #deb887;">+  *    may be used to endorse or promote products derived from this software</span>
+<span style="color: #deb887;">+  *    without specific prior written permission.</span>
+<span style="color: #deb887;">+  *</span>
+<span style="color: #deb887;">+  * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND</span>
+<span style="color: #deb887;">+  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span style="color: #deb887;">+  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span style="color: #deb887;">+  * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE</span>
+<span style="color: #deb887;">+  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL</span>
+<span style="color: #deb887;">+  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS</span>
+<span style="color: #deb887;">+  * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)</span>
+<span style="color: #deb887;">+  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT</span>
+<span style="color: #deb887;">+  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY</span>
+<span style="color: #deb887;">+  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF</span>
+<span style="color: #deb887;">+  * SUCH DAMAGE.</span>
+<span style="color: #deb887;">+  */</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #if HAVE_NBTOOL_CONFIG_H</span>
+<span style="color: #deb887;">+ #include "nbtool_config.h"</span>
+<span style="color: #deb887;">+ #endif</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #if !HAVE_NBTOOL_CONFIG_H || !HAVE_MKDTEMP</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #ifdef NOT_POSTGRESQL</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #include &lt;sys/cdefs.h&gt;</span>
+<span style="color: #deb887;">+ #if defined(LIBC_SCCS) &amp;&amp; !defined(lint)</span>
+<span style="color: #deb887;">+ #if 0</span>
+<span style="color: #deb887;">+ static char sccsid[] = "@(#)mktemp.c    8.1 (Berkeley) 6/4/93";</span>
+<span style="color: #deb887;">+ #else</span>
+<span style="color: #deb887;">+ __RCSID("$NetBSD: mkdtemp.c,v 1.11 2012/03/15 18:22:30 christos Exp $");</span>
+<span style="color: #deb887;">+ #endif</span>
+<span style="color: #deb887;">+ #endif                          /* LIBC_SCCS and not lint */</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #if HAVE_NBTOOL_CONFIG_H</span>
+<span style="color: #deb887;">+ #define GETTEMP     __nbcompat_gettemp</span>
+<span style="color: #deb887;">+ #else</span>
+<span style="color: #deb887;">+ #include &lt;assert.h&gt;</span>
+<span style="color: #deb887;">+ #include &lt;errno.h&gt;</span>
+<span style="color: #deb887;">+ #include &lt;stdio.h&gt;</span>
+<span style="color: #deb887;">+ #include &lt;stdlib.h&gt;</span>
+<span style="color: #deb887;">+ #include &lt;unistd.h&gt;</span>
+<span style="color: #deb887;">+ #include "reentrant.h"</span>
+<span style="color: #deb887;">+ #include "local.h"</span>
+<span style="color: #deb887;">+ #define GETTEMP     __gettemp</span>
+<span style="color: #deb887;">+ #endif</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #endif</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ char *</span>
+<span style="color: #deb887;">+ mkdtemp(char *path)</span>
+<span style="color: #deb887;">+ {</span>
+<span style="color: #deb887;">+     _DIAGASSERT(path != NULL);</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     return GETTEMP(path, NULL, 1) ? path : NULL;</span>
+<span style="color: #deb887;">+ }</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #endif                          /* !HAVE_NBTOOL_CONFIG_H || !HAVE_MKDTEMP */</span>
+
+<span style="color: #deb887;"> /* Construct a tempdir path template suitable for use by mkdtemp</span>
+<span style="color: #deb887;">    e.g. "/tmp/libgccjit-XXXXXX", but respecting the rules in</span>
+<span style="color: #deb887;">@@ -51,7 +361,7 @@ make_tempdir_path_template ()</span>
+<span style="color: #deb887;">   tmpdir_len = strlen (tmpdir_buf);</span>
+<span style="color: #deb887;">   /* tmpdir_buf should now have a dir separator as the final byte.  */</span>
+<span style="color: #deb887;">   gcc_assert (tmpdir_len &gt; 0);</span>
+<span style="color: #deb887;">-  gcc_assert (tmpdir_buf[tmpdir_len - 1] == DIR_SEPARATOR);</span>
+<span style="color: #deb887;">+  /* gcc_assert (tmpdir_buf[tmpdir_len - 1] == DIR_SEPARATOR); */</span>
+
+<span style="color: #deb887;">   file_template_buf = "libgccjit-XXXXXX";</span>
+<span style="color: #deb887;">   file_template_len = strlen (file_template_buf);</span>
+<span style="color: #deb887;">@@ -101,9 +411,9 @@ gcc::jit::tempdir::create ()</span>
+<span style="color: #deb887;">     return false;</span>
+<span style="color: #deb887;">   log ("m_path_tempdir: %s", m_path_tempdir);</span>
+
+<span style="color: #deb887;">-  m_path_c_file = concat (m_path_tempdir, "/fake.c", NULL);</span>
+<span style="color: #deb887;">-  m_path_s_file = concat (m_path_tempdir, "/fake.s", NULL);</span>
+<span style="color: #deb887;">-  m_path_so_file = concat (m_path_tempdir, "/fake.so", NULL);</span>
+<span style="color: #deb887;">+  m_path_c_file = concat (m_path_tempdir, "\\fake.c", NULL);</span>
+<span style="color: #deb887;">+  m_path_s_file = concat (m_path_tempdir, "\\fake.s", NULL);</span>
+<span style="color: #deb887;">+  m_path_so_file = concat (m_path_tempdir, "\\fake.so", NULL);</span>
+
+<span style="color: #deb887;">   /* Success.  */</span>
+<span style="color: #deb887;">   return true;</span>
+<span style="color: #deb887;">diff --git a/gcc/jit/jit-tempdir.h b/gcc/jit/jit-tempdir.h</span>
+<span style="color: #deb887;">index 7bbf9ea2f..39542df5e 100644</span>
+<span style="color: #deb887;">--- a/gcc/jit/jit-tempdir.h</span>
+<span style="color: #deb887;">+++ b/gcc/jit/jit-tempdir.h</span>
+<span style="color: #deb887;">@@ -88,4 +88,5 @@ class tempdir : public log_user</span>
+
+<span style="color: #deb887;"> } // namespace gcc</span>
+
+<span style="color: #deb887;">+char * mkdtemp(char *);</span>
+<span style="color: #deb887;"> #endif /* JIT_TEMPDIR_H */</span>
+</pre>
+</div>
 
 <h3>报错 - 无法编译xgcc.exe</h3>
 
@@ -456,6 +961,10 @@ Total                     byte time: 667.153574s native time: 287.974774s boost 
 
 <div class="org-src-container">
 <pre class="src src-sh">./emacs -batch -l E:/workspace/elisp-benchmarks/elisp-benchmark.el --eval <span style="color: #deb887;">'(elb-run)'</span> -Q
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">centos 7.2 on virtualbox, intel i5-8250u 3c/3t 3G RAM.</span>
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">LD_LIBRARY_PATH</span>=/usr/local/lib
+~/emacs_src/emacs/src/emacs -batch -l ~/elisp/elisp-benchmarks/elisp-benchmark.el --eval <span style="color: #deb887;">'(elb-run)'</span> -Q
 </pre>
 </div>
 
