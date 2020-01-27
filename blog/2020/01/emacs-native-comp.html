@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-01-26 周日 22:48 -->
+<!-- 2020-01-27 周一 17:04 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>在windows上用mingw64编译emacs的feature/native-comp分支</title>
@@ -34,11 +34,11 @@
 <div id="content">
 <h1 class="title">在windows上用mingw64编译emacs的feature/native-comp分支</h1>
 <p>
-gcc的libgccjit在mingw64上编译有点麻烦，emacs的native-comp分支也是。
+gcc的libgccjit在mingw64上编译有点复杂，emacs的native-comp分支也是。
 </p>
-
-<h2>编译支持libgccjit的gcc</h2>
-
+<div id="outline-container-org6f1406b" class="outline-2">
+<h2 id="org6f1406b">编译支持libgccjit的gcc</h2>
+<div class="outline-text-2" id="text-org6f1406b">
 <p>
 在最新的mingw64里，gcc的版本是9.2，从 <code>gcc -v</code> 看是没有把libgccjit编译进去，不支持libgccjit。
 </p>
@@ -60,10 +60,11 @@ pacman -Ss jit
 git clone --depth 1 git://gcc.gnu.org/git/gcc.git
 </pre>
 </div>
+</div>
 
-
-<h3>编译</h3>
-
+<div id="outline-container-orge4a6d90" class="outline-3">
+<h3 id="orge4a6d90">编译</h3>
+<div class="outline-text-3" id="text-orge4a6d90">
 <p>
 只要支持c和c++就可以了。lto(link time optimize)看文档是默认的。jit看gccjit的文档上有，不知道不加有没有问题。
 </p>
@@ -94,10 +95,11 @@ git clone --depth 1 git://gcc.gnu.org/git/gcc.git
 --disable-bootstrap
 </pre>
 </div>
+</div>
 
-
-<h4>路径</h4>
-
+<div id="outline-container-orgb3b3241" class="outline-4">
+<h4 id="orgb3b3241">路径</h4>
+<div class="outline-text-4" id="text-orgb3b3241">
 <p>
 不要直接在gcc的目录下执行 <b>configure</b> ，在gcc的同级目录下建 <b>build</b> 目录，然后再configure。
 </p>
@@ -109,10 +111,13 @@ drwxr-xr-x 1 Albert None 0 Jan 20 17:37 gcc   <span style="color: #B0BED8;"># </
 drwxr-xr-x 1 Albert None 0 Jan 21 16:25 build <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#32534;&#35793;&#30446;&#24405;</span>
 </pre>
 </div>
+</div>
+</div>
+</div>
 
-
-<h3>pic/libiberty.a 报错</h3>
-
+<div id="outline-container-org85c26a8" class="outline-3">
+<h3 id="org85c26a8">pic/libiberty.a 报错</h3>
+<div class="outline-text-3" id="text-org85c26a8">
 <pre class="example">
 make[3]: *** No rule to make target '../build-x86_64-w64-mingw32/libiberty/pic/libiberty.a', needed by 'build/genmddeps.exe'.  Stop.
 </pre>
@@ -125,28 +130,34 @@ enable-host-shared后，link的时候找pic目录下的libiberty.a，但是找�
 --enable-host-shared \
 --enable-languages=jit \
 </pre>
+</div>
 
-
-<h4>解决方法</h4>
-
+<div id="outline-container-org9dd7e50" class="outline-4">
+<h4 id="org9dd7e50">解决方法</h4>
+<div class="outline-text-4" id="text-org9dd7e50">
 <p>
 在libiberty目录下 <code>mkdir pic &amp;&amp; cp -p libiberty.a pic</code> ，手工copy一份，测试是ok的。
 </p>
+</div>
+</div>
+</div>
 
-
-<h3>代码修改</h3>
-
-
-
-<h4>在 jit-tempdir.c 中增加mkdtemp()函数</h4>
-
+<div id="outline-container-orga8e3f2d" class="outline-3">
+<h3 id="orga8e3f2d">代码修改</h3>
+<div class="outline-text-3" id="text-orga8e3f2d">
+</div>
+<div id="outline-container-orgf911dcc" class="outline-4">
+<h4 id="orgf911dcc">在 jit-tempdir.c 中增加mkdtemp()函数</h4>
+<div class="outline-text-4" id="text-orgf911dcc">
 <p>
 参考 <a href="https://doxygen.postgresql.org/mkdtemp_8c_source.html">https://doxygen.postgresql.org/mkdtemp_8c_source.html</a>
 </p>
+</div>
+</div>
 
-
-<h4>git里面的代码修改 fchmod\dlopen\dlerror</h4>
-
+<div id="outline-container-org2a27bad" class="outline-4">
+<h4 id="org2a27bad">git里面的代码修改 fchmod\dlopen\dlerror</h4>
+<div class="outline-text-4" id="text-org2a27bad">
 <p>
 <a href="https://gcc.gnu.org/ml/jit/2015-q3/msg00126.html">https://gcc.gnu.org/ml/jit/2015-q3/msg00126.html</a>
 </p>
@@ -160,10 +171,11 @@ enable-host-shared后，link的时候找pic目录下的libiberty.a，但是找�
 
 <li>用SetLastError(0)和GetLastError()替换dlerror()</li>
 </ol>
+</div>
 
-
-<h5>安装dlfcn</h5>
-
+<div id="outline-container-org59eb652" class="outline-5">
+<h5 id="org59eb652">安装dlfcn</h5>
+<div class="outline-text-5" id="text-org59eb652">
 <p>
 编译gccjit的时候不知道安装dlfcn后还要不要改共享库相关的代码。
 </p>
@@ -184,10 +196,14 @@ $ find /mingw64/ -name <span style="color: #deb887;">'libdl*'</span> -ls
 2251799814067910      4 -rw-r--r--   1 Albert   None         3068 6&#26376; 21  2019 /mingw64/lib/libdl.dll.a
 </pre>
 </div>
+</div>
+</div>
+</div>
+</div>
 
-
-<h3>报错 - 无法编译xgcc.exe</h3>
-
+<div id="outline-container-org818f120" class="outline-3">
+<h3 id="org818f120">报错 - 无法编译xgcc.exe</h3>
+<div class="outline-text-3" id="text-org818f120">
 <p>
 可能makefile里面的依赖关系不对，需要手工make一下
 </p>
@@ -195,14 +211,17 @@ $ find /mingw64/ -name <span style="color: #deb887;">'libdl*'</span> -ls
 <pre class="src src-sh"><span style="color: #f08080;">cd</span> build &amp;&amp; make xgcc.exe
 </pre>
 </div>
+</div>
+</div>
+</div>
 
-
-<h2>emacs的native-comp branch</h2>
-
-
-
-<h3>修改src/comp.c的代码</h3>
-
+<div id="outline-container-org41db5a7" class="outline-2">
+<h2 id="org41db5a7">编译emacs的feature/native-comp branch</h2>
+<div class="outline-text-2" id="text-org41db5a7">
+</div>
+<div id="outline-container-orgcc58240" class="outline-3">
+<h3 id="orgcc58240">修改src/comp.c的代码</h3>
+<div class="outline-text-3" id="text-orgcc58240">
 <ol class="org-ol">
 <li>mingw64中不支持signal <b>SIGIO</b> ，直接注释掉。</li>
 
@@ -259,10 +278,12 @@ index 290fc3a9c4..43b5273d45 100644
      }
    emit_ctxt_code ();
 </pre>
+</div>
+</div>
 
-
-<h3>编译</h3>
-
+<div id="outline-container-org9ce8ff7" class="outline-3">
+<h3 id="org9ce8ff7">编译</h3>
+<div class="outline-text-3" id="text-org9ce8ff7">
 <p>
 改为代码后，如果make时总是报错，最好 <code>make clean</code> 再重新configure。emacs的configure过程太慢了，10分钟都完不了。make时，编译src目录下的可执行文件，几分钟就能完成，在elisp文件编译eln时，会非常慢，可能要1个小时。
 </p>
@@ -283,6 +304,9 @@ configure的参数参考 <a href="http://chriszheng.science/2015/03/19/Chinese-v
 
 <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">6&#20010;&#36827;&#31243;&#32534;&#35793;&#20250;&#24555;&#19981;&#23569;&#12290;</span>
 make -j6
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#23433;&#35013;&#30446;&#24405; e:/emacs</span>
+make install <span style="color: #4eee94;">prefix</span>=/e/emacs
 </pre>
 </div>
 
@@ -290,20 +314,10 @@ make -j6
 <li>make时报 <b>error 127</b> ，可能是 <b>byte-run.el、subr.el</b> 等eln编译有问题，导致emacs在生成pdump文件有问题，启动报错，可以rm *.eln，再试试。</li>
 
 <li>有时候native compile某个elisp文件会coredump，只能再执行make。</li>
+</ol>
 
-<li><p>
-debug
-按gdb的提示，把emacs的.gdbinit 加到 ~/.gdbinit中。debug时可以看见elisp执行的堆栈。gdb时emacs会比较慢。
-</p>
-<div class="org-src-container">
-<pre class="src src-sh"><span style="color: #f08080;">cd</span> src
-gdb emacs
-run
-<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">segfault&#21518;</span>
-bt
-</pre>
-</div></li>
 
+<ol class="org-ol">
 <li><p>
 native comp的有时候会coredump，可能和_setjmp有关，通过gdb没看出来问题在哪里。
 </p>
@@ -316,12 +330,14 @@ native comp的有时候会coredump，可能和_setjmp有关，通过gdb没看出
 
 <ol class="org-ol">
 <li>如何知道load了几个eln文件
-在linux上可以在/proc中看 <b>/proc/pid/maps</b> 文件。在windows上，使用 <b>vmmap</b> 。</li>
+在linux上可以在/proc中看 <b>/proc/pid/maps</b> 文件。在windows上，使用 <b>vmmap</b> (<a href="https://docs.microsoft.com/zh-cn/sysinternals/downloads/vmmap">https://docs.microsoft.com/zh-cn/sysinternals/downloads/vmmap</a>)。</li>
 </ol>
+</div>
+</div>
 
-
-<h3>执行</h3>
-
+<div id="outline-container-orgac804ed" class="outline-3">
+<h3 id="orgac804ed">执行</h3>
+<div class="outline-text-3" id="text-orgac804ed">
 <p>
 修改mingw64的环境变量，把编译后的gcc加进去。新增 <b>LIBRARY_PATH</b> ，貌似 LD_LIBRARY_PATH 加了也没用。
 </p>
@@ -330,10 +346,29 @@ native comp的有时候会coredump，可能和_setjmp有关，通过gdb没看出
 <span style="color: #f08080;">export</span> <span style="color: #4eee94;">LIBRARY_PATH</span>=/e/workspace/gcc/build/gcc:/mingw64/x86_64-w64-mingw32/lib:/mingw64/bin
 </pre>
 </div>
+</div>
+</div>
 
+<div id="outline-container-org7c9de97" class="outline-3">
+<h3 id="org7c9de97">debug</h3>
+<div class="outline-text-3" id="text-org7c9de97">
+<p>
+按gdb的提示，把emacs的.gdbinit 加到 ~/.gdbinit中。debug时可以看见elisp执行的堆栈。gdb时emacs会比较慢。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> src
+gdb emacs
+run
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">segfault&#21518;</span>
+bt
+</pre>
+</div>
+</div>
+</div>
 
-<h3>功能测试</h3>
-
+<div id="outline-container-orgfdd775e" class="outline-3">
+<h3 id="orgfdd775e">功能测试</h3>
+<div class="outline-text-3" id="text-orgfdd775e">
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #f08080;">cd</span> /e/workspace/emacs_src/emacs28
 ./emacs/src/emacs -batch -l ert -l ./emacs/test/src/comp-tests.el -f ert-run-tests-batch-and-exit
@@ -350,16 +385,40 @@ native comp的有时候会coredump，可能和_setjmp有关，通过gdb没看出
    FAILED  comp-tests-fixnum
 </pre>
 
+<pre class="example">
+make[1]: 进入目录“/e/workspace/emacs_src/emacs28/emacs/src”
+  GEN      globals.h
+  CC       comp.o
+In file included from comp.c:30:
+comp.c: In function 'Fcomp__init_ctxt':
+lisp.h:1134:30: warning: overflow in conversion from 'long long int' to 'long int' changes value from '2305843009213693951' to '-1' [-Woverflow]
+ 1134 | #define MOST_POSITIVE_FIXNUM (EMACS_INT_MAX &gt;&gt; INTTYPEBITS)
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+comp.c:3077:15: note: in expansion of macro 'MOST_POSITIVE_FIXNUM'
+ 3077 |               MOST_POSITIVE_FIXNUM);
+      |               ^~~~~~~~~~~~~~~~~~~~
+lisp.h:1135:30: warning: overflow in conversion from 'long long int' to 'long int' changes value from '-2305843009213693952' to '0' [-Woverflow]
+ 1135 | #define MOST_NEGATIVE_FIXNUM (-1 - MOST_POSITIVE_FIXNUM)
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+comp.c:3087:15: note: in expansion of macro 'MOST_NEGATIVE_FIXNUM'
+ 3087 |               MOST_NEGATIVE_FIXNUM);
+      |               ^~~~~~~~~~~~~~~~~~~~
 
-<h3>性能测试</h3>
+</pre>
+</div>
+</div>
 
+<div id="outline-container-org14f49db" class="outline-3">
+<h3 id="org14f49db">性能测试</h3>
+<div class="outline-text-3" id="text-org14f49db">
 <p>
 在win10上测试，cpu是intel i5-8520U。
 </p>
+</div>
 
-
-<h4>第一次测试</h4>
-
+<div id="outline-container-orgfdc4a85" class="outline-4">
+<h4 id="orgfdc4a85">第一次测试</h4>
+<div class="outline-text-4" id="text-orgfdc4a85">
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26410;&#21152; -batch -Q &#21442;&#25968;&#65292;&#22312;gui&#20013;&#65292;&#21487;&#33021;&#23545;&#27979;&#35797;&#24615;&#33021;&#26377;&#24433;&#21709;&#12290;</span>
 ./emacs -l E:/workspace/elisp-benchmarks/elisp-benchmark.el --eval <span style="color: #deb887;">'(elb-run)'</span>
@@ -383,10 +442,12 @@ dhrystone.el              byte time: 612.382567s native time: 499.131995s boost 
                                                                            
 Total                     byte time: 667.153574s native time: 287.974774s boost 131.670839%    
 </pre>
+</div>
+</div>
 
-
-<h4>第二次测试</h4>
-
+<div id="outline-container-org2eafd64" class="outline-4">
+<h4 id="org2eafd64">第二次测试</h4>
+<div class="outline-text-4" id="text-org2eafd64">
 <div class="org-src-container">
 <pre class="src src-sh">./emacs -batch -l E:/workspace/elisp-benchmarks/elisp-benchmark.el --eval <span style="color: #deb887;">'(elb-run)'</span> -Q
 </pre>
@@ -507,10 +568,13 @@ Total                     byte time: 552.128101s native time: 161.879026s boost 
 </tr>
 </tbody>
 </table>
+</div>
+</div>
+</div>
 
-
-<h3>问题</h3>
-
+<div id="outline-container-orgfd46d0b" class="outline-3">
+<h3 id="orgfd46d0b">问题</h3>
+<div class="outline-text-3" id="text-orgfd46d0b">
 <ol class="org-ol">
 <li>稳定性
 偶尔会segfault。</li>
@@ -521,6 +585,9 @@ Total                     byte time: 552.128101s native time: 161.879026s boost 
 <li>M-x org-publish-all执行几次后报错，出现过segfault。</li>
 </ul></li>
 </ol>
+</div>
+</div>
+</div>
 </div>
 </body>
 </html>
