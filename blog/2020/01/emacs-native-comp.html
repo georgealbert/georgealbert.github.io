@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-01-27 周一 22:29 -->
+<!-- 2020-01-28 周二 23:24 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>在windows上用mingw64编译emacs的feature/native-comp分支</title>
@@ -34,13 +34,22 @@
 <div id="content">
 <h1 class="title">在windows上用mingw64编译emacs的feature/native-comp分支</h1>
 <p>
+gccemacs(<a href="http://akrl.sdf.org/gccemacs.html">http://akrl.sdf.org/gccemacs.html</a>)已经合并到emacs的开发分支 <b>feature/native-comp</b> 。
+</p>
+
+<p>
+gccemacs通过gccjit把elisp文件编译成一个个动态链接库。这样比emacs解析执行lisp代码要快一倍以上。
+</p>
+
+<p>
 gcc的libgccjit在mingw64上编译有点复杂，emacs的native-comp分支也是。
 </p>
+
 
 <h2>编译支持libgccjit的gcc</h2>
 
 <p>
-在最新的mingw64里，gcc的版本是9.2，从 <code>gcc -v</code> 看是没有把libgccjit编译进去，不支持libgccjit。
+在最新的mingw64里，gcc的版本是9.2，从 <code>gcc -v</code> 看是没有把libgccjit编译进去，所以不支持libgccjit。
 </p>
 
 <p>
@@ -184,7 +193,6 @@ $ find /mingw64/ -name <span style="color: #deb887;">'libdl*'</span> -ls
 2251799814067910      4 -rw-r--r--   1 Albert   None         3068 6&#26376; 21  2019 /mingw64/lib/libdl.dll.a
 </pre>
 </div>
-
 
 
 <h4>具体修改</h4>
@@ -830,10 +838,7 @@ make install <span style="color: #4eee94;">prefix</span>=/e/emacs
 <li>make时报 <b>error 127</b> ，可能是 <b>byte-run.el、subr.el</b> 等eln编译有问题，导致emacs在生成pdump文件有问题，启动报错，可以rm *.eln，再试试。</li>
 
 <li>有时候native compile某个elisp文件会coredump，只能再执行make。</li>
-</ol>
 
-
-<ol class="org-ol">
 <li><p>
 native comp的有时候会coredump，可能和_setjmp有关，通过gdb没看出来问题在哪里。
 </p>
@@ -841,10 +846,7 @@ native comp的有时候会coredump，可能和_setjmp有关，通过gdb没看出
 <p>
 在异常处理时可能会segment fault。
 </p></li>
-</ol>
 
-
-<ol class="org-ol">
 <li><p>
 如何知道load了几个eln文件
 在linux上可以在/proc中看 <b>/proc/pid/maps</b> 文件。在windows上，使用 <b>vmmap</b> (<a href="https://docs.microsoft.com/zh-cn/sysinternals/downloads/vmmap">https://docs.microsoft.com/zh-cn/sysinternals/downloads/vmmap</a>)。
@@ -873,10 +875,15 @@ native comp的有时候会coredump，可能和_setjmp有关，通过gdb没看出
 <p>
 按gdb的提示，把emacs的.gdbinit 加到 ~/.gdbinit中。debug时可以看见elisp执行的堆栈。gdb时emacs会比较慢。
 </p>
+
+<p>
+可以参考 <b>etc/DEBUG</b> 的内容。
+</p>
+
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #f08080;">cd</span> src
 gdb emacs
-run
+run <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#25110;&#32773; run -Q &#19981;&#21152;&#36733;init.el</span>
 <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">segfault&#21518;</span>
 bt
 </pre>
@@ -900,6 +907,14 @@ bt
    FAILED  comp-tests-bootstrap
    FAILED  comp-tests-fixnum
 </pre>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 周二 16:55] </span></span> mingw64中的long和int是4字节，long long int是8字节。在linux上long是8字节。comp.c中的代码默认long是8字节。导致类型转换时精度降低，无法通过测试。
+</p>
+
+<p>
+libgccjit.c中只有gcc_jit_context_new_rvalue_from_long() ，没有 <b>gcc_jit_context_new_rvalue_from_long_long_int()</b> ，自己加一个。然后修改comp.c。
+</p>
 
 <pre class="example">
 make[1]: 进入目录“/e/workspace/emacs_src/emacs28/emacs/src”
@@ -1085,6 +1100,26 @@ Total                     byte time: 552.128101s native time: 161.879026s boost 
 </table>
 
 
+<h4>linux</h4>
+
+<pre class="example">
+Summary results:
+bubble.el                 byte time: 145.803142s native time:  29.089018s  boost 401.230884%
+bubble-no-cons.el         byte time: 318.617107s native time:  38.999612s  boost 716.975064%
+fibn.el                   byte time: 247.231776s native time:  75.364725s  boost 228.047075%
+fibn-rec.el               byte time: 103.741292s native time:  33.821895s  boost 206.728206%
+fibn-tc.el                byte time:  97.697834s native time:  31.647078s  boost 208.710437%
+inclist-tc.el             byte time: 130.386236s native time:   5.646812s  boost 2209.023902%
+listlen-tc.el             byte time: 119.750707s native time:   1.956367s  boost 6021.075813%
+inclist-no-type-hints.el  byte time: 320.839352s native time:   8.304878s  boost 3763.264051%
+inclist-type-hints.el     byte time: 322.535594s native time:   5.147577s  boost 6165.775281%
+nbody.el                  byte time: 324.233682s native time:  87.086648s  boost 272.311587%
+dhrystone.el              byte time: 299.138452s native time: 171.954319s  boost 73.963907%
+
+Total                     byte time: 737.046902s native time: 150.518523s  boost 389.671895%
+</pre>
+
+
 <h3>问题</h3>
 
 <ol class="org-ol">
@@ -1108,6 +1143,11 @@ gdb emacs
 </div></li>
 </ul></li>
 </ol>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 周二 11:35] </span></span> 增加 gcc_jit_context_new_rvalue_from_long_long_int() 重新编译gcc后，rm lisp/org/*.elc 重新编译后测试。segfault
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 周二 11:54] </span></span> rm helm*.eln 照样segfault。make clean重新编译后，M-x org-publish-all segfault。
+</p>
 </div>
 </body>
 </html>
