@@ -1,34 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-01-29 周三 16:58 -->
+<!-- 2020-01-30 周四 15:02 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>在windows上用mingw64编译emacs的feature/native-comp分支</title>
 <meta name="generator" content="Org mode">
 <link rel="stylesheet" type="text/css" href="/main.css" />
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        displayAlign: "center",
-        displayIndent: "0em",
-
-        "HTML-CSS": { scale: 100,
-                        linebreaks: { automatic: "false" },
-                        webFont: "TeX"
-                       },
-        SVG: {scale: 100,
-              linebreaks: { automatic: "false" },
-              font: "TeX"},
-        NativeMML: {scale: 100},
-        TeX: { equationNumbers: {autoNumber: "AMS"},
-               MultLineWidth: "85%",
-               TagSide: "right",
-               TagIndent: ".8em"
-             }
-});
-</script>
-<script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -53,7 +31,7 @@ gcc的libgccjit在mingw64上编译有点复杂，emacs的native-comp分支也是
 <h2 id="org6f1406b">编译支持libgccjit的gcc</h2>
 <div class="outline-text-2" id="text-org6f1406b">
 <p>
-在最新的mingw64里，gcc的版本是9.2，从 <code>gcc -v</code> 看是没有把libgccjit编译进去，所以不支持libgccjit。
+在最新的mingw64里，gcc的版本是v9.2.0，从 <code>gcc -v</code> 看是没有把libgccjit编译进去，所以不支持libgccjit。
 </p>
 
 <p>
@@ -75,9 +53,9 @@ git clone --depth 1 git://gcc.gnu.org/git/gcc.git
 </div>
 </div>
 
-<div id="outline-container-org5f5d6d6" class="outline-3">
-<h3 id="org5f5d6d6">编译</h3>
-<div class="outline-text-3" id="text-org5f5d6d6">
+<div id="outline-container-org3453566" class="outline-3">
+<h3 id="org3453566">编译</h3>
+<div class="outline-text-3" id="text-org3453566">
 <p>
 只要支持c和c++就可以了。lto(link time optimize)看文档是默认的。jit看gccjit的文档上有，不知道不加有没有问题。
 </p>
@@ -852,9 +830,9 @@ index 290fc3a9c4..43b5273d45 100644
 </div>
 </div>
 
-<div id="outline-container-orgff335df" class="outline-3">
-<h3 id="orgff335df">编译</h3>
-<div class="outline-text-3" id="text-orgff335df">
+<div id="outline-container-orga8f7be8" class="outline-3">
+<h3 id="orga8f7be8">编译</h3>
+<div class="outline-text-3" id="text-orga8f7be8">
 <p>
 改为代码后，如果make时总是报错，最好 <code>make clean</code> 再重新configure。emacs的configure过程太慢了，10分钟都完不了。make时，编译src目录下的可执行文件，几分钟就能完成，在elisp文件编译eln时，会非常慢，可能要1个小时。
 </p>
@@ -984,6 +962,10 @@ bt
 
 <p>
 libgccjit.c中只有gcc_jit_context_new_rvalue_from_long() ，没有 <b>gcc_jit_context_new_rvalue_from_long_long_int()</b> ，自己加一个。然后修改comp.c。
+</p>
+
+<p>
+直接修改gcc_jit_context_new_rvalue_from_long() ，直接cast为 long long int ，也是一个方法。
 </p>
 
 <pre class="example">
@@ -1226,6 +1208,9 @@ gdb emacs
 
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 周二 11:35] </span></span> 增加 gcc_jit_context_new_rvalue_from_long_long_int() 重新编译gcc后，rm lisp/org/*.elc 重新编译后测试。segfault
+</p>
+
+<p>
 <span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 周二 11:54] </span></span> rm helm*.eln 照样segfault。make clean重新编译后，M-x org-publish-all segfault。
 </p>
 
@@ -1251,6 +1236,11 @@ gdb emacs
 </div>
 <div id="outline-container-org6664f13" class="outline-5">
 <h5 id="org6664f13">evil的visual mode按c-v，列编辑，按I插入不正常。</h5>
+<div class="outline-text-5" id="text-org6664f13">
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-30 周四 00:04] </span></span> 和我强行把evil编译成eln有关。用 M-x benchmark-init/show-durations-tree 看可能是 <b>evil-common.el</b> 。
+</p>
+</div>
 </div>
 </div>
 </div>
