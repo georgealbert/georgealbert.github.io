@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-01-30 周四 15:02 -->
+<!-- 2020-02-16 周日 23:47 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>在windows上用mingw64编译emacs的feature/native-comp分支</title>
@@ -27,9 +27,9 @@ gccemacs在linux上开发的，但是没有porting到windows上，趁着春节�
 gcc的libgccjit在mingw64上编译有点复杂，emacs的native-comp分支也是。
 </p>
 
-<div id="outline-container-org6f1406b" class="outline-2">
-<h2 id="org6f1406b">编译支持libgccjit的gcc</h2>
-<div class="outline-text-2" id="text-org6f1406b">
+
+<h2>编译支持libgccjit的gcc</h2>
+
 <p>
 在最新的mingw64里，gcc的版本是v9.2.0，从 <code>gcc -v</code> 看是没有把libgccjit编译进去，所以不支持libgccjit。
 </p>
@@ -51,11 +51,10 @@ pacman -Ss jit
 git clone --depth 1 git://gcc.gnu.org/git/gcc.git
 </pre>
 </div>
-</div>
 
-<div id="outline-container-org3453566" class="outline-3">
-<h3 id="org3453566">编译</h3>
-<div class="outline-text-3" id="text-org3453566">
+
+<h3>编译</h3>
+
 <p>
 只要支持c和c++就可以了。lto(link time optimize)看文档是默认的。jit看gccjit的文档上有，不知道不加有没有问题。
 </p>
@@ -86,11 +85,10 @@ git clone --depth 1 git://gcc.gnu.org/git/gcc.git
 --disable-bootstrap
 </pre>
 </div>
-</div>
 
-<div id="outline-container-orgb3b3241" class="outline-4">
-<h4 id="orgb3b3241">路径</h4>
-<div class="outline-text-4" id="text-orgb3b3241">
+
+<h4>路径</h4>
+
 <p>
 不要直接在gcc的目录下执行 <b>configure</b> ，在gcc的同级目录下建 <b>build</b> 目录，然后再configure。
 </p>
@@ -102,13 +100,10 @@ drwxr-xr-x 1 Albert None 0 Jan 20 17:37 gcc   <span style="color: #B0BED8;"># </
 drwxr-xr-x 1 Albert None 0 Jan 21 16:25 build <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#32534;&#35793;&#30446;&#24405;</span>
 </pre>
 </div>
-</div>
-</div>
-</div>
 
-<div id="outline-container-org85c26a8" class="outline-3">
-<h3 id="org85c26a8">pic/libiberty.a 报错</h3>
-<div class="outline-text-3" id="text-org85c26a8">
+
+<h3>pic/libiberty.a 报错</h3>
+
 <pre class="example">
 make[3]: *** No rule to make target '../build-x86_64-w64-mingw32/libiberty/pic/libiberty.a', needed by 'build/genmddeps.exe'.  Stop.
 </pre>
@@ -121,21 +116,17 @@ enable-host-shared后，link的时候找pic目录下的libiberty.a，但是找�
 --enable-host-shared \
 --enable-languages=jit \
 </pre>
-</div>
 
-<div id="outline-container-org9dd7e50" class="outline-4">
-<h4 id="org9dd7e50">解决方法</h4>
-<div class="outline-text-4" id="text-org9dd7e50">
+
+<h4>解决方法</h4>
+
 <p>
 在libiberty目录下 <code>mkdir pic &amp;&amp; cp -p libiberty.a pic</code> ，手工copy一份，测试是ok的。
 </p>
-</div>
-</div>
-</div>
 
-<div id="outline-container-org818f120" class="outline-3">
-<h3 id="org818f120">报错 - 无法编译xgcc.exe</h3>
-<div class="outline-text-3" id="text-org818f120">
+
+<h3>报错 - 无法编译xgcc.exe</h3>
+
 <p>
 可能makefile里面的依赖关系不对，需要手工make一下
 </p>
@@ -143,25 +134,21 @@ enable-host-shared后，link的时候找pic目录下的libiberty.a，但是找�
 <pre class="src src-sh"><span style="color: #f08080;">cd</span> build &amp;&amp; make xgcc.exe
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-orga8e3f2d" class="outline-3">
-<h3 id="orga8e3f2d">代码修改</h3>
-<div class="outline-text-3" id="text-orga8e3f2d">
-</div>
-<div id="outline-container-orgf911dcc" class="outline-4">
-<h4 id="orgf911dcc">在 jit-tempdir.c 中增加mkdtemp()函数</h4>
-<div class="outline-text-4" id="text-orgf911dcc">
+
+<h3>代码修改</h3>
+
+
+
+<h4>在 jit-tempdir.c 中增加mkdtemp()函数</h4>
+
 <p>
 参考 <a href="https://doxygen.postgresql.org/mkdtemp_8c_source.html">https://doxygen.postgresql.org/mkdtemp_8c_source.html</a>
 </p>
-</div>
-</div>
 
-<div id="outline-container-org2a27bad" class="outline-4">
-<h4 id="org2a27bad">git里面的代码修改 fchmod\dlopen\dlerror</h4>
-<div class="outline-text-4" id="text-org2a27bad">
+
+<h4>git里面的代码修改 fchmod\dlopen\dlerror</h4>
+
 <p>
 <a href="https://gcc.gnu.org/ml/jit/2015-q3/msg00126.html">https://gcc.gnu.org/ml/jit/2015-q3/msg00126.html</a>
 </p>
@@ -175,11 +162,10 @@ enable-host-shared后，link的时候找pic目录下的libiberty.a，但是找�
 
 <li>用SetLastError(0)和GetLastError()替换dlerror()</li>
 </ol>
-</div>
 
-<div id="outline-container-org59eb652" class="outline-5">
-<h5 id="org59eb652">安装dlfcn</h5>
-<div class="outline-text-5" id="text-org59eb652">
+
+<h5>安装dlfcn</h5>
+
 <p>
 编译gccjit的时候不知道安装dlfcn后还要不要改共享库相关的代码。
 </p>
@@ -200,13 +186,10 @@ $ find /mingw64/ -name <span style="color: #deb887;">'libdl*'</span> -ls
 2251799814067910      4 -rw-r--r--   1 Albert   None         3068 6&#26376; 21  2019 /mingw64/lib/libdl.dll.a
 </pre>
 </div>
-</div>
-</div>
-</div>
 
-<div id="outline-container-org2a3a406" class="outline-4">
-<h4 id="org2a3a406">注释掉fchmod()</h4>
-<div class="outline-text-4" id="text-org2a3a406">
+
+<h4>注释掉fchmod()</h4>
+
 <p>
 mingw64中没有函数定义导致编译gcc报错。
 </p>
@@ -214,11 +197,9 @@ mingw64中没有函数定义导致编译gcc报错。
 <p>
 windows不像linux，无所谓文件权限，不需要生成的共享库是700的权限。直接注释掉。
 </p>
-</div>
-</div>
-<div id="outline-container-orgfa5e660" class="outline-4">
-<h4 id="orgfa5e660">具体修改</h4>
-<div class="outline-text-4" id="text-orgfa5e660">
+
+<h4>具体修改</h4>
+
 <div class="org-src-container">
 <pre class="src src-sh">Albert@Albert MINGW64 /e/workspace/gcc/gcc
 $ git diff
@@ -720,12 +701,9 @@ index 10c528faf..457591708 100644
 <span style="color: #deb887;"> #endif /* JIT_TEMPDIR_H */</span>
 </pre>
 </div>
-</div>
-</div>
-</div>
-<div id="outline-container-orgc454597" class="outline-3">
-<h3 id="orgc454597">测试libgccjit是否正常</h3>
-<div class="outline-text-3" id="text-orgc454597">
+
+<h3>测试libgccjit是否正常</h3>
+
 <p>
 用libgccjit文档中的helloworld.c (<a href="https://gcc.gnu.org/onlinedocs/jit/intro/tutorial01.html">https://gcc.gnu.org/onlinedocs/jit/intro/tutorial01.html</a>) 。
 </p>
@@ -756,21 +734,17 @@ index 10c528faf..457591708 100644
 }
 </pre>
 </div>
-</div>
-</div>
-</div>
 
-<div id="outline-container-org41db5a7" class="outline-2">
-<h2 id="org41db5a7">编译emacs的feature/native-comp branch</h2>
-<div class="outline-text-2" id="text-org41db5a7">
+
+<h2>编译emacs的feature/native-comp branch</h2>
+
 <p>
 <a href="https://git.savannah.gnu.org/cgit/emacs.git/log/?h=feature/native-comp">https://git.savannah.gnu.org/cgit/emacs.git/log/?h=feature/native-comp</a>
 </p>
-</div>
 
-<div id="outline-container-orgcc58240" class="outline-3">
-<h3 id="orgcc58240">修改src/comp.c的代码</h3>
-<div class="outline-text-3" id="text-orgcc58240">
+
+<h3>修改src/comp.c的代码</h3>
+
 <ol class="org-ol">
 <li>mingw64中不支持signal <b>SIGIO</b> ，直接注释掉。</li>
 
@@ -827,12 +801,10 @@ index 290fc3a9c4..43b5273d45 100644
      }
    emit_ctxt_code ();
 </pre>
-</div>
-</div>
 
-<div id="outline-container-orga8f7be8" class="outline-3">
-<h3 id="orga8f7be8">编译</h3>
-<div class="outline-text-3" id="text-orga8f7be8">
+
+<h3>编译</h3>
+
 <p>
 改为代码后，如果make时总是报错，最好 <code>make clean</code> 再重新configure。emacs的configure过程太慢了，10分钟都完不了。make时，编译src目录下的可执行文件，几分钟就能完成，在elisp文件编译eln时，会非常慢，可能要1个小时。
 </p>
@@ -881,12 +853,10 @@ native comp的有时候会coredump，可能和_setjmp有关，通过gdb没看出
 </pre>
 </div></li>
 </ol>
-</div>
-</div>
 
-<div id="outline-container-orgac804ed" class="outline-3">
-<h3 id="orgac804ed">执行</h3>
-<div class="outline-text-3" id="text-orgac804ed">
+
+<h3>执行</h3>
+
 <p>
 修改mingw64的环境变量，把编译后的gcc加进去。新增 <b>LIBRARY_PATH</b> ，貌似 LD_LIBRARY_PATH 加了也没用。
 </p>
@@ -895,12 +865,10 @@ native comp的有时候会coredump，可能和_setjmp有关，通过gdb没看出
 <span style="color: #f08080;">export</span> <span style="color: #4eee94;">LIBRARY_PATH</span>=/e/workspace/gcc/build/gcc:/mingw64/x86_64-w64-mingw32/lib:/mingw64/bin
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-org7c9de97" class="outline-3">
-<h3 id="org7c9de97">debug</h3>
-<div class="outline-text-3" id="text-org7c9de97">
+
+<h3>debug</h3>
+
 <p>
 按gdb的提示，把emacs的.gdbinit 加到 ~/.gdbinit中。debug时可以看见elisp执行的堆栈。gdb时emacs会比较慢。
 </p>
@@ -917,12 +885,10 @@ run <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#25110
 bt
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-orgfdd775e" class="outline-3">
-<h3 id="orgfdd775e">功能测试</h3>
-<div class="outline-text-3" id="text-orgfdd775e">
+
+<h3>功能测试</h3>
+
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #f08080;">cd</span> /e/workspace/emacs_src/emacs28
 ./emacs/src/emacs -batch -l ert -l ./emacs/test/src/comp-tests.el -f ert-run-tests-batch-and-exit
@@ -938,11 +904,10 @@ bt
    FAILED  comp-tests-bootstrap
    FAILED  comp-tests-fixnum
 </pre>
-</div>
 
-<div id="outline-container-orgd5288f2" class="outline-4">
-<h4 id="orgd5288f2">comp-tests-bootstrap</h4>
-<div class="outline-text-4" id="text-orgd5288f2">
+
+<h4>comp-tests-bootstrap</h4>
+
 <p>
 搞不懂为什么自己编译自己生成的c文件为什么变量名字不一样，导致生成的eln文件也不一样。
 </p>
@@ -950,12 +915,10 @@ bt
 <p>
 为什么linux上就没问题。难道mingw64上的gcc和linux上的有什么地方不一样？
 </p>
-</div>
-</div>
 
-<div id="outline-container-orgfd59828" class="outline-4">
-<h4 id="orgfd59828">comp-tests-fixnum</h4>
-<div class="outline-text-4" id="text-orgfd59828">
+
+<h4>comp-tests-fixnum</h4>
+
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 周二 16:55] </span></span> 由于mingw64中的long和int是4字节，long long int是8字节。在linux上long是8字节。comp.c中的代码默认long是8字节。导致类型转换时精度降低，无法通过测试。
 </p>
@@ -988,21 +951,17 @@ comp.c:3087:15: note: in expansion of macro 'MOST_NEGATIVE_FIXNUM'
       |               ^~~~~~~~~~~~~~~~~~~~
 
 </pre>
-</div>
-</div>
-</div>
 
-<div id="outline-container-org14f49db" class="outline-3">
-<h3 id="org14f49db">性能测试</h3>
-<div class="outline-text-3" id="text-org14f49db">
+
+<h3>性能测试</h3>
+
 <p>
 在win10上测试，cpu是intel i5-8520U。
 </p>
-</div>
 
-<div id="outline-container-orgfdc4a85" class="outline-4">
-<h4 id="orgfdc4a85">第一次测试</h4>
-<div class="outline-text-4" id="text-orgfdc4a85">
+
+<h4>第一次测试</h4>
+
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26410;&#21152; -batch -Q &#21442;&#25968;&#65292;&#22312;gui&#20013;&#65292;&#21487;&#33021;&#23545;&#27979;&#35797;&#24615;&#33021;&#26377;&#24433;&#21709;&#12290;</span>
 ./emacs -l E:/workspace/elisp-benchmarks/elisp-benchmark.el --eval <span style="color: #deb887;">'(elb-run)'</span>
@@ -1026,12 +985,10 @@ dhrystone.el              byte time: 612.382567s native time: 499.131995s boost 
                                                                            
 Total                     byte time: 667.153574s native time: 287.974774s boost 131.670839%    
 </pre>
-</div>
-</div>
 
-<div id="outline-container-org2eafd64" class="outline-4">
-<h4 id="org2eafd64">第二次测试</h4>
-<div class="outline-text-4" id="text-org2eafd64">
+
+<h4>第二次测试</h4>
+
 <div class="org-src-container">
 <pre class="src src-sh">./emacs -batch -l E:/workspace/elisp-benchmarks/elisp-benchmark.el --eval <span style="color: #deb887;">'(elb-run)'</span> -Q
 
@@ -1053,8 +1010,35 @@ inclist-no-type-hints.el  byte time: 124.360178s native time:   5.929948s boost 
 inclist-type-hints.el     byte time: 131.778451s native time:   5.045148s boost 2511.983851%
 nbody.el                  byte time: 493.410192s native time: 122.395166s boost 303.128823%
 dhrystone.el              byte time: 349.269993s native time: 216.528584s boost 61.304335%
-
 Total                     byte time: 552.128101s native time: 161.879026s boost 241.074514%
+
+[2020-02-02 周日 14:06:59]
+bubble.el                 byte time: 138.523664s native time:  21.739262s boost 537.204998%
+bubble-no-cons.el         byte time: 185.583256s native time:  41.305705s boost 349.292068%
+fibn.el                   byte time: 191.460652s native time:  74.148040s boost 158.214043%
+fibn-rec.el               byte time: 120.859300s native time:  36.182891s boost 234.023337%
+fibn-tc.el                byte time: 107.256165s native time:  24.652318s boost 335.075375%
+inclist-tc.el             byte time: 111.663299s native time:   1.793739s boost 6125.169827%
+listlen-tc.el             byte time: 102.768693s native time:   0.708594s boost 14403.184193%
+inclist-no-type-hints.el  byte time: 174.505982s native time:   5.239305s boost 3230.708596%
+inclist-type-hints.el     byte time: 191.516524s native time:   5.280125s boost 3527.121025%
+nbody.el                  byte time: 525.441776s native time: 142.299708s boost 269.250073%
+dhrystone.el              byte time: 442.338356s native time: 261.127992s boost 69.395227%
+Total                     byte time: 624.094766s native time: 173.716878s boost 259.259718%
+
+[2020-02-07 周五 17:22:21]
+bubble.el                 byte time: 102.715487s native time:  21.517346s boost 377.361320%
+bubble-no-cons.el         byte time: 107.479181s native time:  33.150175s boost 224.219046%
+fibn.el                   byte time: 125.995228s native time:  67.917504s boost 85.512159%
+fibn-rec.el               byte time: 105.926435s native time:  38.019204s boost 178.612974%
+fibn-tc.el                byte time: 100.486451s native time:  25.953107s boost 287.184667%
+inclist-tc.el             byte time: 109.109979s native time:   2.030358s boost 5273.928095%
+listlen-tc.el             byte time: 113.611750s native time:   0.827511s boost 13629.334112%
+inclist-no-type-hints.el  byte time: 147.052826s native time:   6.744831s boost 2080.229957%
+inclist-type-hints.el     byte time: 136.069896s native time:   4.647000s boost 2828.123434%
+nbody.el                  byte time: 501.310644s native time: 128.587244s boost 289.860322%
+dhrystone.el              byte time: 368.023414s native time: 216.367226s boost 70.092033%
+Total                     byte time: 596.685092s native time: 170.268149s boost 250.438468%
 </pre>
 
 <table border="1" rules="all" frame="border">
@@ -1156,12 +1140,10 @@ Total                     byte time: 552.128101s native time: 161.879026s boost 
 </tr>
 </tbody>
 </table>
-</div>
-</div>
 
-<div id="outline-container-orgaf37b76" class="outline-4">
-<h4 id="orgaf37b76">linux</h4>
-<div class="outline-text-4" id="text-orgaf37b76">
+
+<h4>linux</h4>
+
 <pre class="example">
 Summary results:
 bubble.el                 byte time: 145.803142s native time:  29.089018s  boost 401.230884%
@@ -1178,25 +1160,21 @@ dhrystone.el              byte time: 299.138452s native time: 171.954319s  boost
 
 Total                     byte time: 737.046902s native time: 150.518523s  boost 389.671895%
 </pre>
-</div>
-</div>
-</div>
 
-<div id="outline-container-orgfd46d0b" class="outline-3">
-<h3 id="orgfd46d0b">问题</h3>
-<div class="outline-text-3" id="text-orgfd46d0b">
-</div>
-<div id="outline-container-org0fed768" class="outline-4">
-<h4 id="org0fed768">稳定性</h4>
-<div class="outline-text-4" id="text-org0fed768">
+
+<h3>问题</h3>
+
+
+
+<h4>稳定性</h4>
+
 <p>
 偶尔会segfault。
 </p>
-</div>
 
-<div id="outline-container-orgff3ce99" class="outline-5">
-<h5 id="orgff3ce99">M-x org-publish-all执行几次后报错，出现过segfault。</h5>
-<div class="outline-text-5" id="text-orgff3ce99">
+
+<h5>M-x org-publish-all执行几次后报错，出现过segfault。</h5>
+
 <p>
 在gdb的时候，只要执行2次 M-x org-publish-all，就会segfault。这。。。
 </p>
@@ -1217,34 +1195,43 @@ gdb emacs
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2020-01-29 周三 16:49] </span></span> 貌似 org-publish-current-file 不会segfault。
 </p>
-</div>
-</div>
 
-<div id="outline-container-org8bcaedd" class="outline-5">
-<h5 id="org8bcaedd">magit 在native compile后，commit的时候容易segfault。</h5>
-<div class="outline-text-5" id="text-org8bcaedd">
+
+<h5>magit 在native compile后，commit的时候容易segfault。</h5>
+
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2020-01-29 周三 16:47] </span></span> rm eln文件后，commit、push都不报错。为什么windows上的native compile问题这么多呢?
 </p>
-</div>
-</div>
-</div>
 
-<div id="outline-container-orgfabf204" class="outline-4">
-<h4 id="orgfabf204">功能</h4>
-<div class="outline-text-4" id="text-orgfabf204">
-</div>
-<div id="outline-container-org6664f13" class="outline-5">
-<h5 id="org6664f13">evil的visual mode按c-v，列编辑，按I插入不正常。</h5>
-<div class="outline-text-5" id="text-org6664f13">
+
+<h4>功能</h4>
+
+
+
+<h5>helm</h5>
+
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2020-01-30 周四 00:04] </span></span> 和我强行把evil编译成eln有关。用 M-x benchmark-init/show-durations-tree 看可能是 <b>evil-common.el</b> 。
+helm-buffers.el 编译为eln后，切换buffer时非常容易segfault。
 </p>
-</div>
-</div>
-</div>
-</div>
-</div>
+
+
+<h5>evil的visual mode按c-v，列编辑，按I插入不正常。</h5>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-02-09 周日 00:56] </span></span> evil-commands.el 编译成eln后，c-v是有问题的，去掉后ok。
+</p>
+
+<ul class="org-ul">
+<li><a id="orgf694364"></a>undo-tree <span class="timestamp-wrapper"><span class="timestamp">[2020-02-16 周日 23:29]</span></span><br>
+<p>
+发现undo-tree编译为eln后，doom-modeline在undo的时候，文件名不会从红色恢复为正常的颜色。
+</p>
+
+<p>
+修改了evil-pkg.el中对undo-tree的版本依赖，改到2020年1月9日最新的v0.7.4版本，编译为eln后同样报错。
+</p>
+</li>
+</ul>
 </div>
 </body>
 </html>
