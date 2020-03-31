@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2020-03-31 周二 12:06 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>在emacs中用星际词霸学习英文</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">在emacs中用星际词霸学习英文</h1>
+<p>
+参考 <a href="https://emacs-china.org/t/emacs/7750/37">https://emacs-china.org/t/emacs/7750/37</a>。
+</p>
+
+<p>
+sdcv.el需要命令行的sdcv.exe，不是stardict.exe。sdcv需要自己编译。需要安装cmake、zlib、readline等。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> /e/workspace
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#29992;Dushistov&#30340;&#23601;&#21487;&#20197;&#20102;&#12290;</span>
+git clone https://github.com/Dushistov/sdcv.git --config <span style="color: #deb887;">"http.proxy=127.0.0.1:1080"</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">git clone --depth 1 https://github.com/yygcode/sdcv  --config "http.proxy=127.0.0.1:1080"</span>
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#24314;&#20010;&#26032;&#30446;&#24405;&#32534;&#35793;sdcv</span>
+mkdir /e/workspace/build-sdcv
+
+pacman -S zlib-devel
+pacman -S libreadline-devel
+pacman -S glib2-devel
+
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">cmake /e/workspace/sdcv -DZLIB_LIBRARY=/mingw64/bin -DREADLINE_LIBRARY=/mingw64/bin -G "MSYS Makefiles"</span>
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#29983;&#25104;msys&#30340;makefile&#65292;&#40664;&#35748;&#29983;&#25104;visual studio&#30340;sln</span>
+cmake /e/workspace/sdcv -G <span style="color: #deb887;">"MSYS Makefiles"</span>
+
+make <span style="color: #4eee94;">VERBOSE</span>=1
+</pre>
+</div>
+
+
+<h2>src/utils.cpp 编译报错</h2>
+
+<pre class="example">
+/C/msys64/mingw64/bin/g++.exe  -DHAVE_CONFIG_H -DVERSION=\"0.5.2\" -I/C/msys64/mingw64/include/glib-2.0 -I/C/msys64/mingw64/lib/glib-2.0/include -I/E/workspace/sdcv/src/lib -I/E/workspace/build-sdcv  -std=c++11 -o CMakeFiles/sdcv.dir/src/utils.cpp.obj -c /E/workspace/sdcv/src/utils.cpp
+In file included from C:/msys64/mingw64/include/glib-2.0/glib/gi18n.h:23,
+                 from E:/workspace/sdcv/src/utils.cpp:29:
+C:/msys64/mingw64/include/c++/9.2.0/bits/basic_string.h: In function 'std::string std::__cxx11::to_string(int)':
+C:/msys64/mingw64/include/c++/9.2.0/bits/basic_string.h:6547:50: error: 'libintl_vsnprintf' is not a member of 'std'; did you mean 'libintl_vsnprintf'?
+ 6547 |   { return __gnu_cxx::__to_xstring&lt;string&gt;(&amp;std::vsnprintf, 4 * sizeof(int),
+</pre>
+
+<p>
+需要修改头文件的顺序。详见下面的patch。
+</p>
+
+
+<h2>src/stardict_lib.cpp 编译报错</h2>
+
+<p>
+stat在c++中是32bit的，需要改为stat64，才能在mingw64中编译成功。
+</p>
+
+<h2>patch</h2>
+
+<div class="org-src-container">
+<pre class="src src-c">Albert@Albert MINGW64 /e/workspace/sdcv
+$ git diff
+diff --git a/src/stardict_lib.cpp b/src/stardict_lib.cpp
+index a911ddd..427e062 100644
+--- a/src/stardict_lib.cpp
++++ b/src/stardict_lib.cpp
+@@ -564,7 +564,7 @@ bool OffsetIndex::load_cache(<span style="color: #00bfff;">const</span> <span style="color: #98f5ff;">std</span>::string &amp;url)
+     <span style="color: #00bfff;">const</span> <span style="color: #98f5ff;">std</span>::list&lt;std::string&gt; vars = get_cache_variant(url);
+
+     <span style="color: #00bfff;">for</span> (<span style="color: #00bfff;">const</span> <span style="color: #98f5ff;">std</span>::string &amp;item : vars) {
+-        <span style="color: #00bfff;">struct</span> ::stat idxstat, cachestat;
++        <span style="color: #00bfff;">struct</span> ::stat64 idxstat, cachestat;
+         <span style="color: #00bfff;">if</span> (g_stat(url.c_str(), &amp;idxstat) != 0 || g_stat(item.c_str(), &amp;cachestat) != 0)
+             <span style="color: #00bfff;">continue</span>;
+         <span style="color: #00bfff;">if</span> (cachestat.st_mtime &lt; idxstat.st_mtime)
+diff --git a/src/utils.cpp b/src/utils.cpp
+index 33bfeaa..a5f1e21 100644
+--- a/src/utils.cpp
++++ b/src/utils.cpp
+@@ -25,11 +25,11 @@
+<span style="color: #ffd700;"> #include</span> <span style="color: #deb887;">&lt;algorithm&gt;</span>
+<span style="color: #ffd700;"> #include</span> <span style="color: #deb887;">&lt;cstdio&gt;</span>
+<span style="color: #ffd700;"> #include</span> <span style="color: #deb887;">&lt;cstdlib&gt;</span>
+-#include &lt;glib.h&gt;
+-#include &lt;glib/gi18n.h&gt;
+<span style="color: #ffd700;"> #include</span> <span style="color: #deb887;">&lt;iomanip&gt;</span>
+<span style="color: #ffd700;"> #include</span> <span style="color: #deb887;">&lt;sstream&gt;</span>
+
++#include &lt;glib.h&gt;
++#include &lt;glib/gi18n.h&gt;
+<span style="color: #ffd700;"> #include</span> <span style="color: #deb887;">"utils.hpp"</span>
+
+ std::string utf8_to_locale_ign_err(<span style="color: #00bfff;">const</span> <span style="color: #98f5ff;">std</span>::string &amp;utf8_str)
+</pre>
+</div>
+
+<h2>sdcv.exe的路径</h2>
+
+<p>
+在mingw64中执行sdcv是ok的，但是在cmd中调用sdcv.exe会报错，有依赖的dll找不到。直接放到emacs的bin目录，里面的mingw64的dll比较全，居然就不报错了。懒得找具体缺了哪个dll了。
+</p>
+
+<h2>字典下载</h2>
+
+<p>
+<a href="http://download.huzheng.org/zh_CN/">http://download.huzheng.org/zh_CN/</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">wget -t 0 -c http://download.huzheng.org/zh_CN/stardict-lazyworm-ce-2.4.2.tar.bz2
+</pre>
+</div>
+
+
+<h2>sdcv.el</h2>
+
+<p>
+sdcv的配置。
+</p>
+
+<p>
+字典名要用中文的。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp"><span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">homepage: https://github.com/manateelazycat/sdcv</span>
+(use-package sdcv
+  <span style="color: #f08080;">:defer</span> t
+  <span style="color: #f08080;">:load-path</span> <span style="color: #deb887;">"~/.emacs.d/site-lisp/extensions/sdcv"</span>
+  <span style="color: #f08080;">:bind</span> ((<span style="color: #deb887;">"s-t p"</span> . sdcv-search-pointer)  <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#20809;&#26631;&#22788;&#30340;&#21333;&#35789;, buffer&#26174;&#31034;</span>
+         (<span style="color: #deb887;">"s-t t"</span> . sdcv-search-pointer+) <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#20809;&#26631;&#22788;&#30340;&#21333;&#35789;, frame&#26174;&#31034;</span>
+         (<span style="color: #deb887;">"s-t i"</span> . sdcv-search-input)    <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#36755;&#20837;&#30340;&#21333;&#35789;, buffer&#26174;&#31034;</span>
+         (<span style="color: #deb887;">"s-t ;"</span> . sdcv-search-input+))
+  <span style="color: #f08080;">:config</span>
+  (setq sdcv-program <span style="color: #deb887;">"E:\\emacs\\bin\\sdcv.exe"</span>)
+
+  (setq sdcv-dictionary-data-dir <span style="color: #deb887;">"e:\\home\\albert\\stardict"</span>)   <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">set local sdcv dict to search word</span>
+
+  (setq sdcv-dictionary-simple-list        <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">a simple dictionary list</span>
+        '(
+          <span style="color: #deb887;">"&#29275;&#27941;&#29616;&#20195;&#33521;&#27721;&#21452;&#35299;&#35789;&#20856;"</span>
+          <span style="color: #deb887;">"&#26391;&#36947;&#33521;&#27721;&#23383;&#20856;5.0"</span>
+          <span style="color: #deb887;">"&#25042;&#34411;&#31616;&#26126;&#33521;&#27721;&#35789;&#20856;"</span>
+          <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">"&#25042;&#34411;&#31616;&#26126;&#27721;&#33521;&#35789;&#20856;"</span>
+          <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">"KDic11&#19975;&#33521;&#27721;&#35789;&#20856;"</span>
+          ))
+
+  (setq sdcv-tooltip-timeout 0)
+
+  <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">(shell-command-to-string "E:\\emacs\\bin\\sdcv.exe -n --data-dir=\"e:\\home\\albert\\stardict\" \"test\"")</span>
+  )
+</pre>
+</div>
+</div>
+</body>
+</html>
