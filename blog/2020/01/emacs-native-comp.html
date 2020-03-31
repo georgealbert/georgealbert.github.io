@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-03-31 周二 08:53 -->
+<!-- 2020-03-31 周二 11:49 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>在windows上用mingw64编译emacs的feature/native-comp分支</title>
@@ -1466,6 +1466,42 @@ Update: 在3月的某个commit之后，忽然就正常了，神奇啊。
 </p>
 </li>
 </ul>
+
+<h3>update - 2020.03.23</h3>
+
+<p>
+更新了不少东西。下面2个更新很好用。
+</p>
+
+<h4>make -j2 NATIVE_FAST_BOOT=1</h4>
+
+<p>
+NATIVE_FAST_BOOT编译选项打开后，只会编译生成pdump需要的elisp文件。大概只有10几个elisp文件会被编译为eln，编译速度只要10分钟左右。比原来快多了。如果经常改代码，dump id会变化，导致eln的生成目录名发生变化，每次都要全量编译740多个elisp文件会非常浪费时间。
+</p>
+
+
+<h4>comp-deferred-compilation</h4>
+
+<p>
+如果在make时使用了 <b>NATIVE_FAST_BOOT=1</b> ，大部分emacs自带的elisp文件都不会被编译，可以在 <code>early-init.el</code> 或者 <code>init.el</code> 中加上
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp">(setq comp-deferred-compilation t)
+</pre>
+</div>
+
+<p>
+自动编译emacs自带的lexical scope的elisp文件和自己的elisp文件。
+</p>
+
+<p>
+需要注意的是，elisp文件必须已经编译成elc文件，才会自动编译为eln。
+</p>
+
+<p>
+在正常使用一段时间后，大部分常用功能的elisp文件都编译为eln了，建议关掉 <code>comp-deferred-compilation</code> ， 每次自动编译也有点浪费资源，而且有些文件不是lexical scope的，每次都尝试编译，却编译失败。另外每次会在mini buffer里看见的native-comp的buffer，有点烦。
+</p>
 </div>
 </body>
 </html>
