@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-02-16 周日 23:47 -->
+<!-- 2020-03-31 周二 08:53 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>在windows上用mingw64编译emacs的feature/native-comp分支</title>
@@ -16,7 +16,7 @@ gccemacs(<a href="http://akrl.sdf.org/gccemacs.html">http://akrl.sdf.org/gccemac
 </p>
 
 <p>
-gccemacs通过gcc 5.0后新增的jit，把elisp文件编译成一个个动态链接库。这样比emacs解析执行lisp代码要快一倍以上。
+gccemacs使用gcc 5.0后新增的jit功能，把elisp文件编译成一个个动态链接库。这样比emacs解析执行lisp代码要快一倍以上。
 </p>
 
 <p>
@@ -24,18 +24,18 @@ gccemacs在linux上开发的，但是没有porting到windows上，趁着春节�
 </p>
 
 <p>
-gcc的libgccjit在mingw64上编译有点复杂，emacs的native-comp分支也是。
+由于gccjit是在linux上开发的，只考虑了对linux的支持，并没有考虑对windows支持，需要修改代码才能在windows上运行。gcc的libgccjit在mingw64上编译有点复杂，emacs的native-comp分支也是。
 </p>
 
 
 <h2>编译支持libgccjit的gcc</h2>
 
 <p>
-在最新的mingw64里，gcc的版本是v9.2.0，从 <code>gcc -v</code> 看是没有把libgccjit编译进去，所以不支持libgccjit。
+在最新的mingw64里，gcc的版本是v9.2.0，从 <code>gcc -v</code> 看，mingw64的gcc版本没有把libgccjit编译进去，所以不支持libgccjit。
 </p>
 
 <p>
-pacman中找不到gcc的libgccjit的package。
+在pacman中找不到gcc的libgccjit的package。
 </p>
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#27809;&#26377;gccjit&#30456;&#20851;package</span>
@@ -44,16 +44,20 @@ pacman -Ss jit
 </div>
 
 <p>
-在mingw64上，源代码编译gcc的trunk的最新代码。
+用源代码编译gcc的trunk的最新代码。
 </p>
 <div class="org-src-container">
-<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">depth=1 &#21482;clone&#26368;&#26032;&#30340;&#65292;gcc&#22826;&#22810;&#20102;&#65292;&#32593;&#36895;&#24930;&#65292;clone&#22826;&#24930;</span>
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">depth=1 &#21482;clone&#26368;&#26032;&#30340;&#65292;gcc&#22826;&#22810;&#20102;&#65292;&#32593;&#36895;&#24930;&#65292;clone&#22826;&#24930;&#65292;&#25105;&#20204;&#20063;&#19981;&#38656;&#35201;&#23436;&#25972;&#30340;&#29256;&#26412;&#12290;</span>
 git clone --depth 1 git://gcc.gnu.org/git/gcc.git
 </pre>
 </div>
 
 
 <h3>编译</h3>
+
+<p>
+重点关注一下几个编译选项：
+</p>
 
 <p>
 只要支持c和c++就可以了。lto(link time optimize)看文档是默认的。jit看gccjit的文档上有，不知道不加有没有问题。
@@ -77,6 +81,9 @@ git clone --depth 1 git://gcc.gnu.org/git/gcc.git
 --disable-bootstrap
 </pre>
 
+<p>
+下面是完整的编译选项：
+</p>
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #f08080;">cd</span> /e/workspace/gcc/build
 ../gcc/configure --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --with-native-system-header-dir=/mingw64/x86_64-w64-mingw32/include --libexecdir=/mingw64/lib --with-arch=x86-64 --with-tune=generic --enable-languages=c,jit,lto,c++ --enable-shared --enable-static --enable-libatomic --enable-threads=posix --enable-graphite --enable-fully-dynamic-string --enable-libstdcxx-filesystem-ts=yes --enable-libstdcxx-time=yes --disable-libstdcxx-pch --disable-libstdcxx-debug --disable-isl-version-check --enable-lto --enable-libgomp --disable-multilib --enable-checking=release --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --enable-plugin --with-libiconv --with-system-zlib --with-gmp=/mingw64 --with-mpfr=/mingw64 --with-mpc=/mingw64 --with-isl=/mingw64 --with-pkgversion=<span style="color: #deb887;">'Rev2, Built by MSYS2 project. Albert 2020.01.20'</span> --with-gnu-as --with-gnu-ld <span style="color: #deb887;">\</span>
@@ -87,10 +94,10 @@ git clone --depth 1 git://gcc.gnu.org/git/gcc.git
 </div>
 
 
-<h4>路径</h4>
+<h4>编译路径</h4>
 
 <p>
-不要直接在gcc的目录下执行 <b>configure</b> ，在gcc的同级目录下建 <b>build</b> 目录，然后再configure。
+gcc编译时，建议新建一个目录，在新建目录中进行编译。不要直接在gcc的目录下执行 <b>configure</b> 。在gcc的同级目录下建 <b>build</b> 目录，然后再configure。
 </p>
 <div class="org-src-container">
 <pre class="src src-sh">Albert@Albert MINGW64 /e/workspace/gcc
@@ -198,13 +205,15 @@ mingw64中没有函数定义导致编译gcc报错。
 windows不像linux，无所谓文件权限，不需要生成的共享库是700的权限。直接注释掉。
 </p>
 
+<h4>新增 gcc_jit_context_new_rvalue_from_long_long_int()</h4>
+
 <h4>具体修改</h4>
 
 <div class="org-src-container">
 <pre class="src src-sh">Albert@Albert MINGW64 /e/workspace/gcc/gcc
 $ git diff
 diff --git a/gcc/jit/jit-playback.c b/gcc/jit/jit-playback.c
-index da687002a..c7d8ca91c 100644
+index da687002a..0757c08bc 100644
 --- a/gcc/jit/jit-playback.c
 +++ b/gcc/jit/jit-playback.c
 @@ -42,6 +42,9 @@ along with GCC; see the file COPYING3.  If not see
@@ -217,7 +226,38 @@ index da687002a..c7d8ca91c 100644
  <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-playback.h"</span>
  <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-result.h"</span>
  <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-builtins.h"</span>
-@@ -1818,7 +1821,7 @@ block (<span style="color: #00bfff;">function</span> *func,
+@@ -613,6 +616,30 @@ new_rvalue_from_const &lt;long&gt; (<span style="color: #f08080;">type</span> *type,
+     }
+ }
+
++/* Specialization of making an rvalue from a const, for host &lt;long long int&gt;.  */
++
++template &lt;&gt;
++rvalue *
++context::
++new_rvalue_from_const &lt;long long int&gt; (<span style="color: #f08080;">type</span> *type,
++                             long long int value)
++{
++  // FIXME: type-checking, or coercion?
++  tree inner_type = type-&gt;as_tree ();
++  if (INTEGRAL_TYPE_P (inner_type))
++    {
++      tree inner = build_int_cst (inner_type, value);
++      return new rvalue (this, inner);
++    }
++  else
++    {
++      REAL_VALUE_TYPE real_value;
++      real_from_integer (&amp;real_value, VOIDmode, value, SIGNED);
++      tree inner = build_real (inner_type, real_value);
++      return new rvalue (this, inner);
++    }
++}
++
+ /* Specialization of making an rvalue from a const, for host &lt;double&gt;.  */
+
+ template &lt;&gt;
+@@ -1818,7 +1845,7 @@ block (<span style="color: #00bfff;">function</span> *func,
 
  /* Compile a playback::context:
 
@@ -226,7 +266,7 @@ index da687002a..c7d8ca91c 100644
       call into the rest of GCC (toplev::main).
     - Assuming it succeeds, we have a .s file.
     - We then run the <span style="color: #deb887;">"postprocess"</span> vfunc:
-@@ -2155,15 +2158,15 @@ playback::compile_to_file::copy_file (const char *src_path,
+@@ -2155,15 +2182,15 @@ playback::compile_to_file::copy_file (const char *src_path,
 
    gcc_assert (total_sz_in == total_sz_out);
    <span style="color: #00bfff;">if</span> (get_logger ())
@@ -248,7 +288,7 @@ index da687002a..c7d8ca91c 100644
 
    fclose (f_out);
  }
-@@ -2641,16 +2644,20 @@ dlopen_built_dso ()
+@@ -2641,16 +2668,20 @@ dlopen_built_dso ()
    JIT_LOG_SCOPE (get_logger ());
    auto_timevar load_timevar (get_timer (), TV_LOAD);
    void *handle = NULL;
@@ -272,12 +312,94 @@ index da687002a..c7d8ca91c 100644
 +  handle = LoadLibrary(m_tempdir-&gt;get_path_so_file ());
 +  /* if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
 +  if ((error = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
-+    add_error (NULL, <span style="color: #deb887;">"%d"</span>, error);
++    add_error (NULL, <span style="color: #deb887;">"%ld"</span>, error);
    }
    <span style="color: #00bfff;">if</span> (handle)
      {
+diff --git a/gcc/jit/jit-recording.c b/gcc/jit/jit-recording.c
+index b73cd76a0..acb40730e 100644
+--- a/gcc/jit/jit-recording.c
++++ b/gcc/jit/jit-recording.c
+@@ -4480,6 +4480,7 @@ recording::global::write_reproducer (reproducer &amp;r)
+ /* Explicit specialization of the various mementos we<span style="color: #deb887;">'re interested in.  */</span>
+<span style="color: #deb887;"> template class recording::memento_of_new_rvalue_from_const &lt;int&gt;;</span>
+<span style="color: #deb887;"> template class recording::memento_of_new_rvalue_from_const &lt;long&gt;;</span>
+<span style="color: #deb887;">+template class recording::memento_of_new_rvalue_from_const &lt;long long int&gt;;</span>
+<span style="color: #deb887;"> template class recording::memento_of_new_rvalue_from_const &lt;double&gt;;</span>
+<span style="color: #deb887;"> template class recording::memento_of_new_rvalue_from_const &lt;void *&gt;;</span>
+
+<span style="color: #deb887;">@@ -4617,6 +4618,69 @@ recording::memento_of_new_rvalue_from_const &lt;long&gt;::write_reproducer (reproducer</span>
+<span style="color: #deb887;">           m_value);</span>
+<span style="color: #deb887;">           }</span>
+
+<span style="color: #deb887;">+/* The make_debug_string specialization for &lt;long long int&gt;, rendering it as</span>
+<span style="color: #deb887;">+     (TARGET_TYPE)LITERAL</span>
+<span style="color: #deb887;">+   e.g.</span>
+<span style="color: #deb887;">+     "(long long int)42".  */</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+template &lt;&gt;</span>
+<span style="color: #deb887;">+string *</span>
+<span style="color: #deb887;">+memento_of_new_rvalue_from_const &lt;long long int&gt;::make_debug_string ()</span>
+<span style="color: #deb887;">+{</span>
+<span style="color: #deb887;">+  return string::from_printf (m_ctxt,</span>
+<span style="color: #deb887;">+                             "(%s)%lli",</span>
+<span style="color: #deb887;">+                             m_type-&gt;get_debug_string (),</span>
+<span style="color: #deb887;">+                             m_value);</span>
+<span style="color: #deb887;">+}</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+/* The get_wide_int specialization for &lt;long long int&gt;.  */</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+template &lt;&gt;</span>
+<span style="color: #deb887;">+bool</span>
+<span style="color: #deb887;">+memento_of_new_rvalue_from_const &lt;long long int&gt;::get_wide_int (wide_int *out) const</span>
+<span style="color: #deb887;">+{</span>
+<span style="color: #deb887;">+  *out = wi::shwi (m_value, sizeof (m_value) * 8);</span>
+<span style="color: #deb887;">+  return true;</span>
+<span style="color: #deb887;">+}</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+/* The write_reproducer specialization for &lt;long long int&gt;.  */</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+template &lt;&gt;</span>
+<span style="color: #deb887;">+void</span>
+<span style="color: #deb887;">+recording::memento_of_new_rvalue_from_const &lt;long long int&gt;::write_reproducer (reproducer &amp;r)</span>
+<span style="color: #deb887;">+{</span>
+<span style="color: #deb887;">+  const char *id = r.make_identifier (this, "rvalue");</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+  /* We have to special-case LONG_MIN, since e.g.</span>
+<span style="color: #deb887;">+       -9223372036854775808L</span>
+<span style="color: #deb887;">+     is parsed as</span>
+<span style="color: #deb887;">+       -(9223372036854775808L)</span>
+<span style="color: #deb887;">+     and hence we'</span>d get:
++       error: integer constant is so large that it is unsigned [-Werror]
++       Workaround this by writing (LONG_MIN + 1) - 1.  */
++  if (m_value == LONG_LONG_MIN)
++    {
++      r.write (<span style="color: #deb887;">"  gcc_jit_rvalue *%s =\n"</span>
++              <span style="color: #deb887;">"    gcc_jit_context_new_rvalue_from_long_long_int (%s, /* gcc_jit_context *ctxt */\n"</span>
++              <span style="color: #deb887;">"                                          %s, /* gcc_jit_type *numeric_type */\n"</span>
++              <span style="color: #deb887;">"                                          %lldL - 1); /* long long int value */\n"</span>,
++              id,
++              r.get_identifier (get_context ()),
++              r.get_identifier_as_type (m_type),
++              m_value + 1);
++      return;
++    }
++
++  r.write (<span style="color: #deb887;">"  gcc_jit_rvalue *%s =\n"</span>
++          <span style="color: #deb887;">"    gcc_jit_context_new_rvalue_from_long_long_int (%s, /* gcc_jit_context *ctxt */\n"</span>
++          <span style="color: #deb887;">"                                          %s, /* gcc_jit_type *numeric_type */\n"</span>
++          <span style="color: #deb887;">"                                          %lldL); /* long long int value */\n"</span>,
++          id,
++          r.get_identifier (get_context ()),
++          r.get_identifier_as_type (m_type),
++          m_value);
++          }
++
+ /* The make_debug_string specialization for &lt;double&gt;, rendering it as
+      (TARGET_TYPE)LITERAL
+    e.g.
 diff --git a/gcc/jit/jit-result.c b/gcc/jit/jit-result.c
-index c10e5a13c..175c0c02d 100644
+index c10e5a13c..69c80f191 100644
 --- a/gcc/jit/jit-result.c
 +++ b/gcc/jit/jit-result.c
 @@ -22,6 +22,9 @@ along with GCC; see the file COPYING3.  If not see
@@ -300,7 +422,7 @@ index c10e5a13c..175c0c02d 100644
 
    /* Responsibility for cleaning up the tempdir (including <span style="color: #deb887;">"fake.so"</span> within
       the filesystem) might have been handed to us by the playback::context,
-@@ -72,14 +76,17 @@ get_code (const char *funcname)
+@@ -72,15 +76,18 @@ get_code (const char *funcname)
    JIT_LOG_SCOPE (get_logger ());
 
    void *code;
@@ -312,18 +434,21 @@ index c10e5a13c..175c0c02d 100644
 -  dlerror ();
 -
 -  code = dlsym (m_dso_handle, funcname);
+-
+-  if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
+-    fprintf(stderr, <span style="color: #deb887;">"%s\n"</span>, error);
 +  /* dlerror (); */
 +  SetLastError(0);
-
--  if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
++
 +  /* code = dlsym (m_dso_handle, funcname); */
 +  code = (void *)GetProcAddress((HMODULE)m_dso_handle, funcname);
 +  /* if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
 +  if ((error = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
-     fprintf(stderr, <span style="color: #deb887;">"%s\n"</span>, error);
++    fprintf(stderr, <span style="color: #deb887;">"%ld\n"</span>, error);
    }
 
-@@ -99,14 +106,18 @@ get_global (const char *name)
+   <span style="color: #00bfff;">return</span> code;
+@@ -99,15 +106,19 @@ get_global (const char *name)
    JIT_LOG_SCOPE (get_logger ());
 
    void *global;
@@ -341,11 +466,13 @@ index c10e5a13c..175c0c02d 100644
 +  global = (void *)GetProcAddress((HMODULE)m_dso_handle, name);
 
 -  if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
+-    fprintf(stderr, <span style="color: #deb887;">"%s\n"</span>, error);
 +  /* if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
 +  if ((error = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
-     fprintf(stderr, <span style="color: #deb887;">"%s\n"</span>, error);
++    fprintf(stderr, <span style="color: #deb887;">"%ld\n"</span>, error);
    }
 
+   <span style="color: #00bfff;">return</span> global;
 diff --git a/gcc/jit/jit-tempdir.c b/gcc/jit/jit-tempdir.c
 index 10c528faf..457591708 100644
 --- a/gcc/jit/jit-tempdir.c
@@ -699,8 +826,82 @@ index 10c528faf..457591708 100644
 
 <span style="color: #deb887;">+char * mkdtemp(char *);</span>
 <span style="color: #deb887;"> #endif /* JIT_TEMPDIR_H */</span>
+<span style="color: #deb887;">diff --git a/gcc/jit/libgccjit++.h b/gcc/jit/libgccjit++.h</span>
+<span style="color: #deb887;">index 82a62d614..2208f78c6 100644</span>
+<span style="color: #deb887;">--- a/gcc/jit/libgccjit++.h</span>
+<span style="color: #deb887;">+++ b/gcc/jit/libgccjit++.h</span>
+<span style="color: #deb887;">@@ -878,6 +878,16 @@ context::new_rvalue (type numeric_type,</span>
+<span style="color: #deb887;">                                          value));</span>
+<span style="color: #deb887;"> }</span>
+
+<span style="color: #deb887;">+inline rvalue</span>
+<span style="color: #deb887;">+context::new_rvalue (type numeric_type,</span>
+<span style="color: #deb887;">+                    long long int value) const</span>
+<span style="color: #deb887;">+{</span>
+<span style="color: #deb887;">+  return rvalue (</span>
+<span style="color: #deb887;">+    gcc_jit_context_new_rvalue_from_long_long_int (m_inner_ctxt,</span>
+<span style="color: #deb887;">+                                         numeric_type.get_inner_type (),</span>
+<span style="color: #deb887;">+                                         value));</span>
+<span style="color: #deb887;">+}</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;"> inline rvalue</span>
+<span style="color: #deb887;"> context::zero (type numeric_type) const</span>
+<span style="color: #deb887;"> {</span>
+<span style="color: #deb887;">diff --git a/gcc/jit/libgccjit.c b/gcc/jit/libgccjit.c</span>
+<span style="color: #deb887;">index 83055fc29..2f3076cf5 100644</span>
+<span style="color: #deb887;">--- a/gcc/jit/libgccjit.c</span>
+<span style="color: #deb887;">+++ b/gcc/jit/libgccjit.c</span>
+<span style="color: #deb887;">@@ -1197,6 +1197,19 @@ gcc_jit_context_new_rvalue_from_long (gcc_jit_context *ctxt,</span>
+<span style="color: #deb887;">          -&gt;new_rvalue_from_const &lt;long&gt; (numeric_type, value));</span>
+<span style="color: #deb887;"> }</span>
+
+<span style="color: #deb887;">+gcc_jit_rvalue *</span>
+<span style="color: #deb887;">+gcc_jit_context_new_rvalue_from_long_long_int (gcc_jit_context *ctxt,</span>
+<span style="color: #deb887;">+                                     gcc_jit_type *numeric_type,</span>
+<span style="color: #deb887;">+                                     long long int value)</span>
+<span style="color: #deb887;">+{</span>
+<span style="color: #deb887;">+  RETURN_NULL_IF_FAIL (ctxt, NULL, NULL, "NULL context");</span>
+<span style="color: #deb887;">+  JIT_LOG_FUNC (ctxt-&gt;get_logger ());</span>
+<span style="color: #deb887;">+  RETURN_NULL_IF_FAIL_NONNULL_NUMERIC_TYPE (ctxt, numeric_type);</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+  return ((gcc_jit_rvalue *)ctxt</span>
+<span style="color: #deb887;">+         -&gt;new_rvalue_from_const &lt;long long int&gt; (numeric_type, value));</span>
+<span style="color: #deb887;">+}</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;"> /* Public entrypoint.  See description in libgccjit.h.</span>
+
+<span style="color: #deb887;">    This is essentially equivalent to:</span>
+<span style="color: #deb887;">diff --git a/gcc/jit/libgccjit.h b/gcc/jit/libgccjit.h</span>
+<span style="color: #deb887;">index 21a0dc09b..21237c31a 100644</span>
+<span style="color: #deb887;">--- a/gcc/jit/libgccjit.h</span>
+<span style="color: #deb887;">+++ b/gcc/jit/libgccjit.h</span>
+<span style="color: #deb887;">@@ -812,6 +812,11 @@ gcc_jit_context_new_rvalue_from_long (gcc_jit_context *ctxt,</span>
+<span style="color: #deb887;">                                      gcc_jit_type *numeric_type,</span>
+<span style="color: #deb887;">                                      long value);</span>
+
+<span style="color: #deb887;">+extern gcc_jit_rvalue *</span>
+<span style="color: #deb887;">+gcc_jit_context_new_rvalue_from_long_long_int (gcc_jit_context *ctxt,</span>
+<span style="color: #deb887;">+                                     gcc_jit_type *numeric_type,</span>
+<span style="color: #deb887;">+                                     long long int value);</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;"> extern gcc_jit_rvalue *</span>
+<span style="color: #deb887;"> gcc_jit_context_zero (gcc_jit_context *ctxt,</span>
+<span style="color: #deb887;">                      gcc_jit_type *numeric_type);</span>
+<span style="color: #deb887;">diff --git a/gcc/jit/libgccjit.map b/gcc/jit/libgccjit.map</span>
+<span style="color: #deb887;">index 4514bd3aa..488a3a089 100644</span>
+<span style="color: #deb887;">--- a/gcc/jit/libgccjit.map</span>
+<span style="color: #deb887;">+++ b/gcc/jit/libgccjit.map</span>
+<span style="color: #deb887;">@@ -62,6 +62,7 @@ LIBGCCJIT_ABI_0</span>
+<span style="color: #deb887;">     gcc_jit_context_new_rvalue_from_double;</span>
+<span style="color: #deb887;">     gcc_jit_context_new_rvalue_from_int;</span>
+<span style="color: #deb887;">     gcc_jit_context_new_rvalue_from_long;</span>
+<span style="color: #deb887;">+    gcc_jit_context_new_rvalue_from_long_long_int;</span>
+<span style="color: #deb887;">     gcc_jit_context_new_rvalue_from_ptr;</span>
+<span style="color: #deb887;">     gcc_jit_context_new_string_literal;</span>
+<span style="color: #deb887;">     gcc_jit_context_new_struct_type;</span>
 </pre>
 </div>
+
 
 <h3>测试libgccjit是否正常</h3>
 
@@ -953,7 +1154,7 @@ comp.c:3087:15: note: in expansion of macro 'MOST_NEGATIVE_FIXNUM'
 </pre>
 
 
-<h3>性能测试</h3>
+<h3>Benchmark</h3>
 
 <p>
 在win10上测试，cpu是intel i5-8520U。
@@ -1176,6 +1377,18 @@ Total                     byte time: 737.046902s native time: 150.518523s  boost
 <h5>M-x org-publish-all执行几次后报错，出现过segfault。</h5>
 
 <p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-02-16 周日 23:48] </span></span> 可能和ox-html.el编译为eln有关。不知道为什么用 <code>advice-add</code> override org-html-headline和org-html-section函数的时候没有生效。不编译eln就ok了。
+</p>
+
+<p>
+另外，用了package helpful后，查看编译为eln的函数，被override后，emacs的cpu会很高。而 C-h a 查看，看不见函数被override了。
+</p>
+
+<p>
+ignore的函数是ok的。
+</p>
+
+<p>
 在gdb的时候，只要执行2次 M-x org-publish-all，就会segfault。这。。。
 </p>
 <div class="org-src-container">
@@ -1214,6 +1427,10 @@ gdb emacs
 helm-buffers.el 编译为eln后，切换buffer时非常容易segfault。
 </p>
 
+<p>
+Update: 在3月的某个commit之后，忽然就正常了，神奇啊。
+</p>
+
 
 <h5>evil的visual mode按c-v，列编辑，按I插入不正常。</h5>
 
@@ -1229,6 +1446,23 @@ helm-buffers.el 编译为eln后，切换buffer时非常容易segfault。
 
 <p>
 修改了evil-pkg.el中对undo-tree的版本依赖，改到2020年1月9日最新的v0.7.4版本，编译为eln后同样报错。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp">(advice-add #'undo-tree-undo-1 <span style="color: #f08080;">:after</span> #'doom-modeline-update-buffer-file-name) 
+</pre>
+</div>
+
+<p>
+可能在函数执行后没有hook上去。
+</p>
+
+<p>
+可能和加载顺序有关系，要advice-add的函数的eln必须要先加载。emacs自带的undo函数就是ok的，因为先加载了。
+</p>
+
+<p>
+把editor调整到ui启动前。
 </p>
 </li>
 </ul>
