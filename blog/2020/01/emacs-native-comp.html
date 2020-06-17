@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-03-31 周二 11:49 -->
+<!-- 2020-06-17 周三 15:33 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>在windows上用mingw64编译emacs的feature/native-comp分支</title>
@@ -1025,7 +1025,7 @@ configure的参数参考 <a href="http://chriszheng.science/2015/03/19/Chinese-v
 --without-imagemagick --with-nativecomp
 
 <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">6&#20010;&#36827;&#31243;&#32534;&#35793;&#20250;&#24555;&#19981;&#23569;&#12290;</span>
-make -j6
+make -j6 <span style="color: #4eee94;">NATIVE_FAST_BOOT</span>=1
 
 <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#23433;&#35013;&#30446;&#24405; e:/emacs</span>
 make install <span style="color: #4eee94;">prefix</span>=/e/emacs
@@ -1502,6 +1502,67 @@ NATIVE_FAST_BOOT编译选项打开后，只会编译生成pdump需要的elisp文
 <p>
 在正常使用一段时间后，大部分常用功能的elisp文件都编译为eln了，建议关掉 <code>comp-deferred-compilation</code> ， 每次自动编译也有点浪费资源，而且有些文件不是lexical scope的，每次都尝试编译，却编译失败。另外每次会在mini buffer里看见的native-comp的buffer，有点烦。
 </p>
+
+<h3>update - 2020.04.22</h3>
+
+<ol class="org-ol">
+<li><p>
+更新到最新的代码后
+</p>
+
+<pre class="example">
+(gdb) bt
+#0  0x00007ffe6d1e0aa3 in KERNELBASE!DebugBreak ()
+   from C:\WINDOWS\System32\KernelBase.dll
+#1  0x0000000400284727 in emacs_abort () at w32fns.c:10979
+#2  0x00000004002ae187 in emacs_root_dir () at w32.c:3137
+#3  0x0000000400161b02 in Fexpand_file_name (name=XIL(0x1a6304),
+    default_directory=XIL(0)) at fileio.c:865
+#4  0x0000000400165621 in check_file_access (file=XIL(0x1a6304),
+    operation=XIL(0x61e0), amode=0) at fileio.c:2726
+#5  0x00000004001656e9 in Ffile_exists_p (filename=XIL(0x1a6304))
+    at fileio.c:2751
+#6  0x00000004001b16df in dump_do_dump_relocation (dump_base=70254592,
+    reloc=...) at pdumper.c:5309
+#7  0x00000004001b1986 in dump_do_all_dump_reloc_for_phase (header=0xbff450,
+    dump_base=70254592, phase=LATE_RELOCS) at pdumper.c:5370
+#8  0x00000004001b2207 in pdumper_load (
+    dump_filename=0x1a0a10 "E:\\workspace\\emacs_src\\emacs28\\emacs\\src\\emacs.pdmp",
+    argv0=0xc13730 "E:\\workspace\\emacs_src\\emacs28\\emacs\\src\\emacs.exe", original_pwd=0x1a09b0 "E:/workspace/emacs_src/emacs28/emacs/src")
+    at pdumper.c:5595
+#9  0x0000000400113572 in load_pdump (argc=1, argv=0xc136b0,
+    original_pwd=0x1a09b0 "E:/workspace/emacs_src/emacs28/emacs/src")
+    at emacs.c:861
+#10 0x0000000400113c19 in main (argc=1, argv=0xc136b0) at emacs.c:1069
+</pre>
+
+<p>
+最新的native-comp就编译不过去。在make时segfault了。奇怪啊，也没什么大动作怎么就失败了呢。gdb debug后发现在w32.c中获取环境变量 <code>emacs_dir</code> ，可能和native-comp分支有关系，export或者在bat文件中set emacs_dir就ok了。
+</p>
+
+<p>
+好在是一执行就segfault，可以直接gdb。
+</p>
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #98f5ff;">char</span> *
+<span style="color: #daa520;">emacs_root_dir</span> (<span style="color: #98f5ff;">void</span>)
+{
+  <span style="color: #00bfff;">static</span> <span style="color: #98f5ff;">char</span> <span style="color: #4eee94;">root_dir</span>[MAX_UTF8_PATH];
+  <span style="color: #00bfff;">const</span> <span style="color: #98f5ff;">char</span> *<span style="color: #4eee94;">p</span>;
+
+  p = getenv (<span style="color: #deb887;">"emacs_dir"</span>);
+  <span style="color: #00bfff;">if</span> (p == <span style="color: #a2cd5a;">NULL</span>)
+    emacs_abort ();
+  filename_from_ansi (p, root_dir);
+  root_dir[parse_root (root_dir, <span style="color: #a2cd5a;">NULL</span>)] = <span style="color: #deb887;">'\0'</span>;
+  dostounix_filename (root_dir);
+  <span style="color: #00bfff;">return</span> root_dir;
+}
+</pre>
+</div></li>
+
+<li>src/comp.c改了不少，对应fixnum，自动判断是否支持unsigned long long类型。在mingw64中，long是32bit的。现在不用在gcc里改libgccjit的代码了，也用不着了。当然想在mingw64中用gccjit，libgccjit其他的代码还是要改的。</li>
+</ol>
 </div>
 </body>
 </html>
