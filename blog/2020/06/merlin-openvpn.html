@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2020-06-26 周五 01:10 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>配置多个openvpn client连接到同一个openvpn server</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">配置多个openvpn client连接到同一个openvpn server</h1>
+<p>
+现在有这样一个需求：在不同地点，有多个openvpn client（RT-AC68U）同时连接到openvpn server（RT-AX89U）。每个路由器都有一个内网，要求内网直接能互访。（还没有做到，现在能做到的是server端和每个client端的内网能互访。client端之间的内网无法互访。）
+</p>
+
+<p>
+openvpn server通过客户端证书中的common name(CN)来区分不同的openvpn client。而华硕和梅林固件自带的客户端证书只有一个，客户端证书中的 <b>common name(CN)</b> 是“client”。如果每个openvpn client都用同一个客户端证书，就没有办法通过客户端证书中的 <b>CN</b> 区分不同的openvpn client，从而针对每个client设置不同的路由。
+</p>
+
+<p>
+华硕官方固件和梅林固件在openvpn上是有一些区别的：
+</p>
+<ol class="org-ol">
+<li>华硕只能配置一个openvpn server，梅林可以配置2个openvpn server。</li>
+<li>华硕的openvpn server配置中，导入新的ca.crt/server.crt/server.key无效，但是dh1024.pem是可以成功导入的。
+梅林中导入ca.crt/server.crt/server.key/dh1024.pem都可以。</li>
+</ol>
+
+<div id="outline-container-orga191fa6" class="outline-2">
+<h2 id="orga191fa6">在华硕官方固件上制作新的客户端证书</h2>
+<div class="outline-text-2" id="text-orga191fa6">
+<p>
+因为固件中 <code>/tmp/etc/openvpn/server1</code> 已经有ca.key/ca.crt和server.key/server.crt等文件了，不用再生成ca和server证书，只需要生成新的客户端证书即可。生成客户端证书需要ca.key和ca.crt。 <code>/tmp/etc/openvpn/server1</code> 中的文件具体如下：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">admin@RT-AX89U:/tmp/etc/openvpn/server1# ls -ltr
+-rw-------    1 admin    root          1704 Jun 25 22:58 server.key   <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">server&#31471;&#30340;key</span>
+-rw-------    1 admin    root          1659 Jun 25 22:58 server.crt
+-rwx------    1 admin    root           195 Jun 25 22:58 fw.sh
+-rw-------    1 admin    root           248 Jun 25 22:58 dh.pem       <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">dh1024.pem</span>
+-rw-rw-rw-    1 admin    root           787 Jun 25 22:58 config.ovpn
+-rw-rw-rw-    1 admin    root          5152 Jun 25 22:58 client.ovpn
+drwx------    2 admin    root             0 Jun 25 22:58 ccd
+-rw-------    1 admin    root          1704 Jun 25 22:58 ca.key
+-rw-------    1 admin    root          1525 Jun 25 22:58 ca.crt
+-rw-rw-rw-    1 admin    root             0 Jun 25 22:58 client_status
+-rw-------    1 admin    root          1050 Jun 25 23:26 status
+</pre>
+</div>
+
+<p>
+在路由器中生成新的客户端证书。路由器的rom中有easy-rsa软件，可以直接用 <code>/rom/easy-rsa</code> 中的软件。路由器上如果没mount u盘，可以在 <code>/tmp</code> 目录下生成新证书，生成后copy到本地，以免路由器重启后丢失证书。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">mkdir -p /tmp/mnt/Albert/cert
+
+cp -r /rom/easy-rsa /tmp/mnt/Albert/cert/
+
+<span style="color: #f08080;">cd</span> /tmp/mnt/Albert/cert/easy-rsa
+</pre>
+</div>
+
+<p>
+参考merlin官方的 <a href="https://github.com/RMerl/asuswrt-merlin.ng/wiki/Generating-OpenVPN-keys-using-Easy-RSA">https://github.com/RMerl/asuswrt-merlin.ng/wiki/Generating-OpenVPN-keys-using-Easy-RSA</a>
+</p>
+
+<p>
+编辑vars文件中的相关变量。dh用1024即可，2048bit长度的生成速度会非常慢。没有必要用2048bit的。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">vi vars
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">KEY_COUNTRY</span>=<span style="color: #deb887;">"CN"</span>
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">KEY_PROVINCE</span>=<span style="color: #deb887;">"XX"</span>
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">KEY_CITY</span>=<span style="color: #deb887;">"XXX"</span>
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">KEY_ORG</span>=<span style="color: #deb887;">"AlbertInc"</span>
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">KEY_EMAIL</span>=<span style="color: #deb887;">"hq@albert.com"</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">export KEY_CN=changeme</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">export KEY_NAME=changeme</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">export KEY_OU=changeme</span>
+</pre>
+</div>
+
+<p>
+执行vars文件，让变量生效。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">source ./vars
+</pre>
+</div>
+
+<p>
+初始化环境，其实就是把keys目录删掉重建。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">./clean-all
+</pre>
+</div>
+
+<p>
+把路由器中openvpn的 <code>ca.crt和ca.key</code> copy到 <code>/tmp/mnt/Albert/cert/easy-rsa/keys</code> 中。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">cp -p /tmp/etc/openvpn/server1/ca.* /tmp/mnt/Albert/cert/easy-rsa/keys
+</pre>
+</div>
+
+<p>
+生成新的客户端证书。生成时会提示输入必要的信息。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">admin@RT-AX89U:/tmp/mnt/Albert/cert/easy-rsa# ./build-key pc
+Generating a RSA private key
+......+++++
+.............+++++
+writing new private key to <span style="color: #deb887;">'pc.key'</span>
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter <span style="color: #deb887;">'.'</span>, the field will be left blank.
+-----
+Country Name (2 letter code) [TW]:CN
+State or Province Name (full name) [TW]: XX
+Locality Name (eg, city) [Taipei]:XX
+Organization Name (eg, company) [ASUS]:PC
+Organizational Unit Name (eg, section) [ASUS]:PC
+Common Name (eg, your name or your server<span style="color: #deb887;">'s hostname) [pc]:</span>
+<span style="color: #deb887;">Name [EasyRSA]:</span>
+<span style="color: #deb887;">Email Address [me@myhost.mydomain]:pc@albert.com</span>
+
+<span style="color: #deb887;">Please enter the following '</span>extra<span style="color: #deb887;">' attributes</span>
+<span style="color: #deb887;">to be sent with your certificate request</span>
+<span style="color: #deb887;">A challenge password []:</span>
+<span style="color: #deb887;">An optional company name []:</span>
+<span style="color: #deb887;">Using configuration from /tmp/mnt/Albert/cert/easy-rsa/openssl-1.0.0.cnf</span>
+<span style="color: #deb887;">Check that the request matches the signature</span>
+<span style="color: #deb887;">Signature ok</span>
+<span style="color: #deb887;">The Subject'</span>s Distinguished Name is as follows
+countryName           :PRINTABLE:<span style="color: #deb887;">'CN'</span>
+stateOrProvinceName   :PRINTABLE:<span style="color: #deb887;">'XX'</span>
+localityName          :PRINTABLE:<span style="color: #deb887;">'XX'</span>
+organizationName      :PRINTABLE:<span style="color: #deb887;">'PC'</span>
+organizationalUnitName:PRINTABLE:<span style="color: #deb887;">'PC'</span>
+commonName            :PRINTABLE:<span style="color: #deb887;">'pc'</span>
+name                  :PRINTABLE:<span style="color: #deb887;">'EasyRSA'</span>
+emailAddress          :IA5STRING:<span style="color: #deb887;">'pc@albert.com'</span>
+Certificate is to be certified until Jun 23 14:53:52 2030 GMT (3650 days)
+Sign the certificate? [y/n]:y
+
+
+1 out of 1 certificate requests certified, commit? [y/n]y
+Write out database with 1 new entries
+Data Base Updated
+</pre>
+</div>
+
+<p>
+客户端pc会生成 <code>pc.key、pc.crt、pc.csr、04.pem</code> 这几个文件。我们只要 <code>pc.crt和pc.key</code> 就可以了。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">admin@RT-AX89U:/tmp/mnt/Albert/cert/easy-rsa/keys# ls -tlr
+-rw-------    1 admin    root          1704 Jun 25 21:29 server.key
+-rw-------    1 admin    root          1659 Jun 25 21:29 server.crt
+-rw-------    1 admin    root          1704 Jun 25 21:29 ca.key
+-rw-------    1 admin    root          1525 Jun 25 21:29 ca.crt
+-rwxrwxrwx    1 admin    root             3 Jun 25 22:53 serial.old
+-rwxrwxrwx    1 admin    root           363 Jun 25 22:53 index.txt.old
+-rwxrwxrwx    1 admin    root            21 Jun 25 22:53 index.txt.attr.old
+-rw-------    1 admin    root           916 Jun 25 22:53 pc.key
+-rwxrwxrwx    1 admin    root           688 Jun 25 22:53 pc.csr
+-rwxrwxrwx    1 admin    root             3 Jun 25 22:53 serial
+-rwxrwxrwx    1 admin    root          4336 Jun 25 22:53 pc.crt
+-rwxrwxrwx    1 admin    root            21 Jun 25 22:53 index.txt.attr
+-rwxrwxrwx    1 admin    root           468 Jun 25 22:53 index.txt
+-rwxrwxrwx    1 admin    root          4336 Jun 25 22:53 04.pem
+</pre>
+</div>
+
+<p>
+修改client.ovpn中的如下内容：
+</p>
+<pre class="example">
+&lt;cert&gt;
+-----BEGIN CERTIFICATE-----
+pc.crt的内容
+-----END CERTIFICATE-----
+
+&lt;/cert&gt;
+
+&lt;key&gt;
+-----BEGIN PRIVATE KEY-----
+pc.key的内容
+-----END PRIVATE KEY-----
+
+&lt;/key&gt;
+</pre>
+
+<p>
+然后把client.ovpn导入客户端路由器。步骤如下：
+</p>
+
+<p>
+vpn -&gt; VPN客户端 -&gt; 导入.ovpn文件 -&gt; 点击“浏览”按钮 -&gt; 上传client.ovpn -&gt; 点击“上传”按钮 -&gt; 几秒钟后文件上传成功
+-&gt; Start with WAN 选择“是” ，确保openvpn client在路由器重启后能自动启动 -&gt; 增加用户名/密码 -&gt; 点击“应用本页配置”
+</p>
+</div>
+
+<div id="outline-container-org0b72938" class="outline-3">
+<h3 id="org0b72938">openvpn server配置</h3>
+<div class="outline-text-3" id="text-org0b72938">
+<ol class="org-ol">
+<li>修改“服务器通信端口”</li>
+<li>加密密码 选择 “AES-256-CBC”</li>
+<li>RSA Encryption 选择 “2048bit”</li>
+<li>允许客户端访问 LAN 选择 “是”</li>
+<li><p>
+允许客户端访问互联网 选择 “否”
+</p>
+
+<p>
+如果某个客户端需要通过路由器上外网，可以在client.ovpn中加入“redirect-gateway def1”，在openvpn client连接到server后，自动把默认路由改为路由器。
+</p></li>
+<li>管理客户端专项 选择 “是”</li>
+<li><p>
+Allowed Clients 增加： CN：pc，子网：192.168.2.0，Mask：255.255.255.0，推送：否。点击“加号”
+</p>
+
+<p>
+增加后，openvpn server端可以访问到client端的内网。
+</p></li>
+<li>自定义设置中增加“route 192.168.2.0 255.255.255.0”</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

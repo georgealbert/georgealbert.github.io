@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2020-03-31 周二 12:06 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build emacs feature/native-comp branch by mingw64 on Windows 10.</title>
+<meta name="generator" content="Org mode">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">Build emacs feature/native-comp branch by mingw64 on Windows 10.</h1>
+<p>
+gccemacs's(<a href="http://akrl.sdf.org/gccemacs.html">http://akrl.sdf.org/gccemacs.html</a>) codebase is developed on the official Emacs repository git://git.sv.gnu.org/emacs.git under the feature/native-comp branch. 
+</p>
+
+<p>
+You should build latest gcc from source code in order to build native-comp emacs.
+</p>
+
+<p>
+Building gcc with gccjit support on mingw64 is a little bit complicated. You can't use gcc distributed by mingw64. Modify and build latest gcc from source code.
+</p>
+
+
+<h2>Build gcc with libgccjit</h2>
+
+<p>
+Current gcc version is v9.2.0 on mingw64 but there is no gccjit support. You can use <code>gcc -v</code> to check out more detail.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">No gccjit related packages found in pacman.</span>
+pacman -Ss jit
+</pre>
+</div>
+
+<p>
+Now build gcc from trunk on mingw64.
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">depth=1 only clone the latest source code, gcc is huge in size.</span>
+git clone --depth 1 git://gcc.gnu.org/git/gcc.git
+</pre>
+</div>
+
+
+<h3>Build</h3>
+
+<p>
+只要支持c和c++就可以了。lto(link time optimize)看文档是默认的。jit看gccjit的文档上有，不知道不加有没有问题。
+</p>
+<pre class="example">
+--enable-languages=c,jit,lto,c++
+</pre>
+
+<p>
+The following 2 argumentes are needed by libgccjit.
+</p>
+<pre class="example">
+--enable-host-shared \
+--enable-languages=jit \
+</pre>
+
+<p>
+configure will be slow if bootstrap is enabled.
+</p>
+<pre class="example">
+--disable-bootstrap
+</pre>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> /e/workspace/gcc/build
+../gcc/configure --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --with-native-system-header-dir=/mingw64/x86_64-w64-mingw32/include --libexecdir=/mingw64/lib --with-arch=x86-64 --with-tune=generic --enable-languages=c,jit,lto,c++ --enable-shared --enable-static --enable-libatomic --enable-threads=posix --enable-graphite --enable-fully-dynamic-string --enable-libstdcxx-filesystem-ts=yes --enable-libstdcxx-time=yes --disable-libstdcxx-pch --disable-libstdcxx-debug --disable-isl-version-check --enable-lto --enable-libgomp --disable-multilib --enable-checking=release --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --enable-plugin --with-libiconv --with-system-zlib --with-gmp=/mingw64 --with-mpfr=/mingw64 --with-mpc=/mingw64 --with-isl=/mingw64 --with-pkgversion=<span style="color: #deb887;">'Rev2, Built by MSYS2 project. Albert 2020.01.20'</span> --with-gnu-as --with-gnu-ld <span style="color: #deb887;">\</span>
+--enable-host-shared <span style="color: #deb887;">\</span>
+--enable-languages=jit <span style="color: #deb887;">\</span>
+--disable-bootstrap
+</pre>
+</div>
+
+
+<h4>GCC build directory</h4>
+
+<p>
+Don't run <b>configure</b> in gcc dircetory. You should build gcc in another directory. Make a diretory named <b>build</b> in the upper diretory.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">Albert@Albert MINGW64 /e/workspace/gcc
+$ ls -tlr
+total 20
+drwxr-xr-x 1 Albert None 0 Jan 20 17:37 gcc   <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">gcc source code</span>
+drwxr-xr-x 1 Albert None 0 Jan 21 16:25 build <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">target directory</span>
+</pre>
+</div>
+
+
+<h3>pic/libiberty.a error</h3>
+
+<pre class="example">
+make[3]: *** No rule to make target '../build-x86_64-w64-mingw32/libiberty/pic/libiberty.a', needed by 'build/genmddeps.exe'.  Stop.
+</pre>
+
+<p>
+enable-host-shared后，link的时候找pic目录下的libiberty.a，但是找不到。
+</p>
+
+<pre class="example">
+--enable-host-shared \
+--enable-languages=jit \
+</pre>
+
+
+<h4>Solution</h4>
+
+<p>
+在libiberty目录下 <code>mkdir pic &amp;&amp; cp -p libiberty.a pic</code> , 手工copy一份，测试是ok的。
+</p>
+
+
+<h3>Error - faild to compile xgcc.exe</h3>
+
+<p>
+可能makefile里面的依赖关系不对，需要手工make一下
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> build &amp;&amp; make xgcc.exe
+</pre>
+</div>
+
+
+<h3>Modification</h3>
+
+
+
+<h4>Add mkdtemp() in jit-tempdir.c</h4>
+
+<p>
+gccjit will make a temp diretory in the <code>TEMP</code> directory to generate some tempory file each time when compiling some jit related code by invoking <code>mkdtemp()</code>.
+</p>
+
+<p>
+mkdtemp() is missing on mingw64, Add the function by yourself. You can find the source code from <a href="https://doxygen.postgresql.org/mkdtemp_8c_source.html">https://doxygen.postgresql.org/mkdtemp_8c_source.html</a>.
+</p>
+
+
+<h4>Modify chmod\dlopen\dlerror functions in gccjit</h4>
+
+<p>
+<a href="https://gcc.gnu.org/ml/jit/2015-q3/msg00126.html">https://gcc.gnu.org/ml/jit/2015-q3/msg00126.html</a>
+</p>
+
+<p>
+<a href="https://stackoverflow.com/questions/6431345/how-to-specify-dll-onload-function-for-mingw32">https://stackoverflow.com/questions/6431345/how-to-specify-dll-onload-function-for-mingw32</a> 把jit-playback.c里面的
+</p>
+
+<ol class="org-ol">
+<li>用LoadLibrary()替换dlopen()</li>
+
+<li>用SetLastError(0)和GetLastError()替换dlerror()</li>
+</ol>
+
+
+<h5>Install package dlfcn</h5>
+
+<p>
+编译gccjit的时候不知道安装dlfcn后还要不要改共享库相关的代码。
+</p>
+
+<p>
+在编译emacs native-comp的时候需要安装 <code>dlfcn</code> 。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">Search dlfcn in pacman</span>
+pacman -Ss dlfcn
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">Install dlfcn</span>
+pacman -S dlfcn
+
+$ find /mingw64/ -name <span style="color: #deb887;">'libdl*'</span> -ls
+3659174697621175     20 -rwxr-xr-x   1 Albert   None        20470 6&#26376; 21  2019 /mingw64/bin/libdl.dll
+2533274790778565      8 -rw-r--r--   1 Albert   None         4586 6&#26376; 21  2019 /mingw64/lib/libdl.a
+2251799814067910      4 -rw-r--r--   1 Albert   None         3068 6&#26376; 21  2019 /mingw64/lib/libdl.dll.a
+</pre>
+</div>
+
+
+<h4>Comment fchmod()</h4>
+
+<p>
+mingw64中没有函数定义导致编译gcc报错。
+</p>
+
+<p>
+windows不像linux，无所谓文件权限，不需要生成的共享库是700的权限。直接注释掉。
+</p>
+
+<h4>具体修改</h4>
+
+<div class="org-src-container">
+<pre class="src src-sh">Albert@Albert MINGW64 /e/workspace/gcc/gcc
+$ git diff
+diff --git a/gcc/jit/jit-playback.c b/gcc/jit/jit-playback.c
+index da687002a..c7d8ca91c 100644
+--- a/gcc/jit/jit-playback.c
++++ b/gcc/jit/jit-playback.c
+@@ -42,6 +42,9 @@ along with GCC; see the file COPYING3.  If not see
+
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;pthread.h&gt;</span>
+
++/* mingw64 */
++#include &lt;windows.h&gt;
++
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-playback.h"</span>
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-result.h"</span>
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-builtins.h"</span>
+@@ -1818,7 +1821,7 @@ block (<span style="color: #00bfff;">function</span> *func,
+
+ /* Compile a playback::context:
+
+-   - Use the context<span style="color: #deb887;">'s options to cconstruct command-line options, and</span>
+<span style="color: #deb887;">+   - Use the context'</span>s options to construct command-line options, and
+      call into the rest of GCC (toplev::main).
+    - Assuming it succeeds, we have a .s file.
+    - We then run the <span style="color: #deb887;">"postprocess"</span> vfunc:
+@@ -2155,15 +2158,15 @@ playback::compile_to_file::copy_file (const char *src_path,
+
+   gcc_assert (total_sz_in == total_sz_out);
+   <span style="color: #00bfff;">if</span> (get_logger ())
+-    get_logger ()-&gt;log (<span style="color: #deb887;">"total bytes copied: %ld"</span>, total_sz_out);
++    get_logger ()-&gt;log (<span style="color: #deb887;">"total bytes copied: %lld"</span>, total_sz_out);
+
+   /* Set the permissions of the copy to those of the original file,
+      <span style="color: #00bfff;">in</span> particular the <span style="color: #deb887;">"executable"</span> bits.  */
+-  if (fchmod (fileno (f_out), stat_buf.st_mode) == -1)
+-    add_error (NULL,
+-              <span style="color: #deb887;">"error setting mode of %s: %s"</span>,
+-              dst_path,
+-              xstrerror (errno));
++  /* if (fchmod (fileno (f_out), stat_buf.st_mode) == -1) */
++  /*   add_error (NULL, */
++  /*          <span style="color: #deb887;">"error setting mode of %s: %s"</span>, */
++  /*          dst_path, */
++  /*          xstrerror (errno)); */
+
+   fclose (f_out);
+ }
+@@ -2641,16 +2644,20 @@ dlopen_built_dso ()
+   JIT_LOG_SCOPE (get_logger ());
+   auto_timevar load_timevar (get_timer (), TV_LOAD);
+   void *handle = NULL;
+-  const char *error = NULL;
++  /* const char *error = NULL; */
++  DWORD error = 0;
+   result *result_obj = NULL;
+
+   /* Clear any existing error.  */
+-  dlerror ();
+-
+-  handle = dlopen (m_tempdir-&gt;get_path_so_file (),
+-                  RTLD_NOW | RTLD_LOCAL);
+-  if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
+-    add_error (NULL, <span style="color: #deb887;">"%s"</span>, error);
++  /* dlerror (); */
++  SetLastError(0);
++
++  /* handle = dlopen (m_tempdir-&gt;get_path_so_file (), */
++  /*              RTLD_NOW | RTLD_LOCAL); */
++  handle = LoadLibrary(m_tempdir-&gt;get_path_so_file ());
++  /* if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
++  if ((error = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
++    add_error (NULL, <span style="color: #deb887;">"%d"</span>, error);
+   }
+   <span style="color: #00bfff;">if</span> (handle)
+     {
+diff --git a/gcc/jit/jit-result.c b/gcc/jit/jit-result.c
+index c10e5a13c..175c0c02d 100644
+--- a/gcc/jit/jit-result.c
++++ b/gcc/jit/jit-result.c
+@@ -22,6 +22,9 @@ along with GCC; see the file COPYING3.  If not see
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "system.h"</span>
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "coretypes.h"</span>
+
++/* mingw64 */
++#include &lt;windows.h&gt;
++
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-common.h"</span>
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-logging.h"</span>
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-result.h"</span>
+@@ -49,7 +52,8 @@ result::~result()
+ {
+   JIT_LOG_SCOPE (get_logger ());
+
+-  dlclose (m_dso_handle);
++  /* dlclose (m_dso_handle); */
++  FreeLibrary((HMODULE)m_dso_handle);
+
+   /* Responsibility for cleaning up the tempdir (including <span style="color: #deb887;">"fake.so"</span> within
+      the filesystem) might have been handed to us by the playback::context,
+@@ -72,14 +76,17 @@ get_code (const char *funcname)
+   JIT_LOG_SCOPE (get_logger ());
+
+   void *code;
+-  const char *error;
++  /* const char *error; */
++  DWORD error;
+
+   /* Clear any existing error.  */
+-  dlerror ();
+-
+-  code = dlsym (m_dso_handle, funcname);
++  /* dlerror (); */
++  SetLastError(0);
+
+-  if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
++  /* code = dlsym (m_dso_handle, funcname); */
++  code = (void *)GetProcAddress((HMODULE)m_dso_handle, funcname);
++  /* if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
++  if ((error = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
+     fprintf(stderr, <span style="color: #deb887;">"%s\n"</span>, error);
+   }
+
+@@ -99,14 +106,18 @@ get_global (const char *name)
+   JIT_LOG_SCOPE (get_logger ());
+
+   void *global;
+-  const char *error;
++  /* const char *error; */
++  DWORD error;
+
+   /* Clear any existing error.  */
+-  dlerror ();
++  /* dlerror (); */
++  SetLastError(0);
+
+-  global = dlsym (m_dso_handle, name);
++  /* global = dlsym (m_dso_handle, name); */
++  global = (void *)GetProcAddress((HMODULE)m_dso_handle, name);
+
+-  if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
++  /* if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
++  if ((error = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
+     fprintf(stderr, <span style="color: #deb887;">"%s\n"</span>, error);
+   }
+
+diff --git a/gcc/jit/jit-tempdir.c b/gcc/jit/jit-tempdir.c
+index 10c528faf..457591708 100644
+--- a/gcc/jit/jit-tempdir.c
++++ b/gcc/jit/jit-tempdir.c
+@@ -24,6 +24,316 @@ along with GCC; see the file COPYING3.  If not see
+
+ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "jit-tempdir.h"</span>
+
++/*-------------------------------------------------------------------------
++  *
++  * mkdtemp.c
++  *    create a mode-0700 temporary directory
++  *
++  * Portions Copyright (c) 1996-2020, PostgreSQL Global Development Group
++  *
++  *
++  * IDENTIFICATION
++  *    src/port/mkdtemp.c
++  *
++  * This code was taken from NetBSD to provide an implementation for platforms
++  * that lack it.  (Among compatibly-licensed implementations, the OpenBSD
++  * version better resists denial-of-service attacks.  However, it has a
++  * cryptographic dependency.)  The NetBSD copyright terms follow.
++  *-------------------------------------------------------------------------
++  */
++
++#include &lt;stdio.h&gt;
++#include &lt;stdlib.h&gt;
++#include &lt;string.h&gt;
++#include &lt;stddef.h&gt;
++#include &lt;stdarg.h&gt;
++#include &lt;sys/types.h&gt;
++#include &lt;errno.h&gt;
++#include &lt;locale.h&gt;
++
++ /*
++  * Supplement to &lt;sys/stat.h&gt;.
++  *
++  * We must pull<span style="color: #00bfff;"> in</span> sys/stat.h before this part, else our overrides lose.
++  */
++#define lstat(path, sb) stat(path, sb)
++
++#define _DIAGASSERT(x) <span style="color: #00bfff;">do</span> {} <span style="color: #00bfff;">while</span> (0)
++
++
++ /*  $<span style="color: #4eee94;">NetBSD</span>: gettemp.c,v 1.17 2014/01/21 19:09:48 seanb Exp $   */
++
++ /*
++  * Copyright (c) 1987, 1993
++  *  The Regents of the University of California.  All rights reserved.
++  *
++  * Redistribution and use<span style="color: #00bfff;"> in</span> source and binary forms, with or without
++  * modification, are permitted provided that the following conditions
++  * are met:
++  * 1. Redistributions of source code must retain the above copyright
++  *    notice, this list of conditions and the following disclaimer.
++  * 2. Redistributions<span style="color: #00bfff;"> in</span> binary form must reproduce the above copyright
++  *    notice, this list of conditions and the following disclaimer<span style="color: #00bfff;"> in</span> the
++  *    documentation and/or other materials provided with the distribution.
++  * 3. Neither the name of the University nor the names of its contributors
++  *    may be used to endorse or promote products derived from this software
++  *    without specific prior written permission.
++  *
++  * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS <span style="color: #ffd700;">``</span>AS IS<span style="color: #deb887;">''</span> AND
++  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++  * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
++  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++  * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++  * SUCH DAMAGE.
++  */
++
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">if HAVE_NBTOOL_CONFIG_H</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "nbtool_config.h"</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">endif</span>
++
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">if !HAVE_NBTOOL_CONFIG_H || !HAVE_MKSTEMP || !HAVE_MKDTEMP</span>
++
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">ifdef NOT_POSTGRESQL</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;sys/cdefs.h&gt;</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">if defined(LIBC_SCCS) &amp;&amp; !defined(lint)</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">if 0</span>
++ static char sccsid[] = <span style="color: #deb887;">"@(#)mktemp.c    8.1 (Berkeley) 6/4/93"</span>;
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">else</span>
++ __RCSID(<span style="color: #deb887;">"$NetBSD: gettemp.c,v 1.17 2014/01/21 19:09:48 seanb Exp $"</span>);
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">endif</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">endif                          /* LIBC_SCCS and not lint */</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">endif</span>
++
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;sys/types.h&gt;</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;sys/stat.h&gt;</span>
++
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;assert.h&gt;</span>
++ // <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;ctype.h&gt;</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;errno.h&gt;</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;fcntl.h&gt;</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;stdio.h&gt;</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;stdlib.h&gt;</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include &lt;unistd.h&gt;</span>
++
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">ifdef NOT_POSTGRESQL</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">if HAVE_NBTOOL_CONFIG_H</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">define GETTEMP     __nbcompat_gettemp</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">else</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "reentrant.h"</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">include "local.h"</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">define GETTEMP     __gettemp</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">endif</span>
++ <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">endif</span>
++
++ static int
++ GETTEMP(char *path, int *doopen, int domkdir)
++ {
++     char       *start,
++                *trv;
++     struct stat sbuf;
++     int       pid;
++
++     /*
++      * To guarantee multiple calls generate unique names even if the file is
++      * not created. 676 different possibilities with 7 or more X<span style="color: #deb887;">'s, 26 with 6</span>
+<span style="color: #deb887;">+      * or less.</span>
+<span style="color: #deb887;">+      */</span>
+<span style="color: #deb887;">+     // static char xtra[2] = "aa";</span>
+<span style="color: #deb887;">+     static char xtra[2] = "a";</span>
+<span style="color: #deb887;">+     int         xcnt = 0;</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     _DIAGASSERT(path != NULL);</span>
+<span style="color: #deb887;">+     /* doopen may be NULL */</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     pid = getpid();</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     /* Move to end of path and count trailing X'</span>s. */
++     for (trv = path; *trv; ++trv)
++         if (*trv == <span style="color: #deb887;">'X'</span>)
++             xcnt++;
++         else
++             xcnt = 0;
++
++     /* Use at least one from xtra.  Use 2 if more than 6 X<span style="color: #deb887;">'s. */</span>
+<span style="color: #deb887;">+     if (xcnt &gt; 0)</span>
+<span style="color: #deb887;">+     {</span>
+<span style="color: #deb887;">+         *--trv = xtra[0];</span>
+<span style="color: #deb887;">+         xcnt--;</span>
+<span style="color: #deb887;">+     }</span>
+<span style="color: #deb887;">+     if (xcnt &gt; 5)</span>
+<span style="color: #deb887;">+     {</span>
+<span style="color: #deb887;">+         *--trv = xtra[1];</span>
+<span style="color: #deb887;">+         xcnt--;</span>
+<span style="color: #deb887;">+     }</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     /* Set remaining X'</span>s to pid digits with 0<span style="color: #deb887;">'s to the left. */</span>
+<span style="color: #deb887;">+     for (; xcnt &gt; 0; xcnt--)</span>
+<span style="color: #deb887;">+     {</span>
+<span style="color: #deb887;">+         *--trv = (pid % 10) + '</span>0<span style="color: #deb887;">';</span>
+<span style="color: #deb887;">+         pid /= 10;</span>
+<span style="color: #deb887;">+     }</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     /* update xtra for next call. */</span>
+<span style="color: #deb887;">+     if (xtra[0] != '</span>z<span style="color: #deb887;">')</span>
+<span style="color: #deb887;">+         xtra[0]++;</span>
+<span style="color: #deb887;">+     else</span>
+<span style="color: #deb887;">+     {</span>
+<span style="color: #deb887;">+         xtra[0] = '</span>a<span style="color: #deb887;">';</span>
+<span style="color: #deb887;">+         if (xtra[1] != '</span>z<span style="color: #deb887;">')</span>
+<span style="color: #deb887;">+             xtra[1]++;</span>
+<span style="color: #deb887;">+         else</span>
+<span style="color: #deb887;">+             xtra[1] = '</span>a<span style="color: #deb887;">';</span>
+<span style="color: #deb887;">+     }</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     /*</span>
+<span style="color: #deb887;">+      * check the target directory; if you have six X'</span>s and it doesn<span style="color: #deb887;">'t exist</span>
+<span style="color: #deb887;">+      * this runs for a *very* long time.</span>
+<span style="color: #deb887;">+      */</span>
+<span style="color: #deb887;">+     for (start = trv + 1;; --trv)</span>
+<span style="color: #deb887;">+     {</span>
+<span style="color: #deb887;">+         if (trv &lt;= path)</span>
+<span style="color: #deb887;">+             break;</span>
+<span style="color: #deb887;">+         if (*trv == '</span>/<span style="color: #deb887;">')</span>
+<span style="color: #deb887;">+         {</span>
+<span style="color: #deb887;">+             int         e;</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+             *trv = '</span>\0<span style="color: #deb887;">';</span>
+<span style="color: #deb887;">+             e = stat(path, &amp;sbuf);</span>
+<span style="color: #deb887;">+             *trv = '</span>/<span style="color: #deb887;">';</span>
+<span style="color: #deb887;">+             if (e == -1)</span>
+<span style="color: #deb887;">+                 return doopen == NULL &amp;&amp; !domkdir;</span>
+<span style="color: #deb887;">+             if (!S_ISDIR(sbuf.st_mode))</span>
+<span style="color: #deb887;">+             {</span>
+<span style="color: #deb887;">+                 errno = ENOTDIR;</span>
+<span style="color: #deb887;">+                 return doopen == NULL &amp;&amp; !domkdir;</span>
+<span style="color: #deb887;">+             }</span>
+<span style="color: #deb887;">+             break;</span>
+<span style="color: #deb887;">+         }</span>
+<span style="color: #deb887;">+     }</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     for (;;)</span>
+<span style="color: #deb887;">+     {</span>
+<span style="color: #deb887;">+         if (doopen)</span>
+<span style="color: #deb887;">+         {</span>
+<span style="color: #deb887;">+             if ((*doopen =</span>
+<span style="color: #deb887;">+                  open(path, O_CREAT | O_EXCL | O_RDWR, 0600)) &gt;= 0)</span>
+<span style="color: #deb887;">+                 return 1;</span>
+<span style="color: #deb887;">+             if (errno != EEXIST)</span>
+<span style="color: #deb887;">+                 return 0;</span>
+<span style="color: #deb887;">+         }</span>
+<span style="color: #deb887;">+         else if (domkdir)</span>
+<span style="color: #deb887;">+         {</span>
+<span style="color: #deb887;">+             if (mkdir(path, 0700) &gt;= 0)</span>
+<span style="color: #deb887;">+             // if (mkdir(path) &gt;= 0)</span>
+<span style="color: #deb887;">+                 return 1;</span>
+<span style="color: #deb887;">+             if (errno != EEXIST)</span>
+<span style="color: #deb887;">+                 return 0;</span>
+<span style="color: #deb887;">+         }</span>
+<span style="color: #deb887;">+         else if (lstat(path, &amp;sbuf))</span>
+<span style="color: #deb887;">+             return errno == ENOENT ? 1 : 0;</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+         /* tricky little algorithm for backward compatibility */</span>
+<span style="color: #deb887;">+         for (trv = start;;)</span>
+<span style="color: #deb887;">+         {</span>
+<span style="color: #deb887;">+             if (!*trv)</span>
+<span style="color: #deb887;">+                 return 0;</span>
+<span style="color: #deb887;">+             if (*trv == '</span>z<span style="color: #deb887;">')</span>
+<span style="color: #deb887;">+                 *trv++ = '</span>a<span style="color: #deb887;">';</span>
+<span style="color: #deb887;">+             else</span>
+<span style="color: #deb887;">+             {</span>
+<span style="color: #deb887;">+                 // &#19981;&#33021;&#29992;isdigit&#65292;&#35201;&#29992;&#23439;&#23450;&#20041;&#30340;</span>
+<span style="color: #deb887;">+                 if (ISDIGIT((unsigned char) *trv))</span>
+<span style="color: #deb887;">+                     *trv = '</span>a<span style="color: #deb887;">';</span>
+<span style="color: #deb887;">+                 else</span>
+<span style="color: #deb887;">+                     ++*trv;</span>
+<span style="color: #deb887;">+                 break;</span>
+<span style="color: #deb887;">+             }</span>
+<span style="color: #deb887;">+         }</span>
+<span style="color: #deb887;">+     }</span>
+<span style="color: #deb887;">+     /* NOTREACHED */</span>
+<span style="color: #deb887;">+ }</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #endif                          /* !HAVE_NBTOOL_CONFIG_H || !HAVE_MKSTEMP ||</span>
+<span style="color: #deb887;">+                                  * !HAVE_MKDTEMP */</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ /*  $NetBSD: mkdtemp.c,v 1.11 2012/03/15 18:22:30 christos Exp $    */</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ /*</span>
+<span style="color: #deb887;">+  * Copyright (c) 1987, 1993</span>
+<span style="color: #deb887;">+  *  The Regents of the University of California.  All rights reserved.</span>
+<span style="color: #deb887;">+  *</span>
+<span style="color: #deb887;">+  * Redistribution and use in source and binary forms, with or without</span>
+<span style="color: #deb887;">+  * modification, are permitted provided that the following conditions</span>
+<span style="color: #deb887;">+  * are met:</span>
+<span style="color: #deb887;">+  * 1. Redistributions of source code must retain the above copyright</span>
+<span style="color: #deb887;">+  *    notice, this list of conditions and the following disclaimer.</span>
+<span style="color: #deb887;">+  * 2. Redistributions in binary form must reproduce the above copyright</span>
+<span style="color: #deb887;">+  *    notice, this list of conditions and the following disclaimer in the</span>
+<span style="color: #deb887;">+  *    documentation and/or other materials provided with the distribution.</span>
+<span style="color: #deb887;">+  * 3. Neither the name of the University nor the names of its contributors</span>
+<span style="color: #deb887;">+  *    may be used to endorse or promote products derived from this software</span>
+<span style="color: #deb887;">+  *    without specific prior written permission.</span>
+<span style="color: #deb887;">+  *</span>
+<span style="color: #deb887;">+  * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND</span>
+<span style="color: #deb887;">+  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span style="color: #deb887;">+  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span style="color: #deb887;">+  * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE</span>
+<span style="color: #deb887;">+  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL</span>
+<span style="color: #deb887;">+  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS</span>
+<span style="color: #deb887;">+  * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)</span>
+<span style="color: #deb887;">+  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT</span>
+<span style="color: #deb887;">+  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY</span>
+<span style="color: #deb887;">+  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF</span>
+<span style="color: #deb887;">+  * SUCH DAMAGE.</span>
+<span style="color: #deb887;">+  */</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #if HAVE_NBTOOL_CONFIG_H</span>
+<span style="color: #deb887;">+ #include "nbtool_config.h"</span>
+<span style="color: #deb887;">+ #endif</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #if !HAVE_NBTOOL_CONFIG_H || !HAVE_MKDTEMP</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #ifdef NOT_POSTGRESQL</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #include &lt;sys/cdefs.h&gt;</span>
+<span style="color: #deb887;">+ #if defined(LIBC_SCCS) &amp;&amp; !defined(lint)</span>
+<span style="color: #deb887;">+ #if 0</span>
+<span style="color: #deb887;">+ static char sccsid[] = "@(#)mktemp.c    8.1 (Berkeley) 6/4/93";</span>
+<span style="color: #deb887;">+ #else</span>
+<span style="color: #deb887;">+ __RCSID("$NetBSD: mkdtemp.c,v 1.11 2012/03/15 18:22:30 christos Exp $");</span>
+<span style="color: #deb887;">+ #endif</span>
+<span style="color: #deb887;">+ #endif                          /* LIBC_SCCS and not lint */</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #if HAVE_NBTOOL_CONFIG_H</span>
+<span style="color: #deb887;">+ #define GETTEMP     __nbcompat_gettemp</span>
+<span style="color: #deb887;">+ #else</span>
+<span style="color: #deb887;">+ #include &lt;assert.h&gt;</span>
+<span style="color: #deb887;">+ #include &lt;errno.h&gt;</span>
+<span style="color: #deb887;">+ #include &lt;stdio.h&gt;</span>
+<span style="color: #deb887;">+ #include &lt;stdlib.h&gt;</span>
+<span style="color: #deb887;">+ #include &lt;unistd.h&gt;</span>
+<span style="color: #deb887;">+ #include "reentrant.h"</span>
+<span style="color: #deb887;">+ #include "local.h"</span>
+<span style="color: #deb887;">+ #define GETTEMP     __gettemp</span>
+<span style="color: #deb887;">+ #endif</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #endif</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ char *</span>
+<span style="color: #deb887;">+ mkdtemp(char *path)</span>
+<span style="color: #deb887;">+ {</span>
+<span style="color: #deb887;">+     _DIAGASSERT(path != NULL);</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+     return GETTEMP(path, NULL, 1) ? path : NULL;</span>
+<span style="color: #deb887;">+ }</span>
+<span style="color: #deb887;">+</span>
+<span style="color: #deb887;">+ #endif                          /* !HAVE_NBTOOL_CONFIG_H || !HAVE_MKDTEMP */</span>
+
+<span style="color: #deb887;"> /* Construct a tempdir path template suitable for use by mkdtemp</span>
+<span style="color: #deb887;">    e.g. "/tmp/libgccjit-XXXXXX", but respecting the rules in</span>
+<span style="color: #deb887;">@@ -51,7 +361,7 @@ make_tempdir_path_template ()</span>
+<span style="color: #deb887;">   tmpdir_len = strlen (tmpdir_buf);</span>
+<span style="color: #deb887;">   /* tmpdir_buf should now have a dir separator as the final byte.  */</span>
+<span style="color: #deb887;">   gcc_assert (tmpdir_len &gt; 0);</span>
+<span style="color: #deb887;">-  gcc_assert (tmpdir_buf[tmpdir_len - 1] == DIR_SEPARATOR);</span>
+<span style="color: #deb887;">+  /* gcc_assert (tmpdir_buf[tmpdir_len - 1] == DIR_SEPARATOR); */</span>
+
+<span style="color: #deb887;">   file_template_buf = "libgccjit-XXXXXX";</span>
+<span style="color: #deb887;">   file_template_len = strlen (file_template_buf);</span>
+<span style="color: #deb887;">@@ -101,9 +411,9 @@ gcc::jit::tempdir::create ()</span>
+<span style="color: #deb887;">     return false;</span>
+<span style="color: #deb887;">   log ("m_path_tempdir: %s", m_path_tempdir);</span>
+
+<span style="color: #deb887;">-  m_path_c_file = concat (m_path_tempdir, "/fake.c", NULL);</span>
+<span style="color: #deb887;">-  m_path_s_file = concat (m_path_tempdir, "/fake.s", NULL);</span>
+<span style="color: #deb887;">-  m_path_so_file = concat (m_path_tempdir, "/fake.so", NULL);</span>
+<span style="color: #deb887;">+  m_path_c_file = concat (m_path_tempdir, "\\fake.c", NULL);</span>
+<span style="color: #deb887;">+  m_path_s_file = concat (m_path_tempdir, "\\fake.s", NULL);</span>
+<span style="color: #deb887;">+  m_path_so_file = concat (m_path_tempdir, "\\fake.so", NULL);</span>
+
+<span style="color: #deb887;">   /* Success.  */</span>
+<span style="color: #deb887;">   return true;</span>
+<span style="color: #deb887;">diff --git a/gcc/jit/jit-tempdir.h b/gcc/jit/jit-tempdir.h</span>
+<span style="color: #deb887;">index 7bbf9ea2f..39542df5e 100644</span>
+<span style="color: #deb887;">--- a/gcc/jit/jit-tempdir.h</span>
+<span style="color: #deb887;">+++ b/gcc/jit/jit-tempdir.h</span>
+<span style="color: #deb887;">@@ -88,4 +88,5 @@ class tempdir : public log_user</span>
+
+<span style="color: #deb887;"> } // namespace gcc</span>
+
+<span style="color: #deb887;">+char * mkdtemp(char *);</span>
+<span style="color: #deb887;"> #endif /* JIT_TEMPDIR_H */</span>
+</pre>
+</div>
+
+<h3>Test libgccjit</h3>
+
+<p>
+Compile helloworld.c (<a href="https://gcc.gnu.org/onlinedocs/jit/intro/tutorial01.html">https://gcc.gnu.org/onlinedocs/jit/intro/tutorial01.html</a>).
+</p>
+
+<p>
+Enable gccjit logging, print the results to stdout to test gccjit.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #98f5ff;">int</span> <span style="color: #daa520;">main</span>()
+{
+    ...
+
+    <span style="color: #B0BED8;">/* </span><span style="color: #B0BED8;">&#25226;gccjit&#30340;log&#25171;&#21360;&#21040;stdout&#19978;&#65292;&#29992;&#36825;&#20010;&#23601;&#21487;&#20197;&#20102;&#12290;</span><span style="color: #B0BED8;"> */</span>
+    gcc_jit_context_set_logfile (ctxt, stdout, 0, 0);
+
+    <span style="color: #B0BED8;">/* </span><span style="color: #B0BED8;">Populate the context.</span><span style="color: #B0BED8;">  */</span>
+    create_code (ctxt);
+
+    <span style="color: #B0BED8;">/* </span><span style="color: #B0BED8;">&#29983;&#25104;&#27719;&#32534;&#35821;&#35328;&#26159;ok&#30340;&#65292;&#22312;e:/tmp&#30446;&#24405;&#19979;</span><span style="color: #B0BED8;"> */</span>
+    <span style="color: #B0BED8;">/* </span><span style="color: #B0BED8;">gcc_jit_context_compile_to_file(ctxt, GCC_JIT_OUTPUT_KIND_ASSEMBLER, "/tmp/hello.s");</span><span style="color: #B0BED8;"> */</span>
+    <span style="color: #B0BED8;">/* </span><span style="color: #B0BED8;">&#29983;&#25104;dll&#26159;ok&#30340;&#65292;&#22312;e:/tmp&#30446;&#24405;&#19979;</span><span style="color: #B0BED8;"> */</span>
+    <span style="color: #B0BED8;">/* </span><span style="color: #B0BED8;">gcc_jit_context_compile_to_file(ctxt, GCC_JIT_OUTPUT_KIND_DYNAMIC_LIBRARY, "/tmp/hello.dll");</span><span style="color: #B0BED8;"> */</span>
+
+    <span style="color: #B0BED8;">/* </span><span style="color: #B0BED8;">gcc_jit_context_dump_reproducer_to_file(ctxt, "/tmp/hello-generated.c");</span><span style="color: #B0BED8;"> */</span>
+    ...
+}
+</pre>
+</div>
+
+
+<h2>build emacs feature/native-comp branch</h2>
+
+<p>
+<a href="https://git.savannah.gnu.org/cgit/emacs.git/log/?h=feature/native-comp">https://git.savannah.gnu.org/cgit/emacs.git/log/?h=feature/native-comp</a>
+</p>
+
+
+<h3>src/comp.c</h3>
+
+<ol class="org-ol">
+<li>mingw64中不支持signal <b>SIGIO</b> ，直接注释掉。</li>
+
+<li>mingw64中configure时居然不支持 <b>setjmp</b> 。在setjmp.h中有 <b>_setjmp</b> ，里面的宏太多了，搞不清楚是用哪个，编译时报错，提示有2个参数。从setjmp.h里看 _setjmp(jmp_buf, void * ptr)，第二个参数一般是0。反正没看懂。先填个0进去了。</li>
+</ol>
+
+<pre class="example">
+$ git diff
+diff --git a/src/comp.c b/src/comp.c
+index 290fc3a9c4..43b5273d45 100644
+--- a/src/comp.c
++++ b/src/comp.c
+
+@@ -69,7 +71,7 @@ #define DECL_BLOCK(name, func)                                \
+ #ifdef HAVE__SETJMP
+ #define SETJMP _setjmp
+ #else
+-#define SETJMP setjmp
++#define SETJMP _setjmp
+ #endif
+ #define SETJMP_NAME SETJMP
+
+@@ -1268,10 +1270,12 @@ emit_limple_push_handler (gcc_jit_rvalue *handler, gcc_jit_rvalue *handler_type,
+          NULL,
+          comp.handler_jmp_field),
+        NULL);
+-
++  /* mingw64 _setjmp need 2 args */
++  args[1] = gcc_jit_context_null(comp.ctxt, comp.void_ptr_type);
+   gcc_jit_rvalue *res;
+   res =
+-    emit_call (intern_c_string (STR (SETJMP_NAME)), comp.int_type, 1, args, false);
++    emit_call (intern_c_string (STR (SETJMP_NAME)), comp.int_type, 2, args, false);
+   emit_cond_jump (res, handler_bb, guarded_bb);
+ }
+
+@@ -1838,7 +1842,9 @@ #define ADD_IMPORTED(f_name, ret_type, nargs, args)                              \
+   ADD_IMPORTED (push_handler, comp.handler_ptr_type, 2, args);
+
+   args[0] = gcc_jit_type_get_pointer (gcc_jit_struct_as_type (comp.jmp_buf_s));
+-  ADD_IMPORTED (SETJMP_NAME, comp.int_type, 1, args);
++  args[1] = comp.void_ptr_type;
++  ADD_IMPORTED (SETJMP_NAME, comp.int_type, 2, args);
+
+   ADD_IMPORTED (record_unwind_protect_excursion, comp.void_type, 0, NULL);
+
+@@ -3148,7 +3154,7 @@ DEFUN ("comp--compile-ctxt-to-file", Fcomp__compile_ctxt_to_file,
+       sigemptyset (&amp;blocked);
+       sigaddset (&amp;blocked, SIGALRM);
+       sigaddset (&amp;blocked, SIGINT);
+-      sigaddset (&amp;blocked, SIGIO);
++      /* sigaddset (&amp;blocked, SIGIO); */
+       pthread_sigmask (SIG_BLOCK, &amp;blocked, &amp;oldset);
+     }
+   emit_ctxt_code ();
+</pre>
+
+
+<h3>build</h3>
+
+<p>
+改为代码后，如果make时总是报错，最好 <code>make clean</code> 再重新configure。emacs的configure过程太慢了，10分钟都完不了。make时，编译src目录下的可执行文件，几分钟就能完成，在elisp文件编译eln时，会非常慢，可能要1个小时。
+</p>
+
+<p>
+configure的参数参考 <a href="http://chriszheng.science/2015/03/19/Chinese-version-of-Emacs-building-guideline/">http://chriszheng.science/2015/03/19/Chinese-version-of-Emacs-building-guideline/</a> 。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">./autogen.sh
+
+<span style="color: #4eee94;">PKG_CONFIG_PATH</span>=/mingw64/lib/pkgconfig ./configure --host=x86_64-w64-mingw32 <span style="color: #deb887;">\</span>
+--with-wide-int <span style="color: #deb887;">\</span>
+--without-dbus <span style="color: #deb887;">\</span>
+--with-jpeg --with-xpm --with-png --with-tiff --with-rsvg --with-xml2 <span style="color: #deb887;">\</span>
+--with-gnutls=ifavailable <span style="color: #deb887;">\</span>
+--without-compress-install -C <span style="color: #deb887;">'CFLAGS=-g -static -g3'</span> <span style="color: #deb887;">\</span>
+--without-imagemagick --with-nativecomp
+
+make -j6
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">Install emacs in e:/emacs</span>
+make install <span style="color: #4eee94;">prefix</span>=/e/emacs
+</pre>
+</div>
+
+<ol class="org-ol">
+<li>make时报 <b>error 127</b> ，可能是 <b>byte-run.el、subr.el</b> 等eln编译有问题，导致emacs在生成pdump文件有问题，启动报错，可以rm *.eln，再试试。</li>
+
+<li>有时候native compile某个elisp文件会coredump，只能再执行make。</li>
+
+<li><p>
+native comp的有时候会coredump，可能和_setjmp有关，通过gdb没看出来问题在哪里。
+</p>
+
+<p>
+在异常处理时可能会segment fault。
+</p></li>
+
+<li><p>
+如何知道load了几个eln文件
+在linux上可以在/proc中看 <b>/proc/pid/maps</b> 文件。在windows上，使用 <b>vmmap</b> (<a href="https://docs.microsoft.com/zh-cn/sysinternals/downloads/vmmap">https://docs.microsoft.com/zh-cn/sysinternals/downloads/vmmap</a>)。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">grep eln /proc/<span style="color: #ffd700;">`pidof emacs`</span>/maps|awk <span style="color: #deb887;">'{print $6}'</span>|sort -u
+</pre>
+</div></li>
+</ol>
+
+
+<h3>Run</h3>
+
+<p>
+Add <b>LIBRARY_PATH</b>, LD_LIBRARY_PATH doesn't work.
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">export</span> <span style="color: #4eee94;">PATH</span>=$<span style="color: #4eee94;">PATH</span>:/e/workspace/gcc/build/gcc:/mingw64/lib/gcc/x86_64-w64-mingw32/10.0.1:/mingw64/x86_64-w64-mingw32/lib
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">LIBRARY_PATH</span>=/e/workspace/gcc/build/gcc:/mingw64/x86_64-w64-mingw32/lib:/mingw64/bin
+</pre>
+</div>
+
+
+<h3>debug</h3>
+
+<p>
+按gdb的提示，把emacs的.gdbinit 加到 ~/.gdbinit中。debug时可以看见elisp执行的堆栈。gdb时emacs会比较慢。
+</p>
+
+<p>
+可以参考 <b>etc/DEBUG</b> 的内容。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> src
+gdb emacs
+run <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#25110;&#32773; run -Q &#19981;&#21152;&#36733;init.el</span>
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">segfault&#21518;</span>
+bt
+</pre>
+</div>
+
+
+<h3>功能测试</h3>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> /e/workspace/emacs_src/emacs28
+./emacs/src/emacs -batch -l ert -l ./emacs/test/src/comp-tests.el -f ert-run-tests-batch-and-exit
+</pre>
+</div>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-26 周日 22:09] </span></span> fail了2个test case。
+</p>
+
+<pre class="example">
+2 unexpected results:
+   FAILED  comp-tests-bootstrap
+   FAILED  comp-tests-fixnum
+</pre>
+
+
+<h4>comp-tests-bootstrap</h4>
+
+<p>
+搞不懂为什么自己编译自己生成的c文件为什么变量名字不一样，导致生成的eln文件也不一样。
+</p>
+
+<p>
+为什么linux上就没问题。难道mingw64上的gcc和linux上的有什么地方不一样？
+</p>
+
+
+<h4>comp-tests-fixnum</h4>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 周二 16:55] </span></span> 由于mingw64中的long和int是4字节，long long int是8字节。在linux上long是8字节。comp.c中的代码默认long是8字节。导致类型转换时精度降低，无法通过测试。
+</p>
+
+<p>
+libgccjit.c中只有gcc_jit_context_new_rvalue_from_long() ，没有 <b>gcc_jit_context_new_rvalue_from_long_long_int()</b> ，自己加一个。然后修改comp.c。
+</p>
+
+<p>
+直接修改gcc_jit_context_new_rvalue_from_long() ，直接cast为 long long int ，也是一个方法。
+</p>
+
+<pre class="example">
+make[1]: 进入目录“/e/workspace/emacs_src/emacs28/emacs/src”
+  GEN      globals.h
+  CC       comp.o
+In file included from comp.c:30:
+comp.c: In function 'Fcomp__init_ctxt':
+lisp.h:1134:30: warning: overflow in conversion from 'long long int' to 'long int' changes value from '2305843009213693951' to '-1' [-Woverflow]
+ 1134 | #define MOST_POSITIVE_FIXNUM (EMACS_INT_MAX &gt;&gt; INTTYPEBITS)
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+comp.c:3077:15: note: in expansion of macro 'MOST_POSITIVE_FIXNUM'
+ 3077 |               MOST_POSITIVE_FIXNUM);
+      |               ^~~~~~~~~~~~~~~~~~~~
+lisp.h:1135:30: warning: overflow in conversion from 'long long int' to 'long int' changes value from '-2305843009213693952' to '0' [-Woverflow]
+ 1135 | #define MOST_NEGATIVE_FIXNUM (-1 - MOST_POSITIVE_FIXNUM)
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+comp.c:3087:15: note: in expansion of macro 'MOST_NEGATIVE_FIXNUM'
+ 3087 |               MOST_NEGATIVE_FIXNUM);
+      |               ^~~~~~~~~~~~~~~~~~~~
+
+</pre>
+
+
+<h3>性能测试</h3>
+
+<p>
+在win10上测试，cpu是intel i5-8520U。
+</p>
+
+
+<h4>第一次测试</h4>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26410;&#21152; -batch -Q &#21442;&#25968;&#65292;&#22312;gui&#20013;&#65292;&#21487;&#33021;&#23545;&#27979;&#35797;&#24615;&#33021;&#26377;&#24433;&#21709;&#12290;</span>
+./emacs -l E:/workspace/elisp-benchmarks/elisp-benchmark.el --eval <span style="color: #deb887;">'(elb-run)'</span>
+</pre>
+</div>
+
+<pre class="example">
+Summary results:
+
+bubble.el                 byte time:  48.196685s native time:  22.676739s boost 112.537989%
+bubble-no-cons.el         byte time: 140.633307s native time:  38.527450s boost 265.021062%
+fibn.el                   byte time: 137.998609s native time:  74.574372s boost 85.048302%
+fibn-rec.el               byte time: 111.793463s native time:  38.222614s boost 192.479899%
+fibn-tc.el                byte time: 105.274320s native time:  27.331516s boost 285.175561%
+inclist-tc.el             byte time: 114.527039s native time:   2.016713s boost 5578.896253%
+listlen-tc.el             byte time: 102.875721s native time:   0.843463s boost 12096.826772%
+inclist-no-type-hints.el  byte time: 149.213448s native time:   6.573894s boost 2169.787861%
+inclist-type-hints.el     byte time: 145.497633s native time:   4.850708s boost 2899.513329%
+nbody.el                  byte time: 196.386510s native time: 138.361917s boost 41.936824%
+dhrystone.el              byte time: 612.382567s native time: 499.131995s boost 22.689504%
+                                                                           
+Total                     byte time: 667.153574s native time: 287.974774s boost 131.670839%    
+</pre>
+
+
+<h4>第二次测试</h4>
+
+<div class="org-src-container">
+<pre class="src src-sh">./emacs -batch -l E:/workspace/elisp-benchmarks/elisp-benchmark.el --eval <span style="color: #deb887;">'(elb-run)'</span> -Q
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">centos 7.2 on virtualbox, intel i5-8250u 3c/3t 3G RAM.</span>
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">LD_LIBRARY_PATH</span>=/usr/local/lib
+~/emacs_src/emacs/src/emacs -batch -l ~/elisp/elisp-benchmarks/elisp-benchmark.el --eval <span style="color: #deb887;">'(elb-run)'</span> -Q
+</pre>
+</div>
+
+<pre class="example">
+bubble.el                 byte time: 100.621556s native time:  20.373809s boost 393.876997%
+bubble-no-cons.el         byte time: 136.691828s native time:  35.343340s boost 286.754132%
+fibn.el                   byte time: 121.392839s native time:  67.133157s boost 80.823969%
+fibn-rec.el               byte time: 109.009100s native time:  38.573689s boost 182.599624%
+fibn-tc.el                byte time: 103.859580s native time:  24.524760s boost 323.488670%
+inclist-tc.el             byte time: 101.627444s native time:   2.023227s boost 4923.037158%
+listlen-tc.el             byte time:  92.898451s native time:   0.697208s boost 13224.352417%
+inclist-no-type-hints.el  byte time: 124.360178s native time:   5.929948s boost 1997.154612%
+inclist-type-hints.el     byte time: 131.778451s native time:   5.045148s boost 2511.983851%
+nbody.el                  byte time: 493.410192s native time: 122.395166s boost 303.128823%
+dhrystone.el              byte time: 349.269993s native time: 216.528584s boost 61.304335%
+Total                     byte time: 552.128101s native time: 161.879026s boost 241.074514%
+
+[2020-02-02 周日 14:06:59]
+bubble.el                 byte time: 138.523664s native time:  21.739262s boost 537.204998%
+bubble-no-cons.el         byte time: 185.583256s native time:  41.305705s boost 349.292068%
+fibn.el                   byte time: 191.460652s native time:  74.148040s boost 158.214043%
+fibn-rec.el               byte time: 120.859300s native time:  36.182891s boost 234.023337%
+fibn-tc.el                byte time: 107.256165s native time:  24.652318s boost 335.075375%
+inclist-tc.el             byte time: 111.663299s native time:   1.793739s boost 6125.169827%
+listlen-tc.el             byte time: 102.768693s native time:   0.708594s boost 14403.184193%
+inclist-no-type-hints.el  byte time: 174.505982s native time:   5.239305s boost 3230.708596%
+inclist-type-hints.el     byte time: 191.516524s native time:   5.280125s boost 3527.121025%
+nbody.el                  byte time: 525.441776s native time: 142.299708s boost 269.250073%
+dhrystone.el              byte time: 442.338356s native time: 261.127992s boost 69.395227%
+Total                     byte time: 624.094766s native time: 173.716878s boost 259.259718%
+
+[2020-02-07 周五 17:22:21]
+bubble.el                 byte time: 102.715487s native time:  21.517346s boost 377.361320%
+bubble-no-cons.el         byte time: 107.479181s native time:  33.150175s boost 224.219046%
+fibn.el                   byte time: 125.995228s native time:  67.917504s boost 85.512159%
+fibn-rec.el               byte time: 105.926435s native time:  38.019204s boost 178.612974%
+fibn-tc.el                byte time: 100.486451s native time:  25.953107s boost 287.184667%
+inclist-tc.el             byte time: 109.109979s native time:   2.030358s boost 5273.928095%
+listlen-tc.el             byte time: 113.611750s native time:   0.827511s boost 13629.334112%
+inclist-no-type-hints.el  byte time: 147.052826s native time:   6.744831s boost 2080.229957%
+inclist-type-hints.el     byte time: 136.069896s native time:   4.647000s boost 2828.123434%
+nbody.el                  byte time: 501.310644s native time: 128.587244s boost 289.860322%
+dhrystone.el              byte time: 368.023414s native time: 216.367226s boost 70.092033%
+Total                     byte time: 596.685092s native time: 170.268149s boost 250.438468%
+</pre>
+
+<table border="1" rules="all" frame="border">
+<caption class="t-above"><span class="table-number">Table 1:</span> 第二次测试</caption>
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">name</th>
+<th scope="col" class="org-right">byte-code(s)</th>
+<th scope="col" class="org-right">native-all(s)</th>
+<th scope="col" class="org-right">native-all vs byte-code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">bubble</td>
+<td class="org-right">100.62</td>
+<td class="org-right">20.37</td>
+<td class="org-right">393.87%</td>
+</tr>
+
+<tr>
+<td class="org-left">bubble-no-cons</td>
+<td class="org-right">136.69</td>
+<td class="org-right">35.34</td>
+<td class="org-right">286.75%</td>
+</tr>
+
+<tr>
+<td class="org-left">fibn</td>
+<td class="org-right">121.39</td>
+<td class="org-right">67.13</td>
+<td class="org-right">80.82%</td>
+</tr>
+
+<tr>
+<td class="org-left">fibn-rec</td>
+<td class="org-right">109.00</td>
+<td class="org-right">38.57</td>
+<td class="org-right">182.60%</td>
+</tr>
+
+<tr>
+<td class="org-left">fibn-tc</td>
+<td class="org-right">103.86</td>
+<td class="org-right">24.52</td>
+<td class="org-right">323.48%</td>
+</tr>
+
+<tr>
+<td class="org-left">inclist-tc</td>
+<td class="org-right">101.63</td>
+<td class="org-right">2.02</td>
+<td class="org-right">4923.03%</td>
+</tr>
+
+<tr>
+<td class="org-left">listlen-tc</td>
+<td class="org-right">92.90</td>
+<td class="org-right">0.70</td>
+<td class="org-right">13224.35%</td>
+</tr>
+
+<tr>
+<td class="org-left">inclist-no-type-hints</td>
+<td class="org-right">124.36</td>
+<td class="org-right">5.93</td>
+<td class="org-right">1997.15%</td>
+</tr>
+
+<tr>
+<td class="org-left">inclist-type-hints</td>
+<td class="org-right">131.78</td>
+<td class="org-right">5.05</td>
+<td class="org-right">2511.98%</td>
+</tr>
+
+<tr>
+<td class="org-left">nbody</td>
+<td class="org-right">493.41</td>
+<td class="org-right">122.40</td>
+<td class="org-right">303.13%</td>
+</tr>
+
+<tr>
+<td class="org-left">dhrystone</td>
+<td class="org-right">552.13</td>
+<td class="org-right">161.88</td>
+<td class="org-right">241.07%</td>
+</tr>
+</tbody>
+</table>
+
+
+<h4>linux</h4>
+
+<pre class="example">
+Summary results:
+bubble.el                 byte time: 145.803142s native time:  29.089018s  boost 401.230884%
+bubble-no-cons.el         byte time: 318.617107s native time:  38.999612s  boost 716.975064%
+fibn.el                   byte time: 247.231776s native time:  75.364725s  boost 228.047075%
+fibn-rec.el               byte time: 103.741292s native time:  33.821895s  boost 206.728206%
+fibn-tc.el                byte time:  97.697834s native time:  31.647078s  boost 208.710437%
+inclist-tc.el             byte time: 130.386236s native time:   5.646812s  boost 2209.023902%
+listlen-tc.el             byte time: 119.750707s native time:   1.956367s  boost 6021.075813%
+inclist-no-type-hints.el  byte time: 320.839352s native time:   8.304878s  boost 3763.264051%
+inclist-type-hints.el     byte time: 322.535594s native time:   5.147577s  boost 6165.775281%
+nbody.el                  byte time: 324.233682s native time:  87.086648s  boost 272.311587%
+dhrystone.el              byte time: 299.138452s native time: 171.954319s  boost 73.963907%
+
+Total                     byte time: 737.046902s native time: 150.518523s  boost 389.671895%
+</pre>
+
+
+<h3>问题</h3>
+
+
+
+<h4>稳定性</h4>
+
+<p>
+偶尔会segfault。
+</p>
+
+
+<h5>M-x org-publish-all执行几次后报错，出现过segfault。</h5>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-02-16 周日 23:48] </span></span> 可能和ox-html.el编译为eln有关。不知道为什么用 <code>advice-add</code> override org-html-headline和org-html-section函数的时候没有生效。不编译eln就ok了。
+</p>
+
+<p>
+另外，用了package helpful后，查看编译为eln的函数，被override后，emacs的cpu会很高。而 C-h a 查看，看不见函数被override了。
+</p>
+
+<p>
+ignore的函数是ok的。
+</p>
+
+<p>
+在gdb的时候，只要执行2次 M-x org-publish-all，就会segfault。这。。。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> src
+gdb emacs  
+</pre>
+</div>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 周二 11:35] </span></span> 增加 gcc_jit_context_new_rvalue_from_long_long_int() 重新编译gcc后，rm lisp/org/*.elc 重新编译后测试。segfault
+</p>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 周二 11:54] </span></span> rm helm*.eln 照样segfault。make clean重新编译后，M-x org-publish-all segfault。
+</p>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-29 周三 16:49] </span></span> 貌似 org-publish-current-file 不会segfault。
+</p>
+
+
+<h5>magit 在native compile后，commit的时候容易segfault。</h5>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-29 周三 16:47] </span></span> rm eln文件后，commit、push都不报错。为什么windows上的native compile问题这么多呢?
+</p>
+
+
+<h4>功能</h4>
+
+
+
+<h5>helm</h5>
+
+<p>
+helm-buffers.el 编译为eln后，切换buffer时非常容易segfault。
+</p>
+
+
+<h5>evil的visual mode按c-v，列编辑，按I插入不正常。</h5>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-02-09 周日 00:56] </span></span> evil-commands.el 编译成eln后，c-v是有问题的，去掉后ok。
+</p>
+
+<ul class="org-ul">
+<li><a id="orgc0856b7"></a>undo-tree <span class="timestamp-wrapper"><span class="timestamp">[2020-02-16 周日 23:29]</span></span><br>
+<p>
+发现undo-tree编译为eln后，doom-modeline在undo的时候，文件名不会从红色恢复为正常的颜色。
+</p>
+
+<p>
+修改了evil-pkg.el中对undo-tree的版本依赖，改到2020年1月9日最新的v0.7.4版本，编译为eln后同样报错。
+</p>
+
+<p>
+(advice-add #'undo-tree-undo-1 :after #'doom-modeline-update-buffer-file-name) 可能在函数执行后没有hook上去。
+</p>
+
+<p>
+可能和加载顺序有关系，要advice-add的函数的eln必须要先加载。emacs自带的undo函数就是ok的，因为先加载了。
+</p>
+
+<p>
+把editor调整到ui启动前。
+</p>
+</li>
+</ul>
+</div>
+</body>
+</html>
