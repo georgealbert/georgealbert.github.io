@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-06-26 周五 01:10 -->
+<!-- 2020-06-26 周五 21:35 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>配置多个openvpn client连接到同一个openvpn server</title>
@@ -12,7 +12,7 @@
 <div id="content">
 <h1 class="title">配置多个openvpn client连接到同一个openvpn server</h1>
 <p>
-现在有这样一个需求：在不同地点，有多个openvpn client（RT-AC68U）同时连接到openvpn server（RT-AX89U）。每个路由器都有一个内网，要求内网直接能互访。（还没有做到，现在能做到的是server端和每个client端的内网能互访。client端之间的内网无法互访。）
+现在有这样一个需求：在不同地点，有多个openvpn client（RT-AC68U）同时连接到openvpn server（RT-AX89U）。每个路由器都有一个内网，要求内网直接能互访。（现在server端和每个client端的内网能互访。client端之间的内网也可以互访。）
 </p>
 
 <p>
@@ -214,26 +214,50 @@ vpn -&gt; VPN客户端 -&gt; 导入.ovpn文件 -&gt; 点击“浏览”按钮 -&
 <h3 id="org0b72938">openvpn server配置</h3>
 <div class="outline-text-3" id="text-org0b72938">
 <ol class="org-ol">
-<li>修改“服务器通信端口”</li>
+<li>修改“服务器通信端口”
+不用默认的 <code>1194</code> 端口，改为其他端口，如 <code>1196</code> 。</li>
+
 <li>加密密码 选择 “AES-256-CBC”</li>
+
 <li>RSA Encryption 选择 “2048bit”</li>
+
 <li>允许客户端访问 LAN 选择 “是”</li>
+
 <li><p>
 允许客户端访问互联网 选择 “否”
 </p>
 
 <p>
-如果某个客户端需要通过路由器上外网，可以在client.ovpn中加入“redirect-gateway def1”，在openvpn client连接到server后，自动把默认路由改为路由器。
+如果某个客户端需要通过路由器上外网，可以在client.ovpn中加入 <code>redirect-gateway def1</code> ，在openvpn client连接到server后，自动把默认路由改为路由器。
 </p></li>
+
 <li>管理客户端专项 选择 “是”</li>
+
+<li>允许客户端&lt;-&gt;客户端 选择 “是”
+即配置文件中增加 <code>"client-to-client"</code></li>
+
 <li><p>
-Allowed Clients 增加： CN：pc，子网：192.168.2.0，Mask：255.255.255.0，推送：否。点击“加号”
+Allowed Clients 增加： 
+</p>
+
+<p>
+CN：pc1，子网：192.168.2.0，Mask：255.255.255.0，推送：否。点击“加号”
+CN：pc2，子网：192.168.3.0，Mask：255.255.255.0，推送：否。点击“加号”
 </p>
 
 <p>
 增加后，openvpn server端可以访问到client端的内网。
 </p></li>
-<li>自定义设置中增加“route 192.168.2.0 255.255.255.0”</li>
+
+<li><p>
+自定义设置中增加：
+“push "route 192.168.2.0 255.255.255.0"”
+“push "route 192.168.3.0 255.255.255.0"”
+</p>
+
+<p>
+把2个openvpn client的内网网段推送给每个客户端，这样客户端就有了到其他客户端的路由。
+</p></li>
 </ol>
 </div>
 </div>
