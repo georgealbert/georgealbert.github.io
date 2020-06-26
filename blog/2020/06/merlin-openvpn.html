@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-06-26 周五 21:35 -->
+<!-- 2020-06-26 周五 21:38 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>配置多个openvpn client连接到同一个openvpn server</title>
@@ -214,8 +214,13 @@ vpn -&gt; VPN客户端 -&gt; 导入.ovpn文件 -&gt; 点击“浏览”按钮 -&
 <h3 id="org0b72938">openvpn server配置</h3>
 <div class="outline-text-3" id="text-org0b72938">
 <ol class="org-ol">
-<li>修改“服务器通信端口”
-不用默认的 <code>1194</code> 端口，改为其他端口，如 <code>1196</code> 。</li>
+<li><p>
+修改“服务器通信端口”
+</p>
+
+<p>
+不用默认的 <code>1194</code> 端口，改为其他端口，如 <code>1196</code> 。
+</p></li>
 
 <li>加密密码 选择 “AES-256-CBC”</li>
 
@@ -233,8 +238,13 @@ vpn -&gt; VPN客户端 -&gt; 导入.ovpn文件 -&gt; 点击“浏览”按钮 -&
 
 <li>管理客户端专项 选择 “是”</li>
 
-<li>允许客户端&lt;-&gt;客户端 选择 “是”
-即配置文件中增加 <code>"client-to-client"</code></li>
+<li><p>
+允许客户端&lt;-&gt;客户端 选择 “是”
+</p>
+
+<p>
+即配置文件中增加 <code>"client-to-client"</code>
+</p></li>
 
 <li><p>
 Allowed Clients 增加： 
@@ -251,6 +261,9 @@ CN：pc2，子网：192.168.3.0，Mask：255.255.255.0，推送：否。点击�
 
 <li><p>
 自定义设置中增加：
+</p>
+
+<p>
 “push "route 192.168.2.0 255.255.255.0"”
 “push "route 192.168.3.0 255.255.255.0"”
 </p>
