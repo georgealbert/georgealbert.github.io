@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-03-31 周二 12:06 -->
+<!-- 2020-09-30 周三 16:00 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>在emacs中用星际词霸学习英文</title>
@@ -160,6 +160,30 @@ sdcv的配置。
   )
 </pre>
 </div>
+
+<p>
+windows调用sdcv的参数和linux里有点不一样，需要修改 <a href="https://github.com/manateelazycat/sdcv">https://github.com/manateelazycat/sdcv</a> 的 <code>sdcv.el</code> 。
+</p>
+<pre class="example">
+modified   sdcv.el
+@@ -594,11 +594,13 @@ string of results."
+   (sdcv-filter
+    (shell-command-to-string
+     ;; Set LANG environment variable, make sure `shell-command-to-string' can handle CJK character correctly.
+-    (format "env LANG=zh_CN.UTF-8 %s -x -n %s %s --data-dir=%s"
++    ;; (format "env LANG=zh_CN.UTF-8 %s -x -n %s %s --data-dir=%s"
++    ;; (format "%s -n %s %s --data-dir=%s"
++    (format "%s -n %s --data-dir=%s"
+             sdcv-program
+-            (mapconcat (lambda (dict)
+-                         (concat "-u \"" dict "\""))
+-                       dictionary-list " ")
++            ;; (mapconcat (lambda (dict)
++            ;;              (concat "-u \"" dict "\""))
++            ;;            dictionary-list " ")
+             (format "\"%s\"" word)
+             sdcv-dictionary-data-dir))))
+</pre>
 </div>
 </body>
 </html>
