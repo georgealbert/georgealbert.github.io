@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-09-30 周三 16:34 -->
+<!-- 2020-09-30 周三 16:49 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>在emacs中用星际词霸学习英文</title>
@@ -136,8 +136,8 @@ sdcv的配置。
 (use-package sdcv
   <span style="color: #f08080;">:defer</span> t
   <span style="color: #f08080;">:load-path</span> <span style="color: #deb887;">"~/.emacs.d/site-lisp/extensions/sdcv"</span>
-  <span style="color: #f08080;">:bind</span> ((<span style="color: #deb887;">"s-t p"</span> . sdcv-search-pointer)  <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#20809;&#26631;&#22788;&#30340;&#21333;&#35789;, buffer&#26174;&#31034;</span>
-         (<span style="color: #deb887;">"s-t t"</span> . sdcv-search-pointer+) <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#20809;&#26631;&#22788;&#30340;&#21333;&#35789;, frame&#26174;&#31034;</span>
+  <span style="color: #f08080;">:bind</span> ((<span style="color: #deb887;">"s-t t"</span> . sdcv-search-pointer)  <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#20809;&#26631;&#22788;&#30340;&#21333;&#35789;, buffer&#26174;&#31034;</span>
+         (<span style="color: #deb887;">"s-t p"</span> . sdcv-search-pointer+) <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#20809;&#26631;&#22788;&#30340;&#21333;&#35789;, frame&#26174;&#31034;</span>
          (<span style="color: #deb887;">"s-t i"</span> . sdcv-search-input)    <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#36755;&#20837;&#30340;&#21333;&#35789;, buffer&#26174;&#31034;</span>
          (<span style="color: #deb887;">"s-t ;"</span> . sdcv-search-input+))
   <span style="color: #f08080;">:config</span>
@@ -167,6 +167,7 @@ windows调用sdcv的参数和linux里有点不一样，需要修改 <a href="htt
 
 <p>
 update: <span class="timestamp-wrapper"><span class="timestamp">[2020-09-30 周三 16:33] </span></span> 用了最新的v3.4版本后，不改 <code>sdcv.el</code> 也是可以在win10上用的。
+<span class="timestamp-wrapper"><span class="timestamp">[2020-09-30 周三 16:48] </span></span> 如果用 <code>tooltip(posframe)</code> 显示，还是要按下面的命令行改 <code>sdcv.el</code> 。
 </p>
 <pre class="example">
 modified   sdcv.el
