@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-12-18 Fri 16:08 -->
+<!-- 2020-12-18 Fri 16:57 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>macos配置</title>
@@ -51,7 +51,7 @@
 </div>
 
 
-<h3>path设置，ag - ok</h3>
+<h3>PATH设置和ag - ok</h3>
 
 <p>
 macos里的emacs启动时，没法继承shell里面的 <code>PATH</code> ，需要package <code>exec-path-from-shell</code> ，感觉有点搞笑。
@@ -89,18 +89,58 @@ macos里的emacs启动时，没法继承shell里面的 <code>PATH</code> ，需�
 用了 <code>sis</code> ，效果不好，看来我要自己写代码解决了吗？从 <code>emacs mac port</code> ，借鉴了一些代码，改了以后切换ok，就是不能像在win10里面一样，有时候会记不住中英文输入法的状态。
 </p>
 
+<div class="org-src-container">
+<pre class="src src-lisp"><span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">[2020-12-02 &#19977; 16:38:53] &#25240;&#33150;&#20102;&#21322;&#22825;&#65292;&#20063;&#25913;&#20102;&#20195;&#30721;&#65292;&#21457;&#29616;&#19981;&#31283;&#23450;&#65292;&#19968;&#20999;&#25442;&#21040;rime&#65292;&#36755;&#20837;&#23383;&#31526;&#65292;&#23601;&#25226;emacs&#21345;&#27515;&#20102;&#65292;&#36824;&#26159;</span>
+<span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#29992;&#22806;&#37096;&#36755;&#20837;&#27861;&#20999;&#25442;&#21543;&#65292;&#27604;&#36739;&#31283;&#23450;&#12290;&#33298;&#26381;&#20102;</span>
+(<span style="color: #00bfff;">if</span> (eq system-type 'darwin)
+    (<span style="color: #00bfff;">progn</span>
+      (<span style="color: #00bfff;">defun</span> <span style="color: #daa520;">emacs-ime-disable</span> ()
+        <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">(start-process "set-input-source" nil "/usr/local/bin/macism" "com.apple.keylayout.ABC"))</span>
+      (mac-select-input-source <span style="color: #deb887;">"com.apple.keylayout.ABC"</span>))
+
+      (<span style="color: #00bfff;">defun</span> <span style="color: #daa520;">emacs-ime-enable</span> ()
+        <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">(start-process "set-input-source" nil "/usr/local/bin/macism" "im.rime.inputmethod.Squirrel.Rime"))</span>
+      (mac-select-input-source <span style="color: #deb887;">"im.rime.inputmethod.Squirrel.Rime"</span>))
+
+      (add-hook 'evil-insert-state-entry-hook 'emacs-ime-enable)
+      (add-hook 'evil-insert-state-exit-hook 'emacs-ime-disable)
+      ))
+</pre>
+</div>
 
 <h3>make <span class="timestamp-wrapper"><span class="timestamp">[2020-12-02 Wed 10:03]</span></span></h3>
 
 <div class="org-src-container">
-<pre class="src src-sh">brew install autoconf automake pkg-config libxml2
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#38656;&#35201;&#23433;&#35013;&#30340;&#19968;&#20123;&#32534;&#35793;&#24037;&#20855;&#38142;</span>
+brew install autoconf automake pkg-config libxml2
 </pre>
 </div>
+
+<p>
+坑爹的是，在 <code>NTFS</code> 分区上make， <code>bootstrap的pdump</code> 都生成不了，换成在 <code>APFS</code> 分区上编译，就没问题，神奇啊。
+</p>
 
 <h3>cpu高问题 - helm导致 <span class="timestamp-wrapper"><span class="timestamp">[2020-12-10 Thu 08:28]</span></span></h3>
 
 <p>
-昨天下午发现emacs的cpu十分不正常，打开org mode后，文件不大，cpu就很高。定位是helm的问题。已经去掉helm，用ivy代替后，cpu在闲时会到0%。
+昨天下午发现emacs的cpu十分不正常，打开org mode后，文件不大，cpu就很高，top时，emacs总能跑到最上面。macvim打开同样的文件，在不用的时候cpu会降到0。
+</p>
+
+<p>
+已定位是helm的问题。已经去掉helm，用ivy代替后，cpu在闲时会到0%。
+</p>
+
+<p>
+可以用下面的command对emacs进行profile，看哪个函数的cpu使用高，调用次数多：
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">M-x profile-start
+M-x profile-report
+</pre>
+</div>
+
+<p>
+在多次profile后，发现是helm导致cpu高，helm的timer是怎么用的啊，调了半天的timer时间也没解决，看了一会代码，helm搞得太复杂。只能用counsel了，怀念 <code>helm-mini</code> ，看着mini buffer不太输入，慢慢习惯吧，呜呜！
 </p>
 
 <p>
@@ -111,11 +151,11 @@ macos里的emacs启动时，没法继承shell里面的 <code>PATH</code> ，需�
 <h3>emacs mac port <span class="timestamp-wrapper"><span class="timestamp">[2020-12-10 Thu 08:30]</span></span></h3>
 
 <p>
-不是很好用，还是用 <code>emacsformac</code> 或者直接源代码编译吧。
+不是很好用，没发现界面哪里优化了，还是用 <code>emacsformac</code> 或者直接源代码编译吧。
 </p>
 
 <ul class="org-ul">
-<li>meta key在哪里的问题</li>
+<li>meta key和emacs官版的位置正好换了过来。不习惯。</li>
 </ul>
 
 <h3>byte-recompile-directory <span class="timestamp-wrapper"><span class="timestamp">[2020-12-10 Thu 13:58]</span></span></h3>
@@ -156,6 +196,10 @@ sudo make install
 <p>
 zsh在使用 <code>vi mode</code> 后，和bash的差别不大，bash的问题是打开关闭几次tab后， <code>history</code> 就没有了，很奇怪。而zsh就可以保留。
 </p>
+
+<p>
+只是简单的设置为 <code>vi mode</code> ，同时用不同颜色显示目录和文件，设置提示符。zsh的高级功能，如把git的当前branch显示在提示符上都不需要，不然换台机器就要装 <code>oh-my-zsh</code> ，再配置，没必要，服务器上也没这些高级功能。 
+</p>
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #f08080;">export</span> <span style="color: #4eee94;">PATH</span>=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
 
@@ -179,7 +223,9 @@ zsh在使用 <code>vi mode</code> 后，和bash的差别不大，bash的问题�
 
 <h2>服务优化</h2>
 
-
+<p>
+关掉macos的一些不常用服务，可以提高机器性能。
+</p>
 
 <h3>mds和spotlight <span class="timestamp-wrapper"><span class="timestamp">[2020-12-18 Fri 10:28]</span></span></h3>
 
