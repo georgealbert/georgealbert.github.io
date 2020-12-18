@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2020-12-18 Fri 15:46 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>asus merlin nvram commands</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="albert">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">asus merlin nvram commands</h1>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#33719;&#21462;&#36335;&#30001;&#22120;&#21517;&#23383;</span>
+nvram get lan_hostname
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#33719;&#21462;&#36335;&#30001;&#22120;mac&#22320;&#22336;</span>
+nvram get lan_hwaddr
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#33719;&#21462;&#36335;&#30001;&#22120;lan ip</span>
+nvram get lan_ipaddr
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26174;&#31034;nvram&#20351;&#29992;&#30340;&#23383;&#33410;&#25968;</span>
+nvram show|grep <span style="color: #deb887;">"Size:"</span>
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26174;&#31034;nvram&#37324;&#27599;&#20010;&#37197;&#32622;&#21344;&#29992;&#30340;&#30452;&#25509;&#25968;</span>
+nvram show | awk <span style="color: #deb887;">'{print length(), $0 | "sort -n -r"}'</span> | cut -d<span style="color: #deb887;">"="</span> -f 1
+</pre>
+</div>
+</div>
+</body>
+</html>

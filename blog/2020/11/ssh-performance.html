@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2020-12-18 Fri 15:56 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ssh动态端口转发和加密算法性能测试</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="albert">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">ssh动态端口转发和加密算法性能测试</h1>
+
+
+<h2>ssh动态端口转发，socks5代理</h2>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">openssh&#21487;&#29992;&#65292;dropbear&#37324;&#38754;&#30340;ssh&#19981;&#33021;&#29992;&#12290;</span>
+ssh -f -N -D 0.0.0.0:1080 albert@192.168.1.1
+</pre>
+</div>
+
+<p>
+在配置文件 <code>~/.ssh/config</code> 中指定，由于安全原因，无法再用 <code>blowfish-cbc</code> 加密算法了，可以使用 <code>aes128-ctr</code>
+</p>
+
+<pre class="example">
+Host *
+  Ciphers aes128-ctr
+  Compression yes
+  CompressionLevel 6
+</pre>
+
+<p>
+如何知道ssh连接不同的host时，使用了哪种加密算法呢？可以用 <code>ssh -v</code> 查看ssh加密算法。如：
+</p>
+<pre class="example">
+debug1: kex: server-&gt;client cipher: chacha20-poly1305@openssh.com MAC: &lt;implicit&gt; compression: zlib@openssh.com
+debug1: kex: client-&gt;server cipher: chacha20-poly1305@openssh.com MAC: &lt;implicit&gt; compression: zlib@openssh.com
+</pre>
+
+<p>
+修改为 <code>aes128-ctr</code> 后：
+</p>
+<pre class="example">
+debug1: kex: algorithm: curve25519-sha256
+debug1: kex: host key algorithm: ecdsa-sha2-nistp256
+debug1: kex: server-&gt;client cipher: aes128-ctr MAC: umac-64-etm@openssh.com compression: zlib@openssh.com
+debug1: kex: client-&gt;server cipher: aes128-ctr MAC: umac-64-etm@openssh.com compression: zlib@openssh.com
+</pre>
+
+<p>
+msys2的ssh支持的加密算法：
+</p>
+<pre class="example">
+debug2: ciphers ctos: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,aes128-cbc,aes192-cbc,aes256-cbc,blowfish-cbc,cast128-cbc,3des-cbc
+debug2: ciphers stoc: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,aes128-cbc,aes192-cbc,aes256-cbc,blowfish-cbc,cast128-cbc,3des-cbc
+</pre>
+
+<h2>加密算法性能测试</h2>
+
+<p>
+使用下面的shell，测试不同的加密算法：
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #00bfff;">for</span> i<span style="color: #00bfff;"> in</span> 3des-cbc aes128-cbc aes128-ctr aes128-gcm@openssh.com aes192-cbc aes192-ctr aes256-cbc aes256-ctr aes256-gcm@openssh.com arcfour arcfour128 arcfour256 blowfish-cbc cast128-cbc chacha20-poly1305@openssh.com; <span style="color: #00bfff;">do</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">echo ===$i===</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">dd if=/dev/zero bs=1000000 count=1000 2&gt; /dev/null | ssh -c $i localhost "(time -p cat) &gt; /dev/null" 2&gt;&amp;1 | grep real | awk '{print "'$i': "1000 / $2" MB/s" }'; </span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">dd if=/dev/zero bs=1000000 count=1000 2&gt; /dev/null | ssh -c $i admin@192.168.0.1 -p 8122 "(time -p cat) &gt; /dev/null" 2&gt;&amp;1 | grep real | awk '{print "'$i': "1000 / $2" MB/s" }'; </span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">dd if=/dev/zero bs=1000000 count=100 2&gt; /dev/null | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -c $i albert@192.168.0.22 "(time -p cat) &gt; /dev/null" 2&gt;&amp;1 | grep real | awk '{print "'$i': "1000 / $2" MB/s" }'; </span>
+dd <span style="color: #4eee94;">if</span>=/dev/zero <span style="color: #4eee94;">bs</span>=1000000 <span style="color: #4eee94;">count</span>=100 2&gt; /dev/null | ssh -i /c/home/albert/.ssh/id_rsa -o <span style="color: #4eee94;">StrictHostKeyChecking</span>=no -o <span style="color: #4eee94;">UserKnownHostsFile</span>=/dev/null -c $<span style="color: #4eee94;">i</span> root@??? <span style="color: #deb887;">"(time -p cat) &gt; /dev/null"</span> 2&gt;&amp;1 | grep real | awk <span style="color: #deb887;">'{print "'</span>$<span style="color: #4eee94;">i</span><span style="color: #deb887;">': "1000 / $2" MB/s" }'</span>; 
+<span style="color: #00bfff;">done</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">dd <span style="color: #4eee94;">if</span>=/dev/zero <span style="color: #4eee94;">bs</span>=1000000 <span style="color: #4eee94;">count</span>=1000 2&gt; /dev/null | ssh -c aes192-ctr admin@192.168.0.1 -p 8122 <span style="color: #deb887;">"(time -p cat) &gt; /dev/null"</span> 2&gt;&amp;1 | grep real | awk <span style="color: #deb887;">'{print "'</span>$<span style="color: #4eee94;">i</span><span style="color: #deb887;">': "1000 / $2" MB/s" }'</span>; 
+
+dd <span style="color: #4eee94;">if</span>=/dev/zero <span style="color: #4eee94;">bs</span>=1000000 <span style="color: #4eee94;">count</span>=100 2&gt; /dev/null | ssh -c aes192-ctr albert@192.168.0.22 <span style="color: #deb887;">"(time -p cat) &gt; /dev/null"</span> 2&gt;&amp;1 | grep real | awk <span style="color: #deb887;">'{print "'</span>$<span style="color: #4eee94;">i</span><span style="color: #deb887;">': "1000 / $2" MB/s" }'</span>; 
+</pre>
+</div>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-11-11 Wed 16:55] </span></span> msys2 -&gt; ubuntu 20.04
+</p>
+<pre class="example">
+aes128-ctr: 86.4304 MB/s
+aes128-gcm@openssh.com: 83.2639 MB/s
+aes192-ctr: 80.8407 MB/s
+aes256-ctr: 84.9618 MB/s
+aes256-gcm@openssh.com: 85.6898 MB/s
+chacha20-poly1305@openssh.com: 86.4304 MB/s
+</pre>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-11-11 Wed 17:03] </span></span> msys2 -&gt; centos 第一次
+</p>
+<pre class="example">
+3des-cbc: 164.745 MB/s
+aes128-cbc: 167.785 MB/s
+aes128-ctr: 123.305 MB/s
+aes128-gcm@openssh.com: 183.486 MB/s
+aes192-cbc: 118.906 MB/s
+aes192-ctr: 130.208 MB/s
+aes256-cbc: 108.342 MB/s
+aes256-ctr: 129.032 MB/s
+aes256-gcm@openssh.com: 154.56 MB/s
+chacha20-poly1305@openssh.com: 130.378 MB/s
+</pre>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2020-11-11 Wed 17:04] </span></span> msys -&gt; centos 第二次
+</p>
+<pre class="example">
+3des-cbc: 148.148 MB/s
+aes128-cbc: 125.313 MB/s
+aes128-ctr: 120.919 MB/s
+aes128-gcm@openssh.com: 207.9 MB/s
+aes192-cbc: 147.929 MB/s
+aes192-ctr: 190.114 MB/s
+aes256-cbc: 163.399 MB/s
+aes256-ctr: 125.945 MB/s
+aes256-gcm@openssh.com: 113.25 MB/s
+chacha20-poly1305@openssh.com: 100.604 MB/s
+</pre>
+
+<p>
+本机测试，单纯测试各种加密算法的性能。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #00bfff;">for</span> i<span style="color: #00bfff;"> in</span> 3des-cbc aes128-cbc aes128-ctr aes128-gcm@openssh.com aes192-cbc aes192-ctr aes256-cbc aes256-ctr aes256-gcm@openssh.com arcfour arcfour128 arcfour256 blowfish-cbc cast128-cbc chacha20-poly1305@openssh.com; <span style="color: #00bfff;">do</span>
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">echo ===$i===</span>
+dd <span style="color: #4eee94;">if</span>=/dev/zero <span style="color: #4eee94;">bs</span>=1000000 <span style="color: #4eee94;">count</span>=1000 2&gt; /dev/null | ssh -c $<span style="color: #4eee94;">i</span> localhost <span style="color: #deb887;">"(time -p cat) &gt; /dev/null"</span> 2&gt;&amp;1 | grep real | awk <span style="color: #deb887;">'{print "'</span>$<span style="color: #4eee94;">i</span><span style="color: #deb887;">': "1000 / $2" MB/s" }'</span>; 
+<span style="color: #00bfff;">done</span>
+
+aes128-ctr: 641.026 MB/s
+aes128-gcm@openssh.com: 869.565 MB/s
+aes192-ctr: 606.061 MB/s
+aes256-ctr: 584.795 MB/s
+aes256-gcm@openssh.com: 819.672 MB/s
+chacha20-poly1305@openssh.com: 266.667 MB/s
+</pre>
+</div>
+
+<p>
+网络时延高的时候，各种加密算法对速度的影响不大。打开压缩和使用连接复用的效果会更好。不过单纯从加密算法而言，aes128-gcm的性能最好。
+</p>
+<pre class="example">
+#第一次
+3des-cbc: 20.0924 MB/s
+aes128-cbc: 16.5289 MB/s
+aes128-ctr: 19.9283 MB/s
+aes128-gcm@openssh.com: 22.9621 MB/s
+aes192-cbc: 22.9832 MB/s
+aes192-ctr: 23.1535 MB/s
+aes256-cbc: 26.001 MB/s
+aes256-ctr: 20.5381 MB/s
+aes256-gcm@openssh.com: 20.0844 MB/s
+chacha20-poly1305@openssh.com: 25.4388 MB/s
+
+#第二次
+3des-cbc: 21.2404 MB/s
+aes128-cbc: 18.7793 MB/s
+aes128-ctr: 18.5219 MB/s
+aes128-gcm@openssh.com: 18.6359 MB/s
+aes192-cbc: 17.8158 MB/s
+aes192-ctr: 17.7904 MB/s
+aes256-cbc: 22.6552 MB/s
+aes256-ctr: 20.4876 MB/s
+aes256-gcm@openssh.com: 22.8571 MB/s
+chacha20-poly1305@openssh.com: 19.5925 MB/s
+</pre>
+
+
+<h3>参考</h3>
+
+<ul class="org-ul">
+<li><a href="https://www.hjp.at/zettel/s/scp-performance.rxml">https://www.hjp.at/zettel/s/scp-performance.rxml</a></li>
+
+<li>OpenSSH cipher performance <a href="https://possiblelossofprecision.net/?p=2255">https://possiblelossofprecision.net/?p=2255</a></li>
+
+<li><a href="https://www.systutorials.com/improving-sshscp-performance-by-choosing-ciphers/">https://www.systutorials.com/improving-sshscp-performance-by-choosing-ciphers/</a></li>
+
+<li>bbr拥塞控制 <a href="https://www.jibing57.com/2019/04/02/bbr-on-aws-ec2/">https://www.jibing57.com/2019/04/02/bbr-on-aws-ec2/</a></li>
+</ul>
+</div>
+</body>
+</html>

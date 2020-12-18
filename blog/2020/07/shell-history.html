@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2020-12-18 Fri 16:15 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bash的shell history和editing mode</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="albert">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">bash的shell history和editing mode</h1>
+<p>
+经常需要在shell中查询命令历史。因为习惯vim的键绑定，所以在bash里进去就直接 <code>set -o vi</code> ，default editing mode 切换成vi mode了。bash默认是 <code>emacs mode</code> 。
+</p>
+
+
+<h2>shell history和editing mode(vi or emacs)</h2>
+
+<p>
+emacs mode的问题是，从history中查到命令后，回车就执行，这样太容易误操作了。
+</p>
+<ul class="org-ul">
+<li><p>
+Emacs mode:
+Ctrl-a 行首
+Ctrl-e 行尾
+Ctrl-b 光标后退
+Ctrl-f 光标向前
+Ctrl-d 删除当前光标下的字符
+Ctrl-r 搜索时往后
+Ctrl-s 搜索时往前
+</p>
+
+<p>
+Ctrl-p 历史列表上一个.
+Ctrl-n 历史列表下一个.
+Ctrl-r 向上搜索历史列表 (incremental search).
+Ctrl-s 向下搜索历史列表 (incremental search).
+Meta-p 向上搜索历史列表 non-incremental search.
+Meta-n 向下搜索历史列表using non-incremental search.
+Meta-&lt; 移动到历史列表顶端.
+Meta-&gt; 移动到历史列表末尾.
+</p></li>
+</ul>
+
+<p>
+vi mode可以用 C-r C-s，还用什么emacs mode啊。
+</p>
+
+<ul class="org-ul">
+<li>Vi mode:
+k 历史列表上一个.
+j 历史列表下一个.
+/string or CTRL-r 向上搜索历史列表(正则表达式)、增量查找.
+?string or CTRL-s 向下搜索历史列表(正则表达式)、增量查找.
+n 重复上次搜索(同方向)n次
+N 重复上次搜索(反方向)n次
+G 移动到历史列表第N行 (for example, 15G).</li>
+</ul>
+
+
+<h2>C-s问题</h2>
+
+
+
+<h3>stty -ixon</h3>
+
+<p>
+UNIX tty（terminal）层的配置。UNIX沉重历史包袱的体现之一，大量黑科技的一个子系统。
+</p>
+
+<p>
+<code>stty -FOO</code> 命令是禁用当前tty的FOO功能。这里就是禁用 <code>ixon</code> 。可以用 <code>stty -a</code> 查看tty的当前设置。
+</p>
+
+<p>
+什么是ixon呢？即 <code>XON/XOFF flow control=，鲜为人知的终端功能之一 —— 按下 =Ctrl-s</code> ，你会发现屏幕上不再显示你打的字了，再按 <code>Ctrl-q</code> ，你会发现你刚才打的字母一股脑突然都出现了。可以理解为终端的一个“缓冲区”，可以把一系列击键暂时保存起来，然后连续击发。现在很少有需要这个功能的情景了。这里是因为你定义的快捷键里包含了 <code>Ctrl-s</code> ，所以……
+</p>
+
+<p>
+参考 <a href="https://blog.nelhage.com/2009/12/a-brief-introduction-to-termios/">https://blog.nelhage.com/2009/12/a-brief-introduction-to-termios/</a>
+</p>
+
+<h2>linux</h2>
+
+<p>
+<code>C-a</code> 和 <code>screen</code> 的快捷键有冲突，用emacs风格的话，没法用screen。改screen的快捷键用着不习惯。
+</p>
+
+
+<h2>dsm</h2>
+
+<p>
+群晖的shell（busybox ash）只有emacs模式，set -o vi 无效。唉，搞这么难用的shell干什么？
+</p>
+<ul class="org-ul">
+<li>有stty，默认ixon，可以设置 -ixon。</li>
+
+<li>有emacs模式的command line editing，但是找不到 history features</li>
+</ul>
+
+<p>
+参考 openwrt <a href="https://forum.openwrt.org/t/how-to-enable-up-down-arrow-keys-completion-history-for-ash-shell/54326/14">https://forum.openwrt.org/t/how-to-enable-up-down-arrow-keys-completion-history-for-ash-shell/54326/14</a>
+</p>
+
+<h2>华硕官版固件</h2>
+
+<p>
+shell只有emacs模式，set -o vi 无效。
+</p>
+<ul class="org-ul">
+<li>有stty，默认ixon，但是C-s后屏幕上还是会显示打的字。貌似无效。</li>
+<li>C-r 无效</li>
+<li>C-s 无效</li>
+</ul>
+
+
+<h2>梅林固件</h2>
+
+<p>
+shell只有emacs模式，set -o vi 无效。
+</p>
+<ul class="org-ul">
+<li>无stty</li>
+<li>C-r 可用</li>
+<li>C-s 无效</li>
+</ul>
+
+
+<h2>参考</h2>
+
+<ul class="org-ul">
+<li>Bash强大的History命令 <a href="https://www.cnblogs.com/aquester/archive/2012/07/24/9891891.html">https://www.cnblogs.com/aquester/archive/2012/07/24/9891891.html</a></li>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-use-bash-history-commands-and-expansions-on-a-linux-vps">https://www.digitalocean.com/community/tutorials/how-to-use-bash-history-commands-and-expansions-on-a-linux-vps</a></li>
+</ul>
+</div>
+</body>
+</html>
