@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-10-16 周三 10:08 -->
+<!-- 2020-12-20 Sun 18:13 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>emacs中英文等宽字体配置</title>
 <meta name="generator" content="Org mode">
+<meta name="author" content="albert">
 <link rel="stylesheet" type="text/css" href="/main.css" />
 </head>
 <body>
@@ -23,9 +24,72 @@
 测试的几种英文字体的 <b>1</b> 和 <b>l</b> ， <b>0</b> 和 <b>o</b> 都能很好区分的。而微软的 <b>Consolas</b> 字体中的1和l就需要认真看才能区分出来。
 </p>
 
-<div id="outline-container-orga042539" class="outline-2">
-<h2 id="orga042539">Consolas + Yahei</h2>
-<div class="outline-text-2" id="text-orga042539">
+
+<h2>Ubuntu Mono + 等距更纱黑体 T SC <span class="timestamp-wrapper"><span class="timestamp">[2020-12-20 Sun 18:10] </span></span> updated</h2>
+
+<p>
+Ubuntu Mono正好可以和更纱黑等比例缩放。更纱黑的的效果比微软雅黑好。
+</p>
+
+<table border="1" rules="all" frame="border">
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">字体</th>
+<th scope="col" class="org-left">效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Ubuntu Mono 11</td>
+<td class="org-left">在win10上，1920x1080</td>
+</tr>
+
+<tr>
+<td class="org-left">Ubuntu Mono 22</td>
+<td class="org-left">在macos上，1920x1080</td>
+</tr>
+</tbody>
+</table>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #00bfff;">defun</span> <span style="color: #daa520;">albert-notebook-font</span>()
+  <span style="color: #ffe4b5;">"Config font on HP zhan66."</span>
+  (<span style="color: #00bfff;">interactive</span>)
+  (<span style="color: #00bfff;">if</span> (eq system-type 'windows-nt)
+      (<span style="color: #00bfff;">progn</span>
+        (set-face-attribute 'default nil <span style="color: #f08080;">:font</span> <span style="color: #deb887;">"Ubuntu Mono 11"</span>)
+        (<span style="color: #00bfff;">setq</span> face-font-rescale-alist '((<span style="color: #deb887;">"&#31561;&#36317;&#26356;&#32433;&#40657;&#20307; T SC"</span> . 1)))
+
+        (<span style="color: #00bfff;">dolist</span> (charset '(kana han symbol cjk-misc bopomofo))
+          (set-fontset-font (frame-parameter nil 'font)
+                            charset
+                            (font-spec <span style="color: #f08080;">:family</span> <span style="color: #deb887;">"&#31561;&#36317;&#26356;&#32433;&#40657;&#20307; T SC"</span>))))))
+
+(<span style="color: #00bfff;">defun</span> <span style="color: #daa520;">albert-macos-notebook-font</span>()
+  <span style="color: #ffe4b5;">"Config font on macos with 1920x1080."</span>
+  (<span style="color: #00bfff;">interactive</span>)
+  (<span style="color: #00bfff;">if</span> (eq system-type 'darwin)
+      (<span style="color: #00bfff;">progn</span>
+        (set-face-attribute 'default nil <span style="color: #f08080;">:font</span> <span style="color: #deb887;">"Ubuntu Mono 22"</span>)
+        (<span style="color: #00bfff;">setq</span> face-font-rescale-alist '((<span style="color: #deb887;">"&#31561;&#36317;&#26356;&#32433;&#40657;&#20307; T SC"</span> . 1)))
+
+        (<span style="color: #00bfff;">dolist</span> (charset '(kana han symbol cjk-misc bopomofo))
+          (set-fontset-font (frame-parameter nil 'font)
+                            charset
+                            (font-spec <span style="color: #f08080;">:family</span> <span style="color: #deb887;">"&#31561;&#36317;&#26356;&#32433;&#40657;&#20307; T SC"</span>))))))
+</pre>
+</div>
+
+
+<h2>Consolas + Yahei</h2>
+
 <p>
 两种字体都是系统自带的，不需要网上下载。奇怪的是两种字体的size不是等比例的。如测试的大部分字体都是英文size=8 + 中文size=20和英文size=10 + 中文size=24，只有这两种组合是等宽的。
 </p>
@@ -61,38 +125,30 @@
 </tr>
 </tbody>
 </table>
-</div>
-</div>
 
-<div id="outline-container-org74e98ca" class="outline-2">
-<h2 id="org74e98ca">Consolas-with-Yahei</h2>
-<div class="outline-text-2" id="text-org74e98ca">
+
+<h2>Consolas-with-Yahei</h2>
+
 <p>
 把Consolas和Yahei打到一个ttf字体里了，造成了一个问题，无论选择什么size都做不到对不齐，而且size&lt;10的时候中文显示非常难看。如此强大的emacs根本不需要二合一字体，直接可以控制中英文分别用不同的字体即可。
 </p>
-</div>
-</div>
 
-<div id="outline-container-org4b31e45" class="outline-2">
-<h2 id="org4b31e45">Source Code Variable</h2>
-<div class="outline-text-2" id="text-org4b31e45">
+
+<h2>Source Code Variable</h2>
+
 <p>
 试了一下英文显示效果不错，但是无法和Yahei配合对齐。
 </p>
-</div>
-</div>
 
-<div id="outline-container-org0bdd539" class="outline-2">
-<h2 id="org0bdd539">Liberation-sans-narrow</h2>
-<div class="outline-text-2" id="text-org0bdd539">
+
+<h2>Liberation-sans-narrow</h2>
+
 <p>
 不是太好看。字体有点小，而且缩放时不清晰，明显不如其他字体。
 </p>
-</div>
-</div>
-<div id="outline-container-org70632a5" class="outline-2">
-<h2 id="org70632a5">Monaco</h2>
-<div class="outline-text-2" id="text-org70632a5">
+
+<h2>Monaco</h2>
+
 <p>
 <a href="https://github.com/cstrap/monaco-font">github</a>
 </p>
@@ -131,15 +187,9 @@
 </tr>
 </tbody>
 </table>
-</div>
-</div>
 
-<div id="outline-container-org9539ee8" class="outline-2">
-<h2 id="org9539ee8">Ubuntu Mono + Yahei</h2>
-<div class="outline-text-2" id="text-org9539ee8">
-<p>
-现在使用的是这个组合。
-</p>
+
+<h2>Ubuntu Mono + Yahei</h2>
 
 <p>
 <a href="https://design.ubuntu.com/font/">官网下载</a>
@@ -184,12 +234,10 @@ Ubuntu Mono正好可以和Yahei等比例缩放，这点比较神奇。其他字�
 </tr>
 </tbody>
 </table>
-</div>
-</div>
 
-<div id="outline-container-orgcf1f5ea" class="outline-2">
-<h2 id="orgcf1f5ea">FiraCode</h2>
-<div class="outline-text-2" id="text-orgcf1f5ea">
+
+<h2>FiraCode</h2>
+
 <p>
 <a href="https://github.com/tonsky/FiraCode">官网下载</a>
 </p>
@@ -220,11 +268,9 @@ Ubuntu Mono正好可以和Yahei等比例缩放，这点比较神奇。其他字�
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div id="outline-container-orge62b5f7" class="outline-2">
-<h2 id="orge62b5f7">DejaVu</h2>
-<div class="outline-text-2" id="text-orge62b5f7">
+
+<h2>DejaVu</h2>
+
 <p>
 <a href="https://dejavu-fonts.github.io/Download.html">github</a>
 </p>
@@ -259,58 +305,54 @@ linux上的老牌等宽字体。
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div id="outline-container-org00f2c8a" class="outline-2">
-<h2 id="org00f2c8a">emacs配置</h2>
-<div class="outline-text-2" id="text-org00f2c8a">
-<div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">defun</span> <span style="color: #daa520;">albert|notebook-font</span><span style="color: #ffe4b5;">()</span>
-  <span style="color: #ffe4b5;">"Config font on HP zhan66."</span>
-  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">interactive</span><span style="color: #ffe4b5;">)</span>
-  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> <span style="color: #ffe4b5;">(</span>eq system-type 'windows-nt<span style="color: #ffe4b5;">)</span>
-    <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">progn</span>
-      <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Setting English Font</span>
-      <span style="color: #ffe4b5;">(</span>set-face-attribute 'default nil <span style="color: #f08080;">:font</span> <span style="color: #deb887;">"Ubuntu Mono 11"</span><span style="color: #ffe4b5;">)</span>
-      <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Chinese Font</span>
-      <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">dolist</span> <span style="color: #ffe4b5;">(</span>charset '<span style="color: #ffe4b5;">(</span>kana han symbol cjk-misc bopomofo<span style="color: #ffe4b5;">))</span>
-              <span style="color: #ffe4b5;">(</span>set-fontset-font <span style="color: #ffe4b5;">(</span>frame-parameter nil 'font<span style="color: #ffe4b5;">)</span>
-                            charset
-                            <span style="color: #ffe4b5;">(</span>font-spec <span style="color: #f08080;">:family</span> <span style="color: #deb887;">"Microsoft Yahei"</span> <span style="color: #f08080;">:size</span> 22<span style="color: #ffe4b5;">))))))</span>
 
-<span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">defun</span> <span style="color: #daa520;">albert|s2319-font</span><span style="color: #ffe4b5;">()</span>
+<h2>emacs配置</h2>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span style="color: #00bfff;">defun</span> <span style="color: #daa520;">albert|notebook-font</span>()
+  <span style="color: #ffe4b5;">"Config font on HP zhan66."</span>
+  (<span style="color: #00bfff;">interactive</span>)
+  (<span style="color: #00bfff;">if</span> (eq system-type 'windows-nt)
+    (<span style="color: #00bfff;">progn</span>
+      <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Setting English Font</span>
+      (set-face-attribute 'default nil <span style="color: #f08080;">:font</span> <span style="color: #deb887;">"Ubuntu Mono 11"</span>)
+      <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Chinese Font</span>
+      (<span style="color: #00bfff;">dolist</span> (charset '(kana han symbol cjk-misc bopomofo))
+              (set-fontset-font (frame-parameter nil 'font)
+                            charset
+                            (font-spec <span style="color: #f08080;">:family</span> <span style="color: #deb887;">"Microsoft Yahei"</span> <span style="color: #f08080;">:size</span> 22))))))
+
+(<span style="color: #00bfff;">defun</span> <span style="color: #daa520;">albert|s2319-font</span>()
   <span style="color: #ffe4b5;">"Config font on dell s2319. </span>
 <span style="color: #ffe4b5;">   Ubuntu Mono 10 + Yahei 14 &#22826;&#23567;&#20102;</span>
 <span style="color: #ffe4b5;">   Ubuntu Mono 12 + Yahei 16 &#27604;&#36739;&#21512;&#36866;</span>
 <span style="color: #ffe4b5;">   "</span>
-  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">interactive</span><span style="color: #ffe4b5;">)</span>
-  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> <span style="color: #ffe4b5;">(</span>eq system-type 'windows-nt<span style="color: #ffe4b5;">)</span>
-    <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">progn</span>
+  (<span style="color: #00bfff;">interactive</span>)
+  (<span style="color: #00bfff;">if</span> (eq system-type 'windows-nt)
+    (<span style="color: #00bfff;">progn</span>
       <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Setting English Font</span>
-      <span style="color: #ffe4b5;">(</span>set-face-attribute 'default nil <span style="color: #f08080;">:font</span> <span style="color: #deb887;">"Ubuntu Mono 12"</span><span style="color: #ffe4b5;">)</span>
+      (set-face-attribute 'default nil <span style="color: #f08080;">:font</span> <span style="color: #deb887;">"Ubuntu Mono 12"</span>)
       <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Chinese Font</span>
-      <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">dolist</span> <span style="color: #ffe4b5;">(</span>charset '<span style="color: #ffe4b5;">(</span>kana han symbol cjk-misc bopomofo<span style="color: #ffe4b5;">))</span>
-              <span style="color: #ffe4b5;">(</span>set-fontset-font <span style="color: #ffe4b5;">(</span>frame-parameter nil 'font<span style="color: #ffe4b5;">)</span>
+      (<span style="color: #00bfff;">dolist</span> (charset '(kana han symbol cjk-misc bopomofo))
+              (set-fontset-font (frame-parameter nil 'font)
                             charset
-                            <span style="color: #ffe4b5;">(</span>font-spec <span style="color: #f08080;">:family</span> <span style="color: #deb887;">"Microsoft Yahei"</span> <span style="color: #f08080;">:size</span> 16<span style="color: #ffe4b5;">))))))</span>
+                            (font-spec <span style="color: #f08080;">:family</span> <span style="color: #deb887;">"Microsoft Yahei"</span> <span style="color: #f08080;">:size</span> 16))))))
 
-<span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> <span style="color: #ffe4b5;">(</span>eq window-system 'w32<span style="color: #ffe4b5;">)</span>
-  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">progn</span>
+(<span style="color: #00bfff;">if</span> (eq window-system 'w32)
+  (<span style="color: #00bfff;">progn</span>
     <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#26681;&#25454;&#26174;&#31034;&#22120;&#23454;&#38469;&#23485;&#24230;(&#20197;&#27627;&#31859;&#20026;&#21333;&#20301;)&#65292;&#26174;&#31034;&#23383;&#20307;.</span>
     <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">DELL S2319HS &#20998;&#36776;&#29575;: 1920x1080, &#23631;&#24149;&#23610;&#23544;: 509mm * 286mm</span>
     <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">EIZO EV2451 &#20998;&#36776;&#29575;: 1920x1080, &#23631;&#24149;&#23610;&#23544;: 528mm * 297mm</span>
     <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">(display-mm-height)</span>
-    <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> <span style="color: #ffe4b5;">(</span>&gt;= <span style="color: #ffe4b5;">(</span>display-mm-width<span style="color: #ffe4b5;">)</span> 509<span style="color: #ffe4b5;">)</span>
-      <span style="color: #ffe4b5;">(</span>albert|s2319-font<span style="color: #ffe4b5;">))</span>
+    (<span style="color: #00bfff;">if</span> (&gt;= (display-mm-width) 509)
+      (albert|s2319-font))
 
     <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#23485;&#24230;&#22312;500mm&#30340;&#35748;&#20026;&#26159;&#31508;&#35760;&#26412;?&#25110;&#32773;&#26356;&#21152;&#31934;&#30830;&#19968;&#28857;&#30340;&#26041;&#24335;&#26469;&#21305;&#37197;&#19981;&#21516;&#30340;&#31508;&#35760;&#26412;&#22411;&#21495;?</span>
     <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">HP ZHAN66 309mm X 175mm</span>
     <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Thinkpad T430 4xxmm X 20xmm?</span>
-    <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">if</span> <span style="color: #ffe4b5;">(</span>eq <span style="color: #ffe4b5;">(</span>display-mm-width<span style="color: #ffe4b5;">)</span> 309<span style="color: #ffe4b5;">)</span>
-      <span style="color: #ffe4b5;">(</span>albert|notebook-font<span style="color: #ffe4b5;">))))</span>
+    (<span style="color: #00bfff;">if</span> (eq (display-mm-width) 309)
+      (albert|notebook-font))))
 </pre>
-</div>
-</div>
 </div>
 </div>
 </body>
