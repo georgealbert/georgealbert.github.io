@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-12-18 Fri 16:57 -->
+<!-- 2020-12-22 Tue 16:43 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>macos配置</title>
@@ -168,6 +168,71 @@ M-x profile-report
 <code>C-u 0 M-x byte-recompile-directory</code> 才可以。
 </p>
 
+<h3>counsel-ag <span class="timestamp-wrapper"><span class="timestamp">[2020-12-22 Tue 16:28]</span></span></h3>
+
+
+
+<h4>把counsel-ag改成和helm-ag一样，支持从git的root开始搜索。</h4>
+
+<div class="org-src-container">
+<pre class="src src-lisp">(<span style="color: #00bfff;">defun</span> <span style="color: #daa520;">counsel-ag-current-dir</span> ()
+  <span style="color: #ffe4b5;">"Runs `</span><span style="color: #a2cd5a;">counsel-ag</span><span style="color: #ffe4b5;">' against the current buffer's directory."</span>
+  (interactive)
+  (<span style="color: #00bfff;">let</span> (my-current-dir (file-name-directory (buffer-file-name)))
+    (<span style="color: #00bfff;">if</span> (stringp my-current-dir)
+        (counsel-ag <span style="color: #deb887;">""</span> (file-name-directory (buffer-file-name)))
+      (counsel-ag <span style="color: #deb887;">""</span> default-directory)
+      )))
+
+(<span style="color: #00bfff;">defun</span> <span style="color: #daa520;">counsel-ag--project-root</span> ()
+  <span style="color: #ffe4b5;">"Not documented."</span>
+  (cl-loop for dir in '(<span style="color: #deb887;">".git/"</span> <span style="color: #deb887;">".git"</span>)
+           when (locate-dominating-file default-directory dir)
+           return it))
+
+<span style="color: #B0BED8;">;;;</span><span style="color: #B0BED8;">###autoload</span>
+(<span style="color: #00bfff;">defun</span> <span style="color: #daa520;">counsel-ag-project-root</span> (<span style="color: #98f5ff;">&amp;optional</span> query)
+  <span style="color: #ffe4b5;">"Not documented, QUERY."</span>
+  (interactive)
+  (<span style="color: #00bfff;">let</span> ((rootdir (counsel-ag--project-root)))
+    (<span style="color: #00bfff;">unless</span> rootdir
+      (<span style="color: #eeee00;">error</span> <span style="color: #deb887;">"Could not find the project root. Create a git repository there first"</span>))
+    (counsel-ag <span style="color: #deb887;">""</span> rootdir)))
+
+(use-package counsel
+  <span style="color: #f08080;">:bind</span> (
+         <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">("s-z" . counsel-M-x)</span>
+         (<span style="color: #deb887;">"M-x"</span> . counsel-M-x)
+         (<span style="color: #deb887;">"C-c n"</span> . counsel-buffer-or-recentf)
+         (<span style="color: #deb887;">"s-r"</span> . counsel-ag-project-root)
+         (<span style="color: #deb887;">"s-f"</span> . counsel-ag-current-dir)
+         (<span style="color: #deb887;">"C-x C-f"</span> . counsel-find-file))
+  <span style="color: #f08080;">:init</span>
+  (setq enable-recursive-minibuffers t) <span style="color: #B0BED8;">; Allow commands in minibuffers</span>
+
+  <span style="color: #f08080;">:config</span>
+  <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Integrate with `</span><span style="color: #a2cd5a;">helpful</span><span style="color: #B0BED8;">'</span>
+  (setq counsel-describe-function-function #'helpful-callable
+        counsel-describe-variable-function #'helpful-variable)
+  )
+</pre>
+</div>
+
+
+<h4>使用ivy-occur</h4>
+
+<p>
+在 <code>counsel-ag</code> 查找到字符串后，按 <b>c-c c-o</b> 进入 <code>ivy-occur</code> ，按 <b>w</b> 进行edit，按 <b>c-x c-s</b> 保存修改，按 <b>c-c c-k</b> 丢弃修改。
+</p>
+
+<p>
+因为用的是evil，按 <b>w</b> 后，evil mode不正确，无法进行edit，还再要配置evil。
+</p>
+<div class="org-src-container">
+<pre class="src src-lisp">(evil-set-initial-state 'ivy-occur-grep-mode 'normal)
+</pre>
+</div>
+
 <h2>sshpass - ok <span class="timestamp-wrapper"><span class="timestamp">[2020-11-29 Sun 16:44]</span></span></h2>
 
 <div class="org-src-container">
@@ -218,6 +283,18 @@ zsh在使用 <code>vi mode</code> 后，和bash的差别不大，bash的问题�
 <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">PROMPT=$'[%F{28}%n%F{reset}%F{11}@%F{reset}%F{13}%m%F{reset} %~]\n$'</span>
 <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">green=28, yellow=11, magenta=13</span>
 <span style="color: #4eee94;">PROMPT</span>=$<span style="color: #deb887;">'[%F{green}%n%F{reset}%F{yellow}@%F{reset}%F{magenta}%m%F{reset} %d]\n$'</span>
+</pre>
+</div>
+
+<h2>auto mount ntfs partition <span class="timestamp-wrapper"><span class="timestamp">[2020-12-20 Sun 21:44]</span></span></h2>
+
+<p>
+用macos，在ntfs分区里新建目录和文件后，权限会有问题，需要手工修改。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">$<span style="color: #4eee94;">cat</span> /etc/fstab
+<span style="color: #4eee94;">LABEL</span>=Win10 none ntfs rw,auto,nobrowse
+<span style="color: #4eee94;">LABEL</span>=Data none ntfs rw,auto,nobrowse
 </pre>
 </div>
 
@@ -407,6 +484,14 @@ sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.ReportCrash.Root.
 </pre>
 </div></li>
 </ul>
+
+
+
+<h2>win和alt键 <span class="timestamp-wrapper"><span class="timestamp">[2020-12-22 Tue 16:32]</span></span></h2>
+
+<p>
+在x240上，可以在 <code>“系统偏好设置” -&gt; “键盘” -&gt; “修饰键...”</code> ，把 <code>Option</code> 和 <code>Command</code> 键对调。这样可以在所有机器上保持相同的键位。
+</p>
 </div>
 </body>
 </html>
