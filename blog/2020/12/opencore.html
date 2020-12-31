@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2020-12-31 Thu 17:32 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>修改opencore，在引导windows时不修改ACPI</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="albert">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">修改opencore，在引导windows时不修改ACPI</h1>
+<p>
+opencore不需要在引导除macos以外的操作系统会按config.plist中的配置修改ACPI、nvram。黑苹果的BIOS本来就是适配windows、linux的，按macos的标准改了以后反而适得其反，出现各种问题。如oc会修改system-id，会导致windows的license失效。或者windows启动在不停转圈、蓝屏。
+</p>
+
+<p>
+在oc0.2的版本是有一个Quirk，在引导windows时不修改ACPI的，但是后续的版本取消了这个Quirk。只能通过修改源代码来解决了。
+</p>
+
+<p>
+代码基于oc 0.6.5版本，主要是在引导其他操作系统时，不修改ACPI，具体如下：
+</p>
+<pre class="example">
+$git diff 5c8f
+diff --git a/Include/Acidanthera/Library/OcConfigurationLib.h b/Include/Acidanthera/Library/OcConfigurationLib.h
+index f2a71123..91385265 100644
+--- a/Include/Acidanthera/Library/OcConfigurationLib.h
++++ b/Include/Acidanthera/Library/OcConfigurationLib.h
+@@ -80,6 +80,7 @@
+ #define OC_ACPI_QUIRKS_FIELDS(_, __) \
+   _(BOOLEAN                     , FadtEnableReset     ,     , FALSE  , ()) \
+   _(BOOLEAN                     , NormalizeHeaders    ,     , FALSE  , ()) \
++  _(BOOLEAN                     , OnlyForMacOS        ,     , FALSE  , ()) \
+   _(BOOLEAN                     , RebaseRegions       ,     , FALSE  , ()) \
+   _(BOOLEAN                     , ResetHwSig          ,     , FALSE  , ()) \
+   _(BOOLEAN                     , ResetLogoStatus     ,     , FALSE  , ())
+diff --git a/Library/OcConfigurationLib/OcConfigurationLib.c b/Library/OcConfigurationLib/OcConfigurationLib.c
+index 001197d7..99fcb16c 100644
+--- a/Library/OcConfigurationLib/OcConfigurationLib.c
++++ b/Library/OcConfigurationLib/OcConfigurationLib.c
+@@ -141,6 +141,7 @@ OC_SCHEMA
+ mAcpiQuirksSchema[] = {
+   OC_SCHEMA_BOOLEAN_IN ("FadtEnableReset",  OC_GLOBAL_CONFIG, Acpi.Quirks.FadtEnableReset),
+   OC_SCHEMA_BOOLEAN_IN ("NormalizeHeaders", OC_GLOBAL_CONFIG, Acpi.Quirks.NormalizeHeaders),
++  OC_SCHEMA_BOOLEAN_IN ("OnlyForMacOS",     OC_GLOBAL_CONFIG, Acpi.Quirks.OnlyForMacOS),
+   OC_SCHEMA_BOOLEAN_IN ("RebaseRegions",    OC_GLOBAL_CONFIG, Acpi.Quirks.RebaseRegions),
+   OC_SCHEMA_BOOLEAN_IN ("ResetHwSig",       OC_GLOBAL_CONFIG, Acpi.Quirks.ResetHwSig),
+   OC_SCHEMA_BOOLEAN_IN ("ResetLogoStatus",  OC_GLOBAL_CONFIG, Acpi.Quirks.ResetLogoStatus),
+diff --git a/Platform/OpenCore/OpenCore.c b/Platform/OpenCore/OpenCore.c
+index 9f992ba4..eb716c42 100644
+--- a/Platform/OpenCore/OpenCore.c
++++ b/Platform/OpenCore/OpenCore.c
+@@ -90,6 +90,23 @@ OcStartImage (
+     LaunchInText ? EfiConsoleControlScreenText : EfiConsoleControlScreenGraphics
+     );
+ 
++  if((Chosen-&gt;Type &amp; OC_BOOT_APPLE_ANY) &amp;&amp; mOpenCoreConfiguration.Acpi.Quirks.OnlyForMacOS){
++    DEBUG ((DEBUG_INFO, "OC: OcLoadAcpiSupport only for macOS...\n"));
++    OcLoadAcpiSupport (&amp;mOpenCoreStorage, &amp;mOpenCoreConfiguration);
++
++    DEBUG ((DEBUG_INFO, "OC: OcLoadPlatformSupport...\n"));
++    OcLoadPlatformSupport (&amp;mOpenCoreConfiguration, &amp;mOpenCoreCpuInfo);
++
++    DEBUG ((DEBUG_INFO, "OC: OcLoadDevPropsSupport...\n"));
++    OcLoadDevPropsSupport (&amp;mOpenCoreConfiguration);
++
++    /* DEBUG ((DEBUG_INFO, "OC: OcMiscLateInit...\n")); */
++    /* OcMiscLateInit (Storage, &amp;mOpenCoreConfiguration); */
++
++    /* DEBUG ((DEBUG_INFO, "OC: OcLoadKernelSupport...\n")); */
++    /* OcLoadKernelSupport (&amp;mOpenCoreStorage, &amp;mOpenCoreConfiguration, &amp;mOpenCoreCpuInfo); */
++  }
++
+   Status = gBS-&gt;StartImage (
+     ImageHandle,
+     ExitDataSize,
+@@ -134,14 +151,21 @@ OcMain (
+   OcMiscMiddleInit (Storage, &amp;mOpenCoreConfiguration, mStorageRoot, LoadPath, mStorageHandle);
+   DEBUG ((DEBUG_INFO, "OC: OcLoadUefiSupport...\n"));
+   OcLoadUefiSupport (Storage, &amp;mOpenCoreConfiguration, &amp;mOpenCoreCpuInfo);
+-  DEBUG ((DEBUG_INFO, "OC: OcLoadAcpiSupport...\n"));
+-  OcLoadAcpiSupport (&amp;mOpenCoreStorage, &amp;mOpenCoreConfiguration);
+-  DEBUG ((DEBUG_INFO, "OC: OcLoadPlatformSupport...\n"));
+-  OcLoadPlatformSupport (&amp;mOpenCoreConfiguration, &amp;mOpenCoreCpuInfo);
+-  DEBUG ((DEBUG_INFO, "OC: OcLoadDevPropsSupport...\n"));
+-  OcLoadDevPropsSupport (&amp;mOpenCoreConfiguration);
++
++  if(!mOpenCoreConfiguration.Acpi.Quirks.OnlyForMacOS){
++    DEBUG ((DEBUG_INFO, "OC: OcLoadAcpiSupport of any OS...\n"));
++    OcLoadAcpiSupport (&amp;mOpenCoreStorage, &amp;mOpenCoreConfiguration);
++
++    DEBUG ((DEBUG_INFO, "OC: OcLoadPlatformSupport...\n"));
++    OcLoadPlatformSupport (&amp;mOpenCoreConfiguration, &amp;mOpenCoreCpuInfo);
++
++    DEBUG ((DEBUG_INFO, "OC: OcLoadDevPropsSupport...\n"));
++    OcLoadDevPropsSupport (&amp;mOpenCoreConfiguration);
++  }
++
+   DEBUG ((DEBUG_INFO, "OC: OcMiscLateInit...\n"));
+   OcMiscLateInit (Storage, &amp;mOpenCoreConfiguration);
++
+   DEBUG ((DEBUG_INFO, "OC: OcLoadKernelSupport...\n"));
+   OcLoadKernelSupport (&amp;mOpenCoreStorage, &amp;mOpenCoreConfiguration, &amp;mOpenCoreCpuInfo);
+</pre>
+
+
+<h2>参考</h2>
+
+<ul class="org-ul">
+<li><a href="https://github.com/hasashin/OpenCorePkg/commits/acpi-for-mac-dev">https://github.com/hasashin/OpenCorePkg/commits/acpi-for-mac-dev</a></li>
+<li><a href="https://github.com/acidanthera/OpenCorePkg/pull/147">https://github.com/acidanthera/OpenCorePkg/pull/147</a> 里面有相关讨论和oc的配置，有时间再试试。</li>
+</ul>
+</div>
+</body>
+</html>
