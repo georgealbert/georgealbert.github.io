@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-12-31 Thu 16:34 -->
+<!-- 2020-12-31 Thu 16:54 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>在emacs中用星际词霸学习英文</title>
@@ -13,17 +13,16 @@
 <div id="content">
 <h1 class="title">在emacs中用星际词霸学习英文</h1>
 <p>
-参考 <a href="https://emacs-china.org/t/emacs/7750/37">https://emacs-china.org/t/emacs/7750/37</a>。
+在emacs中使用sdcv.el(<a href="https://github.com/manateelazycat/sdcv">https://github.com/manateelazycat/sdcv</a>)需要命令行的sdcv.exe，而不是stardict.exe。windows中的 <b>sdcv</b> 需要自己编译。需要安装 <code>cmake、zlib、readline</code> 等。
 </p>
 
-<p>
-sdcv.el需要命令行的sdcv.exe，不是stardict.exe。sdcv需要自己编译。需要安装cmake、zlib、readline等。
-</p>
+
+<h2>在windows中安装sdcv</h2>
 
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #f08080;">cd</span> /e/workspace
 
-<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#29992;Dushistov&#30340;&#23601;&#21487;&#20197;&#20102;&#12290;</span>
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#20351;&#29992; Dushistov &#30340;&#29256;&#26412;</span>
 git clone https://github.com/Dushistov/sdcv.git --config <span style="color: #deb887;">"http.proxy=127.0.0.1:1080"</span>
 <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">git clone --depth 1 https://github.com/yygcode/sdcv  --config "http.proxy=127.0.0.1:1080"</span>
 
@@ -43,9 +42,7 @@ make <span style="color: #4eee94;">VERBOSE</span>=1
 </div>
 
 
-
-
-<h2>src/utils.cpp 编译报错</h2>
+<h3>src/utils.cpp 编译报错</h3>
 
 <pre class="example">
 /C/msys64/mingw64/bin/g++.exe  -DHAVE_CONFIG_H -DVERSION=\"0.5.2\" -I/C/msys64/mingw64/include/glib-2.0 -I/C/msys64/mingw64/lib/glib-2.0/include -I/E/workspace/sdcv/src/lib -I/E/workspace/build-sdcv  -std=c++11 -o CMakeFiles/sdcv.dir/src/utils.cpp.obj -c /E/workspace/sdcv/src/utils.cpp
@@ -61,13 +58,13 @@ C:/msys64/mingw64/include/c++/9.2.0/bits/basic_string.h:6547:50: error: 'libintl
 </p>
 
 
-<h2>src/stardict_lib.cpp 编译报错</h2>
+<h3>src/stardict_lib.cpp 编译报错</h3>
 
 <p>
 stat在c++中是32bit的，需要改为stat64，才能在mingw64中编译成功。
 </p>
 
-<h2>patch</h2>
+<h3>patch</h3>
 
 <div class="org-src-container">
 <pre class="src src-c">Albert@Albert MINGW64 /e/workspace/sdcv
@@ -106,7 +103,7 @@ index 33bfeaa..a5f1e21 100644
 </pre>
 </div>
 
-<h2>sdcv.exe的路径</h2>
+<h3>sdcv.exe的路径</h3>
 
 <p>
 在mingw64中执行sdcv是ok的，但是在cmd中调用sdcv.exe会报错，有依赖的dll找不到。直接放到emacs的bin目录，里面的mingw64的dll比较全，居然就不报错了。懒得找具体缺了哪个dll了。
@@ -156,6 +153,7 @@ sdcv的配置。
   <span style="color: #f08080;">:init</span>
   <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">fix non-prefix "s-t" key error.</span>
   (define-key global-map (kbd <span style="color: #deb887;">"s-t"</span>) (make-sparse-keymap))
+
   <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">(global-set-key (kbd "s-t p") 'sdcv-search-pointer)</span>
   <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">(global-set-key (kbd "s-t t") 'sdcv-search-pointer+)</span>
   <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">(global-set-key (kbd "s-t i") 'sdcv-search-input)</span>
@@ -213,6 +211,13 @@ modified   sdcv.el
              (format "\"%s\"" word)
              sdcv-dictionary-data-dir))))
 </pre>
+
+
+<h2>参考</h2>
+
+<ul class="org-ul">
+<li><a href="https://emacs-china.org/t/emacs/7750/37">https://emacs-china.org/t/emacs/7750/37</a></li>
+</ul>
 </div>
 </body>
 </html>
