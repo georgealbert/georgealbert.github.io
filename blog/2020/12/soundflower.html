@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2020-12-31 Thu 16:49 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>在macos catalina 10.15.6中使用soundflower录制系统音频</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="albert">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">在macos catalina 10.15.6中使用soundflower录制系统音频</h1>
+<p>
+macos中默认无法录制系统音频，所有需要第三方的内核扩展来实现。
+</p>
+
+<p>
+Soundflower是一个虚拟的音频数据传输软件。Soundflower可以捕获系统声频，而不仅仅是外部麦克风输入音频。如果要录制一段带音频的视频或是单纯录制现在系统播放的声音。
+</p>
+
+<h2>安装</h2>
+
+<p>
+从 <a href="https://github.com/mattingalls/Soundflower">https://github.com/mattingalls/Soundflower</a> 下载、安装soundflower。
+</p>
+
+<h2>配置</h2>
+
+<ol class="org-ol">
+<li>找到 音频MIDI设置 -&gt; 点击加号，选择“创建多输出设备”。
+<ul class="org-ul">
+<li><p>
+创建一个多输出设备。
+</p>
+
+<p>
+点 “+” ，新增设备， 勾选 “内建输出”和Soundflower（2ch）
+</p></li>
+</ul></li>
+
+<li><p>
+打开“系统偏好设置” -&gt; “声音”。你现在可以看到输出设备里面有 <code>Soundflower (2ch)</code> 和 <code>Soundflower (64ch)</code> ，以及刚刚创建的多输出设备。
+</p>
+<ul class="org-ul">
+<li>在输出设备里选我们创建的 <code>多输出设备</code></li>
+<li>在输入设备里面选 <code>Soundflower (2ch)</code></li>
+</ul>
+
+<p>
+a. 在切换输出设备之前，先调整好系统音量，因为一旦切换设备后，将无法改变音量大小。如切换到 <code>多输出设备</code> 后将无法改变音量。
+</p>
+
+<p>
+b. 如果把输出设备设置为 <code>Soundflower 2ch</code> ，在后续录制音频或者视频时，是听不见声音的。但是录制好的视频是有声音的。
+</p>
+
+<p>
+c. 如果把 "输出设备" 设置为新建的 <code>多输出设备</code> ，那么和b不同，也是可以听到声音的。这也是前一个步骤建立 <code>多输出设备</code> 的原因。
+</p></li>
+
+<li>Quicktime Player录制系统音频
+
+<ol class="org-ol">
+<li>选择File(菜单)-&gt;New Screen Recording(新录制)，新建屏幕录制。</li>
+
+<li>在录制按钮的旁边有一个小按钮，点击它，选 <code>Soundflower (2ch)</code> 。点击Quicktime的录制按钮，开始捕获音视频。</li>
+</ol></li>
+
+<li><p>
+OBS中录制系统音频
+</p>
+
+<p>
+macos的Quicktime录制的视频太大，而OBS的功能更加强大，还可以推流。
+</p>
+
+<p>
+Preference -&gt; 音频 -&gt; 全局音频设备 -&gt; 桌面音频 -&gt; <code>Soundflower (2ch)</code>
+</p></li>
+</ol>
+
+<h2>参考</h2>
+
+<ul class="org-ul">
+<li><a href="http://www.pc6.com/edu/184206.html">http://www.pc6.com/edu/184206.html</a></li>
+</ul>
+</div>
+</body>
+</html>
