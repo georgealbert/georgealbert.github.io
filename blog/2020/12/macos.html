@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-12-22 Tue 16:43 -->
+<!-- 2021-01-03 Sun 16:21 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>macos配置</title>
@@ -174,6 +174,11 @@ M-x profile-report
 
 <h4>把counsel-ag改成和helm-ag一样，支持从git的root开始搜索。</h4>
 
+<ul class="org-ul">
+<li>alt-r 从git root目录开始搜索整个项目</li>
+<li>alt-f 搜索当前目录，和counsel-ag是一样的，支持在没有buffer-name的buffer中搜索，默认从home开始搜索。</li>
+<li>c-u M-x counsel-ag 指定目录搜索，默认是buffer的当前目录</li>
+</ul>
 <div class="org-src-container">
 <pre class="src src-lisp">(<span style="color: #00bfff;">defun</span> <span style="color: #daa520;">counsel-ag-current-dir</span> ()
   <span style="color: #ffe4b5;">"Runs `</span><span style="color: #a2cd5a;">counsel-ag</span><span style="color: #ffe4b5;">' against the current buffer's directory."</span>
