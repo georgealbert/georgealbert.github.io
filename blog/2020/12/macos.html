@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2021-01-03 Sun 16:21 -->
+<!-- 2021-01-03 Sun 16:39 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>macos配置</title>
@@ -30,7 +30,15 @@
 <span class="timestamp-wrapper"><span class="timestamp">[2020-12-07 Mon 13:03] </span></span> 用1920x1080比较好，hidpi会导致virtualbox的显示有问题。
 </p>
 <ul class="org-ul">
-<li>目前在 <code>1920x1080</code> 分辨率下，用 <code>Ubuntu Mono 22 + 等距更纱黑体 T SC</code> ，效果很好。</li>
+<li><p>
+目前在 <code>1920x1080</code> 分辨率下，用 <code>Ubuntu Mono 22 + 等距更纱黑体 T SC</code> ，效果很好。
+</p>
+
+
+<div class="figure">
+<p><img src="../../../images/macos-emacs-font-sarasa.png" alt="macos-emacs-font-sarasa.png">
+</p>
+</div></li>
 </ul>
 
 <h3>最大化 - ok <span class="timestamp-wrapper"><span class="timestamp">[2020-11-22 Sun 23:28]</span></span></h3>
@@ -103,8 +111,7 @@ macos里的emacs启动时，没法继承shell里面的 <code>PATH</code> ，需�
       (mac-select-input-source <span style="color: #deb887;">"im.rime.inputmethod.Squirrel.Rime"</span>))
 
       (add-hook 'evil-insert-state-entry-hook 'emacs-ime-enable)
-      (add-hook 'evil-insert-state-exit-hook 'emacs-ime-disable)
-      ))
+      (add-hook 'evil-insert-state-exit-hook 'emacs-ime-disable)))
 </pre>
 </div>
 
@@ -218,8 +225,7 @@ M-x profile-report
   <span style="color: #f08080;">:config</span>
   <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Integrate with `</span><span style="color: #a2cd5a;">helpful</span><span style="color: #B0BED8;">'</span>
   (setq counsel-describe-function-function #'helpful-callable
-        counsel-describe-variable-function #'helpful-variable)
-  )
+        counsel-describe-variable-function #'helpful-variable))
 </pre>
 </div>
 
@@ -270,6 +276,13 @@ zsh在使用 <code>vi mode</code> 后，和bash的差别不大，bash的问题�
 <p>
 只是简单的设置为 <code>vi mode</code> ，同时用不同颜色显示目录和文件，设置提示符。zsh的高级功能，如把git的当前branch显示在提示符上都不需要，不然换台机器就要装 <code>oh-my-zsh</code> ，再配置，没必要，服务器上也没这些高级功能。 
 </p>
+
+
+
+<div class="figure">
+<p><img src="../../../images/macos-zsh-prompt.png" alt="macos-zsh-prompt.png">
+</p>
+</div>
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #f08080;">export</span> <span style="color: #4eee94;">PATH</span>=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
 
@@ -471,15 +484,15 @@ I found this article quite useful: <a href="https://www.lifewire.com/terminal-tr
 <h3>如何关掉com.apple.ReportCrash <span class="timestamp-wrapper"><span class="timestamp">[2020-11-29 Sun 23:07]</span></span></h3>
 
 <ul class="org-ul">
-<li>关闭</li>
-</ul>
+<li><p>
+关闭
+</p>
 <div class="org-src-container">
 <pre class="src src-sh">launchctl unload -w /System/Library/LaunchAgents/com.apple.ReportCrash.plist
 sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.ReportCrash.Root.plist
 </pre>
-</div>
+</div></li>
 
-<ul class="org-ul">
 <li><p>
 打开 
 </p>
@@ -491,10 +504,10 @@ sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.ReportCrash.Root.
 </ul>
 
 
-
 <h2>win和alt键 <span class="timestamp-wrapper"><span class="timestamp">[2020-12-22 Tue 16:32]</span></span></h2>
 
 <p>
+<img src="../../../images/macos-preference-keyboard.png" alt="macos-preference-keyboard.png">
 在x240上，可以在 <code>“系统偏好设置” -&gt; “键盘” -&gt; “修饰键...”</code> ，把 <code>Option</code> 和 <code>Command</code> 键对调。这样可以在所有机器上保持相同的键位。
 </p>
 </div>
