@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2021-03-12 Fri 11:28 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>梅林固件使用自定义DDNS更新aliyun DDNS的ipv6地址</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="albert">
+<link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div id="content">
+<h1 class="title">梅林固件使用自定义DDNS更新aliyun DDNS的ipv6地址</h1>
+<p>
+移动宽带分配的ipv4是内网ip，但是可以分配ipv6地址。梅林固件默认不支持ipv6地址，只能使用自定义shell来实现。参考koolshare的aliyun ddns shell，修改为支持对aliyun ddns的ipv6地址进行更新。
+</p>
+
+<p>
+移动光猫如何分配ipv6地址请自行google。
+</p>
+
+
+<h2>梅林固件webgui界面配置</h2>
+
+<p>
+菜单：外部网络（WAN）-&gt; DDNS
+</p>
+
+<ol class="org-ol">
+<li>启用 DDNS 客户端 - 选 “是”。</li>
+<li>Method to retrieve WAN IP - 选 “Internal” 。如果用光猫拔号，选哪个都是一样的，路由器传给 <code>ddns-start</code> 的ip是内网ip。</li>
+<li>服务器 - 选 “Custom”。</li>
+<li>主机名称 - 填 “自定义的域名”。</li>
+<li>Forced update interval (in days) - 填“72” 。每天更新72次，即每20分钟更新一次DDNS。</li>
+</ol>
+
+
+<h2>新建shell /jffs/scripts/ddns-start</h2>
+
+<p>
+固件的自定义DDNS shell是 <code>/jffs/scripts/ddns-start</code> ，需要先检查是否启用了 <code>jffs</code> 的script功能。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">!/bin/</span><span style="color: #00bfff;">sh</span>
+
+<span style="color: #4eee94;">aliddns_ak</span>=<span style="color: #deb887;">"your aliyun ak"</span>  <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">aliyun accessKey ID</span>
+<span style="color: #4eee94;">aliddns_sk</span>=<span style="color: #deb887;">"your aliyun sk"</span>  <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">aliyun access Key</span>
+
+<span style="color: #4eee94;">aliddns_name</span>=<span style="color: #deb887;">"your host name"</span>
+<span style="color: #4eee94;">aliddns_domain</span>=<span style="color: #deb887;">"your-domain.net"</span>
+
+<span style="color: #f08080;">alias</span> <span style="color: #4eee94;">echo_date</span>=<span style="color: #deb887;">'echo [$(TZ=UTC-8 date -R +%Y%m%d\ %X)]'</span>
+<span style="color: #4eee94;">now</span>=<span style="color: #ffd700;">`echo_date`</span>
+
+<span style="color: #daa520;">die</span> () {
+        <span style="color: #f08080;">echo</span> $<span style="color: #4eee94;">1</span>
+        <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">dbus set aliddns_last_act="$now: failed($1)"</span>
+}
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">whatismyip.akamai.com for ipv4</span>
+[ <span style="color: #deb887;">"$aliddns_curl"</span> = <span style="color: #deb887;">""</span> ] &amp;&amp; <span style="color: #4eee94;">aliddns_curl</span>=<span style="color: #deb887;">"curl -s --interface vlan2 ipv6.whatismyip.akamai.com"</span>
+[ <span style="color: #deb887;">"$aliddns_dns"</span> = <span style="color: #deb887;">""</span> ] &amp;&amp; <span style="color: #4eee94;">aliddns_dns</span>=<span style="color: #deb887;">"223.5.5.5"</span>
+[ <span style="color: #deb887;">"$aliddns_ttl"</span> = <span style="color: #deb887;">""</span> ] &amp;&amp; <span style="color: #4eee94;">aliddns_ttl</span>=<span style="color: #deb887;">"600"</span>
+
+<span style="color: #4eee94;">ip</span>=<span style="color: #ffd700;">`$aliddns_curl 2&gt;&amp;1`</span> || die <span style="color: #deb887;">"$ip"</span>
+
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">support @ record nslookup</span>
+<span style="color: #00bfff;">if</span> [ <span style="color: #deb887;">"$aliddns_name"</span> = <span style="color: #deb887;">"@"</span> ];<span style="color: #00bfff;">then</span>
+        <span style="color: #4eee94;">current_ip</span>=<span style="color: #ffd700;">`nslookup $aliddns_domain $aliddns_dns 2&gt;&amp;1`</span>
+<span style="color: #00bfff;">else</span>
+        <span style="color: #4eee94;">current_ip</span>=<span style="color: #ffd700;">`nslookup $aliddns_name.$aliddns_domain $aliddns_dns 2&gt;&amp;1`</span>
+<span style="color: #00bfff;">fi</span>
+
+<span style="color: #00bfff;">if</span> [ <span style="color: #deb887;">"$?"</span> -eq <span style="color: #deb887;">"0"</span> ];<span style="color: #00bfff;">then</span>
+        <span style="color: #4eee94;">current_ip</span>=<span style="color: #ffd700;">`echo "$current_ip" | grep 'Address 1' | tail -n1 | awk '{print $NF}'`</span>
+        <span style="color: #00bfff;">if</span> [ <span style="color: #deb887;">"$ip"</span> = <span style="color: #deb887;">"$current_ip"</span> ]
+        <span style="color: #00bfff;">then</span>
+                <span style="color: #f08080;">echo</span> <span style="color: #deb887;">"aliyunddns: skipping ${aliddns_name}.${aliddns_domain} $ip $now"</span> |tee /tmp/aliyun_ddns_ipv6.log
+                <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">web ui show without @.</span>
+                <span style="color: #00bfff;">if</span> [ <span style="color: #deb887;">"$aliddns_name"</span> = <span style="color: #deb887;">"@"</span> ] ;<span style="color: #00bfff;">then</span>
+                        nvram set <span style="color: #4eee94;">ddns_hostname_x</span>=<span style="color: #deb887;">"$aliddns_domain"</span>
+                <span style="color: #00bfff;">else</span>
+                        <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">nvram set ddns_hostname_x="$aliddns_name"."$aliddns_domain"</span>
+                        ddns_custom_updated 1
+                        <span style="color: #00bfff;">exit</span> 0
+                <span style="color: #00bfff;">fi</span>
+        <span style="color: #00bfff;">fi</span> 
+<span style="color: #00bfff;">else</span>
+        <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">fix when A record removed by manual dns is always update error</span>
+        <span style="color: #f08080;">unset</span> aliddns_record_id
+<span style="color: #00bfff;">fi</span>
+
+<span style="color: #4eee94;">timestamp</span>=<span style="color: #ffd700;">`date -u "+%Y-%m-%dT%H%%3A%M%%3A%SZ"`</span>
+<span style="color: #daa520;">urlencode</span>() {
+        <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">urlencode &lt;string&gt;</span>
+        <span style="color: #4eee94;">out</span>=<span style="color: #deb887;">""</span>
+        <span style="color: #00bfff;">while </span><span style="color: #f08080;">read</span> -n1 c
+        <span style="color: #00bfff;">do</span>
+                <span style="color: #00bfff;">case</span> $<span style="color: #4eee94;">c</span><span style="color: #00bfff;"> in</span>
+                        [a-zA-Z0-9._-]) <span style="color: #4eee94;">out</span>=<span style="color: #deb887;">"$out$c"</span> ;;
+                        *) <span style="color: #4eee94;">out</span>=<span style="color: #deb887;">"$out`printf '%%%02X' "'$c"`"</span> ;;
+                <span style="color: #00bfff;">esac</span>
+        <span style="color: #00bfff;">done</span>
+        <span style="color: #f08080;">echo</span> -n $<span style="color: #4eee94;">out</span>
+}
+
+<span style="color: #daa520;">enc</span>() {
+        <span style="color: #f08080;">echo</span> -n <span style="color: #deb887;">"$1"</span> | urlencode
+}
+
+<span style="color: #daa520;">send_request</span>() {
+        <span style="color: #f08080;">local</span> <span style="color: #4eee94;">args</span>=<span style="color: #deb887;">"AccessKeyId=$aliddns_ak&amp;Action=$1&amp;Format=json&amp;$2&amp;Version=2015-01-09"</span>
+        <span style="color: #f08080;">local</span> <span style="color: #4eee94;">hash</span>=$(<span style="color: #f08080;">echo</span> -n <span style="color: #deb887;">"GET&amp;%2F&amp;$(enc "$args")"</span> | openssl dgst -sha1 -hmac <span style="color: #deb887;">"$aliddns_sk&amp;"</span> -binary | openssl base64)
+        curl -s <span style="color: #deb887;">"http://alidns.aliyuncs.com/?$args&amp;Signature=$(enc "$hash")"</span>
+}
+
+<span style="color: #daa520;">get_recordid</span>() {
+        grep -Eo <span style="color: #deb887;">'"RecordId":"[0-9]+"'</span> | cut -d<span style="color: #deb887;">':'</span> -f2 | tr -d <span style="color: #deb887;">'"'</span>
+}
+
+<span style="color: #daa520;">query_recordid</span>() {
+        send_request <span style="color: #deb887;">"DescribeSubDomainRecords"</span> <span style="color: #deb887;">"SignatureMethod=HMAC-SHA1&amp;SignatureNonce=$timestamp&amp;SignatureVersion=1.0&amp;SubDomain=$aliddns_name1.$aliddns_domain&amp;Timestamp=$timestamp"</span>
+}
+
+<span style="color: #daa520;">update_record</span>() {
+        <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">Type=AAAA for ipv6</span>
+        send_request <span style="color: #deb887;">"UpdateDomainRecord"</span> <span style="color: #deb887;">"RR=$aliddns_name1&amp;RecordId=$1&amp;SignatureMethod=HMAC-SHA1&amp;SignatureNonce=$timestamp&amp;SignatureVersion=1.0&amp;TTL=$aliddns_ttl&amp;Timestamp=$timestamp&amp;Type=AAAA&amp;Value=$ip"</span>
+}
+
+<span style="color: #daa520;">add_record</span>() {
+        <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">Type=AAAA for ipv6</span>
+        send_request <span style="color: #deb887;">"AddDomainRecord&amp;DomainName=$aliddns_domain"</span> <span style="color: #deb887;">"RR=$aliddns_name1&amp;SignatureMethod=HMAC-SHA1&amp;SignatureNonce=$timestamp&amp;SignatureVersion=1.0&amp;TTL=$aliddns_ttl&amp;Timestamp=$timestamp&amp;Type=AAAA&amp;Value=$ip"</span>
+}
+
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">add support */%2A and @/%40 record</span>
+<span style="color: #00bfff;">case</span> <span style="color: #deb887;">"$aliddns_name"</span><span style="color: #00bfff;"> in</span>
+        <span style="color: #deb887;">\*</span>)
+                <span style="color: #4eee94;">aliddns_name1</span>=%2A
+        ;;
+        <span style="color: #deb887;">\@</span>)
+                <span style="color: #4eee94;">aliddns_name1</span>=%40
+        ;;
+        *)
+                <span style="color: #4eee94;">aliddns_name1</span>=<span style="color: #deb887;">"$aliddns_name"</span>
+        ;;
+<span style="color: #00bfff;">esac</span>
+
+<span style="color: #00bfff;">if</span> [ -z <span style="color: #deb887;">"$aliddns_record_id"</span> ];<span style="color: #00bfff;">then</span>
+        <span style="color: #4eee94;">aliddns_record_id</span>=<span style="color: #ffd700;">`query_recordid | get_recordid`</span>
+<span style="color: #00bfff;">fi</span>
+
+<span style="color: #00bfff;">if</span> [ -z <span style="color: #deb887;">"$aliddns_record_id"</span> ];<span style="color: #00bfff;">then</span>
+        <span style="color: #4eee94;">aliddns_record_id</span>=<span style="color: #ffd700;">`add_record | get_recordid`</span>
+        <span style="color: #f08080;">echo</span> <span style="color: #deb887;">"aliyunddns: added record $aliddns_record_id"</span>
+<span style="color: #00bfff;">else</span>
+        update_record <span style="color: #deb887;">"$aliddns_record_id"</span>
+        <span style="color: #f08080;">echo</span> <span style="color: #deb887;">"aliyunddns: updated record $aliddns_record_id"</span>
+<span style="color: #00bfff;">fi</span>
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">save to file</span>
+<span style="color: #00bfff;">if</span> [ -z <span style="color: #deb887;">"$aliddns_record_id"</span> ]; <span style="color: #00bfff;">then</span>
+        <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">failed</span>
+        <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">dbus set aliddns_last_act="$now: failed"</span>
+        <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">nvram set ddns_hostname_x=`nvram get ddns_hostname_old`</span>
+        <span style="color: #f08080;">echo</span> <span style="color: #deb887;">"aliyun ddns update failed"</span>
+<span style="color: #00bfff;">else</span>
+        <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">dbus set aliddns_record_id="$aliddns_record_id"</span>
+        <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">dbus set aliddns_last_act="$now: success($ip)"</span>
+        <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">nvram set ddns_enable_x=1</span>
+        <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">web ui show without @.</span>
+        <span style="color: #00bfff;">if</span> [ <span style="color: #deb887;">"$aliddns_name"</span> = <span style="color: #deb887;">"@"</span> ] ;<span style="color: #00bfff;">then</span>
+                <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">nvram set ddns_hostname_x="$aliddns_domain"</span>
+                ddns_custom_updated 1
+        <span style="color: #00bfff;">else</span>
+                <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">nvram set ddns_hostname_x="$aliddns_name"."$aliddns_domain"</span>
+                ddns_custom_updated 1
+        <span style="color: #00bfff;">fi</span>
+<span style="color: #00bfff;">fi</span>
+</pre>
+</div>
+
+
+<h2>测试DDNS是否正常</h2>
+
+<p>
+更新DDNS后，可以从 <code>/tmp/syslog.log</code> 看到DDNS的log。
+</p>
+
+<p>
+正常的log如下：
+</p>
+<pre class="example">
+Mar 12 10:34:05 start_ddns: update CUSTOM , wan_unit 0
+Mar 12 10:34:05 custom_script: Running /jffs/scripts/ddns-start (args: 192.168.11.78)
+Mar 12 10:34:07 ddns: Completed custom ddns update
+</pre>
+
+
+<h2>参考</h2>
+
+<ul class="org-ul">
+<li><a href="https://github.com/koolshare/merlin-aliddns/blob/master/aliddns/scripts/aliddns_update.sh">https://github.com/koolshare/merlin-aliddns/blob/master/aliddns/scripts/aliddns_update.sh</a></li>
+</ul>
+</div>
+</body>
+</html>
