@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-12-20 Sun 18:13 -->
+<!-- 2021-08-16 Mon 17:56 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>emacs中英文等宽字体配置</title>
@@ -25,7 +25,26 @@
 </p>
 
 
-<h2>Ubuntu Mono + 等距更纱黑体 T SC <span class="timestamp-wrapper"><span class="timestamp">[2020-12-20 Sun 18:10] </span></span> updated</h2>
+<h2>Menlo mono nerd font</h2>
+
+<p>
+Menlo在macos的terminal.app里使用比ubuntu mono好点，ubuntu mono的字体小了一点，看着费劲。
+</p>
+<ul class="org-ul">
+<li><a href="https://github.com/yumitsu/font-menlo-extra/blob/master/Menlo-Regular-FullMono.ttf">https://github.com/yumitsu/font-menlo-extra/blob/master/Menlo-Regular-FullMono.ttf</a></li>
+</ul>
+
+
+<h2>Ubuntu Mono Nerd font + 等距更纱黑体 T SC <span class="timestamp-wrapper"><span class="timestamp">[2020-12-20 Sun 18:10] </span></span> updated</h2>
+
+<p>
+Ubuntu Mono Nerd font在Ubuntu Mono的基础上增加了很多glyphs，强烈推荐。
+</p>
+
+<ul class="org-ul">
+<li>Symbola</li>
+<li><a href="https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/UbuntuMono">https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/UbuntuMono</a></li>
+</ul>
 
 <p>
 Ubuntu Mono正好可以和更纱黑等比例缩放。更纱黑的的效果比微软雅黑好。
@@ -59,31 +78,34 @@ Ubuntu Mono正好可以和更纱黑等比例缩放。更纱黑的的效果比微
 </table>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #00bfff;">defun</span> <span style="color: #daa520;">albert-notebook-font</span>()
-  <span style="color: #ffe4b5;">"Config font on HP zhan66."</span>
-  (<span style="color: #00bfff;">interactive</span>)
-  (<span style="color: #00bfff;">if</span> (eq system-type 'windows-nt)
-      (<span style="color: #00bfff;">progn</span>
-        (set-face-attribute 'default nil <span style="color: #f08080;">:font</span> <span style="color: #deb887;">"Ubuntu Mono 11"</span>)
-        (<span style="color: #00bfff;">setq</span> face-font-rescale-alist '((<span style="color: #deb887;">"&#31561;&#36317;&#26356;&#32433;&#40657;&#20307; T SC"</span> . 1)))
+<pre class="src src-emacs-lisp">  (<span style="color: #00bfff;">defun</span> <span style="color: #daa520;">albert-notebook-font</span>()
+    <span style="color: #ffe4b5;">"Config font on HP zhan66."</span>
+    (<span style="color: #00bfff;">interactive</span>)
+    (<span style="color: #00bfff;">if</span> (eq system-type 'windows-nt)
+        (<span style="color: #00bfff;">progn</span>
+          (set-face-attribute 'default nil <span style="color: #f08080;">:font</span> <span style="color: #deb887;">"Ubuntu Mono 11"</span>)
+          (<span style="color: #00bfff;">setq</span> face-font-rescale-alist '((<span style="color: #deb887;">"&#31561;&#36317;&#26356;&#32433;&#40657;&#20307; T SC"</span> . 1)))
 
-        (<span style="color: #00bfff;">dolist</span> (charset '(kana han symbol cjk-misc bopomofo))
-          (set-fontset-font (frame-parameter nil 'font)
-                            charset
-                            (font-spec <span style="color: #f08080;">:family</span> <span style="color: #deb887;">"&#31561;&#36317;&#26356;&#32433;&#40657;&#20307; T SC"</span>))))))
+          (<span style="color: #00bfff;">dolist</span> (charset '(kana han symbol cjk-misc bopomofo))
+            (set-fontset-font (frame-parameter nil 'font)
+                              charset
+                              (font-spec <span style="color: #f08080;">:family</span> <span style="color: #deb887;">"&#31561;&#36317;&#26356;&#32433;&#40657;&#20307; T SC"</span>))))))
 
 (<span style="color: #00bfff;">defun</span> <span style="color: #daa520;">albert-macos-notebook-font</span>()
-  <span style="color: #ffe4b5;">"Config font on macos with 1920x1080."</span>
+  <span style="color: #ffe4b5;">"macbook air on 1680x1050."</span>
   (<span style="color: #00bfff;">interactive</span>)
   (<span style="color: #00bfff;">if</span> (eq system-type 'darwin)
       (<span style="color: #00bfff;">progn</span>
-        (set-face-attribute 'default nil <span style="color: #f08080;">:font</span> <span style="color: #deb887;">"Ubuntu Mono 22"</span>)
-        (<span style="color: #00bfff;">setq</span> face-font-rescale-alist '((<span style="color: #deb887;">"&#31561;&#36317;&#26356;&#32433;&#40657;&#20307; T SC"</span> . 1)))
+        <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/UbuntuMono/Regular</span>
+        (set-face-attribute 'default nil <span style="color: #f08080;">:font</span> <span style="color: #deb887;">"UbuntuMono Nerd Font Mono 20"</span>)
+
+        (<span style="color: #00bfff;">setq</span> face-font-rescale-alist '((<span style="color: #deb887;">"&#33529;&#26041;-&#31616;"</span> . 1)))
 
         (<span style="color: #00bfff;">dolist</span> (charset '(kana han symbol cjk-misc bopomofo))
           (set-fontset-font (frame-parameter nil 'font)
                             charset
-                            (font-spec <span style="color: #f08080;">:family</span> <span style="color: #deb887;">"&#31561;&#36317;&#26356;&#32433;&#40657;&#20307; T SC"</span>))))))
+                            (font-spec <span style="color: #f08080;">:family</span> <span style="color: #deb887;">"&#33529;&#26041;-&#31616;"</span>)))
+        )))
 </pre>
 </div>
 
