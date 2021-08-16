@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-12-31 Thu 17:06 -->
+<!-- 2021-08-16 Mon 16:20 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>在emacs中用星际词霸学习英文</title>
@@ -44,7 +44,7 @@ make <span style="color: #4eee94;">VERBOSE</span>=1
 
 <h3>src/utils.cpp 编译报错</h3>
 
-<pre class="example">
+<pre class="example" id="org51ede41">
 /C/msys64/mingw64/bin/g++.exe  -DHAVE_CONFIG_H -DVERSION=\"0.5.2\" -I/C/msys64/mingw64/include/glib-2.0 -I/C/msys64/mingw64/lib/glib-2.0/include -I/E/workspace/sdcv/src/lib -I/E/workspace/build-sdcv  -std=c++11 -o CMakeFiles/sdcv.dir/src/utils.cpp.obj -c /E/workspace/sdcv/src/utils.cpp
 In file included from C:/msys64/mingw64/include/glib-2.0/glib/gi18n.h:23,
                  from E:/workspace/sdcv/src/utils.cpp:29:
@@ -190,11 +190,22 @@ sdcv的配置。
 windows调用sdcv的参数和linux里有点不一样，需要修改 <a href="https://github.com/manateelazycat/sdcv">https://github.com/manateelazycat/sdcv</a> 的 <code>sdcv.el</code> 。
 </p>
 
+<ul class="org-ul">
+<li><p>
+update:
+<span class="timestamp-wrapper"><span class="timestamp">[2020-09-30 Wed 16:33] </span></span> 用了最新的v3.4版本后，不改 <code>sdcv.el</code> 也是可以在win10上用的。
+</p>
+
 <p>
-update: <span class="timestamp-wrapper"><span class="timestamp">[2020-09-30 Wed 16:33] </span></span> 用了最新的v3.4版本后，不改 <code>sdcv.el</code> 也是可以在win10上用的。
 <span class="timestamp-wrapper"><span class="timestamp">[2020-09-30 Wed 16:48] </span></span> 如果用 <code>tooltip(posframe)</code> 显示，还是要按下面的命令行改 <code>sdcv.el</code> 。
 </p>
-<pre class="example">
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2021-08-16 Mon 16:19] </span></span> <b>sdcv -0</b> 是utf-8输出，在win10上中文有乱码的话，在命令行中加上 <b>-0</b> 。
+</p></li>
+</ul>
+
+<pre class="example" id="orgd4525a2">
 modified   sdcv.el
 @@ -594,11 +594,13 @@ string of results."
    (sdcv-filter
