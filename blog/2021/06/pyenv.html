@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2021-08-16 Mon 16:12 -->
+<!-- 2021-08-16 Mon 16:29 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pyenv、虚拟环境 on macos</title>
@@ -372,6 +372,19 @@ M-x pyvenv-workon
 </pre>
 </div>
 
+
+<h2>pyright配置</h2>
+
+<p>
+在项目root directory下新建 <code>pyrightconfig.json</code> 文件，指定虚拟环境的路径和虚拟环境的名字。这样emacs在打开项目下的文件时能自动初始化虚拟环境，不需要手工在emacs中激活对应的虚拟环境，lsp-mode可以直接使用正确的虚拟环境。
+</p>
+
+<pre class="example" id="orge12ccf4">
+{
+    "venvPath": "/Users/albert/.virtualenvs/",
+    "venv": "pandas"
+}
+</pre>
 
 <h2>参考</h2>
 
