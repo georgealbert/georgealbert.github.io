@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2021-08-16 Mon 15:17 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>&lrm;</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="albert">
+</head>
+<body>
+<div id="content">
+
+<h2>homebrew安装pyenv</h2>
+
+<div class="org-src-container">
+<pre class="src src-sh">brew install pyenv
+</pre>
+</div>
+
+<p>
+我用的是zsh，以下按zsh配置:
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26597;&#30475;&#24403;&#21069;&#20351;&#29992;&#30340;shell</span>
+$<span style="color: #4eee94;">echo</span> $<span style="color: #4eee94;">SHELL</span>
+/bin/zsh
+</pre>
+</div>
+
+<p>
+<code>PYENV_ROOT</code> 是pyenv的安装目录，因为是homebrew安装的，所以在 <code>/usr/local/var/pyenv</code> 。如果是 <code>git clone</code> 安装的，=PYENV_ROOT= 配置为clone的目录，如 <code>$HOME/.pyenv</code> 。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">vim ~/.zshr</span>
+<span style="color: #00bfff;">if </span><span style="color: #f08080;">which</span> pyenv &gt; /dev/null; <span style="color: #00bfff;">then </span><span style="color: #f08080;">eval</span> <span style="color: #deb887;">"$(pyenv init -)"</span>; <span style="color: #00bfff;">fi</span>
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">PYENV_ROOT</span>=/usr/local/var/pyenv
+</pre>
+</div>
+
+<ol class="org-ol">
+<li><p>
+查看当前激活的是哪个版本的Python
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">$<span style="color: #4eee94;">pyenv</span> version
+<span style="color: #daa520;">3.5.3</span> (<span style="color: #f08080;">set</span> by /Users/albert/.python-version)
+</pre>
+</div></li>
+
+<li><p>
+查看已经安装了哪些版本的python
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">$<span style="color: #4eee94;">pyenv</span> versions
+   system
+ * 3.5.3 (<span style="color: #f08080;">set</span> by /Users/albert/.python-version)
+</pre>
+</div></li>
+
+<li><p>
+显示当前python安装路径
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">$<span style="color: #4eee94;">pyenv</span> which python
+/usr/local/var/pyenv/versions/3.5.3/bin/python
+</pre>
+</div></li>
+</ol>
+
+
+<h3>pyenv安装指定版本python</h3>
+
+<p>
+pyenv只能管理通过 <code>pyenv install</code> 安装的python版本和系统自带的版本。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">pyenv install 3.5.3
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#23433;&#35013;&#23436;&#25104;&#21518;&#24517;&#39035;rehash</span>
+pyenv rehash
+</pre>
+</div>
+
+<ol class="org-ol">
+<li><p>
+系统全局用系统默认的Python比较好，不建议直接对其操作。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">pyenv global system
+</pre>
+</div></li>
+
+<li><p>
+用local进行指定版本切换，一般开发环境使用。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">pyenv local 3.5.3
+</pre>
+</div></li>
+
+<li><p>
+对当前用户的临时设定Python版本，退出后失效
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">pyenv shell 3.5.3
+</pre>
+</div></li>
+
+<li><p>
+取消某版本切换
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">pyenv local 3.5.3 --unset
+</pre>
+</div></li>
+
+<li>优先级关系：shell —&gt; local —&gt; global</li>
+</ol>
+
+
+<h3>完整的.zshr</h3>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #00bfff;">if </span><span style="color: #f08080;">which</span> pyenv &gt; /dev/null; <span style="color: #00bfff;">then </span><span style="color: #f08080;">eval</span> <span style="color: #deb887;">"$(pyenv init -)"</span>; <span style="color: #00bfff;">fi</span>
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">PYENV_ROOT</span>=/usr/local/var/pyenv
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">PATH</span>=<span style="color: #deb887;">"$PYENV_ROOT/bin:$PATH"</span>
+
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">VIRTUALENVWRAPPER_PYTHON</span>=/usr/local/var/pyenv/versions/3.5.3/bin/python
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">WORKON_HOME</span>=$<span style="color: #4eee94;">HOME</span>/.virtualenvs
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">source /usr/local/var/pyenv/shims/virtualenvwrapper.sh</span>
+<span style="color: #f08080;">source</span> /usr/local/var/pyenv/versions/3.5.3/bin/virtualenvwrapper.sh
+</pre>
+</div>
+
+
+<h2>虚拟环境</h2>
+
+<p>
+virtualenv用于创建独立的Python环境，多个Python相互独立，互不影响，它能够：
+</p>
+
+<ol class="org-ol">
+<li>在没有权限的情况下安装新套件</li>
+<li>不同应用可以使用不同的套件版本</li>
+<li>套件升级不影响其他应用</li>
+</ol>
+
+<p>
+<code>Virtaulenvwrapper</code> 是virtualenv的扩展包，用于更方便管理虚拟环境，它可以做：
+</p>
+
+<ol class="org-ol">
+<li>将所有虚拟环境整合在一个目录下</li>
+<li>管理（新增，删除，复制）虚拟环境</li>
+<li>切换虚拟环境</li>
+</ol>
+
+
+<h3>安装和使用方法</h3>
+
+<ol class="org-ol">
+<li><p>
+安装
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">pip install virtualenv
+pip install virtualenvwrapper
+</pre>
+</div></li>
+
+<li><p>
+创建虚拟环境
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">mkvirtualenv [&#34394;&#25311;&#29615;&#22659;&#21517;&#31216;]
+</pre>
+</div>
+<p>
+此时还不能使用virtualenvwrapper，默认virtualenvwrapper安装在/usr/local/bin下面，实际上你需要运行virtualenvwrapper.sh文件才行。
+</p></li>
+
+<li><p>
+创建目录用来存放虚拟环境
+先在HOME目录下创建虚拟环境使用的目录。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">mkdir $<span style="color: #4eee94;">HOME</span>/.virtualenvs
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#22312; .zshrc &#36861;&#21152;&#20004;&#34892;</span>
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">WORKON_HOME</span>=$<span style="color: #4eee94;">HOME</span>/.virtualenvs
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#25351;&#23450;&#34394;&#25311;&#29615;&#22659;&#20351;&#29992;&#30340;python&#65292;&#21542;&#21017;&#20250;&#20351;&#29992;macos&#31995;&#32479;&#33258;&#24102;&#30340;python&#23548;&#33268;&#25253;&#38169;&#12290;</span>
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">VIRTUALENVWRAPPER_PYTHON</span>=/usr/local/var/pyenv/versions/3.5.3/bin/python
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">brew&#23433;&#35013;&#30340;python&#22312; /usr/local/bin &#19979;&#38754;&#27809;&#26377;virtualenvwrapper.sh&#65292;&#21482;&#33021;&#29992;pyenv&#23433;&#35013;&#30340;python3.5.3&#19979;&#30340;&#20102;&#12290;</span>
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">source /usr/local/bin/virtualenvwrapper.sh</span>
+<span style="color: #f08080;">source</span> /usr/local/var/pyenv/versions/3.5.3/bin/virtualenvwrapper.sh
+
+&#36816;&#34892;&#65306; 
+<span style="color: #f08080;">source</span> ~/.zshrc
+</pre>
+</div>
+
+<p>
+此时virtualenvwrapper就可以使用了。
+</p></li>
+</ol>
+
+
+<h3>创建虚拟环境 - mkvirtualenv</h3>
+
+<p>
+在当前的环境的Python版本下创建名称为 <code>blog_10</code> 的虚拟环境。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">mkvirtualenv blog_10
+</pre>
+</div>
+<p>
+默认情况下，虚拟环境会依赖系统环境中的site packages，就是说系统中已经安装好的第三方package也会安装在虚拟环境中，如果不想依赖这些package，那么可以加上参数 –no-site-packages建立虚拟环境
+</p>
+
+<p>
+例如：
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">mkvirtualenv --no-site-packages [&#34394;&#25311;&#29615;&#22659;&#21517;&#31216;]
+mkvirtualenv --no-site-packages blog_10
+</pre>
+</div>
+
+
+<h3>查看创建的虚拟环境 - lsvirtualenv</h3>
+
+<div class="org-src-container">
+<pre class="src src-sh">[albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">lsvirtualenv</span> 
+blog_10
+=======
+</pre>
+</div>
+
+
+<h3>启动某虚拟环境 - workon</h3>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">workon [&#34394;&#25311;&#29615;&#22659;&#21517;&#31216;]</span>
+$<span style="color: #4eee94;">workon</span>
+blog_10
+
+[albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">which</span> python
+/usr/local/var/pyenv/shims/python
+[albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">python</span> -V
+Python 3.5.3
+[albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">workon</span> blog_10 
+(blog_10) [albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">lsvirtualenv</span> 
+blog_10
+=======
+</pre>
+</div>
+
+
+<h3>删除虚拟环境 - rmvirtualenv</h3>
+
+<div class="org-src-container">
+<pre class="src src-sh">rmvirtualenv [&#34394;&#25311;&#29615;&#22659;&#30340;&#21517;&#23383;]
+$<span style="color: #4eee94;">rmvirtualenv</span> blog_10
+</pre>
+</div>
+
+<p>
+需要说明的是，无法在虚拟环境中删除虚拟环境，要先退出虚拟环境才行。
+</p>
+
+
+<h3>退出虚拟环境 - deactivate</h3>
+
+<p>
+在虚拟环境中使用deactivate则退出了虚拟环境，只有就可以删除虚拟环境了。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">deactivate
+</pre>
+</div>
+
+<p>
+注意： <code>pyenv virtualenv</code> 命令和 <code>mkvirtualenv</code> 命令创建的虚拟环境是无法互相使用的，也就是说 <code>pyenv virtualenv</code> 命令创建的虚拟环境无法被 <code>workon</code> 命令识别，同样的 <code>mkvirtualenv</code> 命令创建的虚拟环境也无法被 <code>pyenv versions</code> 等命令识别。
+</p>
+
+
+<h2>使用流程</h2>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">source</span> ~/.zshr
+albert@MacBookAir ~ % source ~/.zshr
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26410;&#20351;&#29992;&#34394;&#25311;&#29615;&#22659;</span>
+[albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">pyenv</span> versions
+  system
+ * 3.5.3 (<span style="color: #f08080;">set</span> by /Users/albert/.python-version)
+[albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">pyenv</span> local 
+3.5.3
+[albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">pyenv</span> shell 
+pyenv: no shell-specific version configured
+[albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">pyenv</span> global 
+system
+[albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">which</span> python;python -V
+/usr/bin/python
+Python 2.7.16
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#20351;&#29992; blog_10 &#34394;&#25311;&#29615;&#22659;</span>
+[albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">workon</span> blog_10 
+(blog_10) [albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">which</span> python;python -V
+/Users/albert/.virtualenvs/blog_10/bin/python
+Python 3.5.3
+(blog_10) [albert@MacBookAir /Users/albert]
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#36864;&#20986; blog_10 &#34394;&#25311;&#29615;&#22659;</span>
+$<span style="color: #4eee94;">deactivate</span> 
+[albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">which</span> python;python -V
+/usr/bin/python
+Python 2.7.16
+[albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">pyenv</span> global 
+system
+[albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">pyenv</span> local 
+3.5.3
+[albert@MacBookAir /Users/albert]
+$<span style="color: #4eee94;">pyenv</span> shell 
+pyenv: no shell-specific version configured
+</pre>
+</div>
+
+
+<h2>emacs</h2>
+
+<p>
+M-x pyvenv-workon
+</p>
+
+
+<h3>关闭lsp-headerline-breadcrumb-mode</h3>
+
+<p>
+在 <code>lsp-mode.el</code> 中，从 <code>t</code> 改为 <code>nil</code> 。
+</p>
+<div class="org-src-container">
+<pre class="src src-lisp">(defcustom lsp-headerline-breadcrumb-enable nil
+)
+</pre>
+</div>
+
+
+<h2>参考</h2>
+
+<ul class="org-ul">
+<li>Mac多Python版本共存，多个独立Python开发环境切换 <a href="https://blog.csdn.net/u010670689/article/details/74906766">https://blog.csdn.net/u010670689/article/details/74906766</a></li>
+
+<li>Mac配置Python开发环境之virtualenvwrapper <a href="https://www.jianshu.com/p/83ab5947bc7e">https://www.jianshu.com/p/83ab5947bc7e</a></li>
+</ul>
+</div>
+</body>
+</html>

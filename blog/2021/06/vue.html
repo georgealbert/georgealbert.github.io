@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2021-08-16 Mon 15:17 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>&lrm;</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="albert">
+</head>
+<body>
+<div id="content">
+
+<h2>fetch跨域请求</h2>
+
+<ul class="org-ul">
+<li>参考 JavaScript fetch 快速入门 <a href="https://blog.csdn.net/zyj362633491/article/details/84997208">https://blog.csdn.net/zyj362633491/article/details/84997208</a></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-javascript"><span style="color: #00bfff;">var</span> <span style="color: #4eee94;">url</span> = <span style="color: #deb887;">'http://127.0.0.1:5000/api/servers'</span>
+fetch(url, {mode: <span style="color: #deb887;">"no-cors"</span>}).then(res =&gt; res.json()).then(json =&gt; <span style="color: #a2cd5a;">this</span>.servers = json);
+</pre>
+</div>
+
+
+<h2>vue3.0的axios跨域请求 <span class="timestamp-wrapper"><span class="timestamp">[2021-07-02 Fri 16:42]</span></span></h2>
+
+<p>
+vue 3.0 + Element-Plus 使用 <b>fetch</b> 返回结果json解析时总是报错。但 fetch 跨域处理比axios方便多了。
+</p>
+
+<h3>安装axios</h3>
+
+<div class="org-src-container">
+<pre class="src src-sh">npm install axios
+</pre>
+</div>
+
+
+<h3>vue.config.js</h3>
+
+<ul class="org-ul">
+<li>参考官方文档 <a href="https://cli.vuejs.org/zh/config/#devserver-proxy">https://cli.vuejs.org/zh/config/#devserver-proxy</a></li>
+</ul>
+<p>
+在项目的 <b>package.json</b> 同级目录下，创建 <b>vue.config.js</b> 文件。不要使用 babel.config.js 。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-javascript">module.exports = {
+    devServer: {
+        proxy: {
+            <span style="color: #deb887;">'/api'</span>: {
+                <span style="color: #B0BED8;">// </span><span style="color: #B0BED8;">&#27492;&#22788;&#30340;&#20889;&#27861;&#65292;&#30446;&#30340;&#26159;&#20026;&#20102; &#23558; /api &#26367;&#25442;&#25104; https://www.baidu.com/</span>
+                target: <span style="color: #deb887;">'http://127.0.0.1:5000/'</span>,
+                <span style="color: #B0BED8;">// </span><span style="color: #B0BED8;">&#20801;&#35768;&#36328;&#22495;</span>
+                changeOrigin: <span style="color: #a2cd5a;">true</span>,
+                ws: <span style="color: #a2cd5a;">true</span>,
+                pathRewrite: {
+                    <span style="color: #deb887;">'^/api'</span>: <span style="color: #deb887;">''</span>
+                }
+            }
+        }
+    }
+}
+</pre>
+</div>
+
+
+<h3>使用axios</h3>
+
+<div class="org-src-container">
+<pre class="src src-javascript"><span style="color: #00bfff;">import</span> axios from <span style="color: #deb887;">'axios'</span>
+
+queryData(){
+    url = <span style="color: #deb887;">'http://127.0.0.1:5000/api/servers'</span>
+    axios.defaults.baseURL=<span style="color: #deb887;">'/api'</span>;
+    axios.get(url).then(response =&gt; {
+        <span style="color: #a2cd5a;">this</span>.servers = response.data;
+    })
+}
+</pre>
+</div>
+
+
+<h2>使用el-table分页</h2>
+
+<div class="org-src-container">
+<pre class="src src-html">&lt;<span style="color: #daa520;">template</span>&gt;
+&lt;<span style="color: #daa520;">el-table</span> :data=<span style="color: #deb887;">"servers.slice((currentPage-1)*pagesize,currentPage*pagesize)"</span> stripe
+          <span style="color: #f08080;">v-model</span>:<span style="color: #4eee94;">current-page</span>=<span style="color: #deb887;">"currentPage"</span>&gt;
+  &lt;<span style="color: #daa520;">el-table-column</span> <span style="color: #4eee94;">prop</span>=<span style="color: #deb887;">"hostname"</span> <span style="color: #4eee94;">label</span>=<span style="color: #deb887;">"hostname"</span> sortable&gt;&lt;/<span style="color: #daa520;">el-table-column</span>&gt;
+  &lt;<span style="color: #daa520;">el-table-column</span> <span style="color: #4eee94;">prop</span>=<span style="color: #deb887;">"ip"</span> <span style="color: #4eee94;">label</span>=<span style="color: #deb887;">"&#24102;&#20869;ip"</span>&gt;&lt;/<span style="color: #daa520;">el-table-column</span>&gt;
+&lt;/<span style="color: #daa520;">el-table</span>&gt;
+&lt;<span style="color: #daa520;">div</span> <span style="color: #4eee94;">class</span>=<span style="color: #deb887;">"pagination"</span>&gt;
+<span style="color: #B0BED8;">&lt;!-- </span><span style="color: #B0BED8;">&#20998;&#39029;&#21442;&#32771; https://www.cnblogs.com/jdWu-d/p/11896668.html</span><span style="color: #B0BED8;"> --&gt;</span>
+&lt;<span style="color: #daa520;">el-pagination</span>
+    @size-change=<span style="color: #deb887;">"handleSizeChange"</span>
+    @current-change=<span style="color: #deb887;">"handleCurrentChange"</span>
+    :page-sizes=<span style="color: #deb887;">"[10, 50, 100]"</span>
+    :page-size=<span style="color: #deb887;">"pagesize"</span>
+    <span style="color: #4eee94;">layout</span>=<span style="color: #deb887;">"total, sizes, prev, pager, next, jumper"</span>
+    :total=<span style="color: #deb887;">"total"</span>&gt;
+&lt;/<span style="color: #daa520;">el-pagination</span>&gt;
+&lt;/<span style="color: #daa520;">template</span>&gt;
+</pre>
+</div>
+
+<p>
+从后台加载全量数据，在前台分页。也可以在后台进行分页，这个例子主要是为了测试前端分页的功能，所以加载了全量数据。
+</p>
+<div class="org-src-container">
+<pre class="src src-javascript">&lt;script&gt;
+<span style="color: #00bfff;">import</span> axios from <span style="color: #deb887;">'axios'</span>
+
+<span style="color: #00bfff;">export</span> <span style="color: #00bfff;">default</span> {
+    data(){
+        <span style="color: #00bfff;">return</span> {
+            servers:[],    <span style="color: #B0BED8;">// </span><span style="color: #B0BED8;">&#21518;&#31471;&#36820;&#22238;&#30340;&#25968;&#25454;&#65292;&#23545;&#35937;&#25968;&#25454;</span>
+            currentPage:1, <span style="color: #B0BED8;">// </span><span style="color: #B0BED8;">&#24403;&#21069;&#39029;</span>
+            pagesize:10,   <span style="color: #B0BED8;">// </span><span style="color: #B0BED8;">&#40664;&#35748;&#27599;&#39029;&#25968;&#25454;&#26465;&#25968;</span>
+            total:0,       <span style="color: #B0BED8;">// </span><span style="color: #B0BED8;">&#24635;&#25968;&#25454;&#26465;&#25968;&#65292;&#22312;&#21518;&#31471;&#26597;&#35810;&#32467;&#26524;&#36820;&#22238;&#21518;&#65292;&#20462;&#25913;</span>
+        }
+    },
+    methods:{
+        handleSizeChange(val) {
+            <span style="color: #a2cd5a;">this</span>.pagesize=val;
+        },
+        handleCurrentChange(val) {
+            <span style="color: #a2cd5a;">this</span>.currentPage = val;
+        },
+        <span style="color: #daa520;">queryServers</span>:<span style="color: #00bfff;">function</span>(){ <span style="color: #B0BED8;">// </span><span style="color: #B0BED8;">&#26597;&#35810;&#25968;&#25454;</span>
+            <span style="color: #00bfff;">var</span> <span style="color: #4eee94;">url</span> = <span style="color: #deb887;">''</span>;
+            axios.defaults.baseURL=<span style="color: #deb887;">'/api'</span>;
+            url = <span style="color: #deb887;">'/api/servers'</span>
+
+            axios.get(url).then(response =&gt; {
+                <span style="color: #a2cd5a;">this</span>.servers = response.data;
+                <span style="color: #a2cd5a;">this</span>.total = <span style="color: #a2cd5a;">this</span>.servers.length;
+            })
+        },
+    }
+}
+&lt;/script&gt;
+</pre>
+</div>
+</div>
+</body>
+</html>
