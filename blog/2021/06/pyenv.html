@@ -1,20 +1,65 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2021-08-16 Mon 16:29 -->
+<!-- 2021-08-25 Wed 14:53 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>pyenv、虚拟环境 on macos</title>
+<title>pyenv、虚拟环境 on macos和linux</title>
 <meta name="generator" content="Org mode">
 <meta name="author" content="albert">
 <link rel="stylesheet" type="text/css" href="/main.css" />
 </head>
 <body>
 <div id="content">
-<h1 class="title">pyenv、虚拟环境 on macos</h1>
+<h1 class="title">pyenv、虚拟环境 on macos和linux</h1>
 
 
-<h2>homebrew安装pyenv</h2>
+<h2>Install pyenv</h2>
+
+
+
+<h3>linux</h3>
+
+
+
+<h4>Install</h4>
+
+<p>
+clone pyenv repo 到 <code>~/.pyenv</code> 。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">git clone --depth git@github.com:pyenv/pyenv.git ~/.pyenv
+</pre>
+</div>
+
+
+<h4>配置</h4>
+
+<p>
+在 <code>.bashrc</code> 中增加下面的内容。
+</p>
+
+<ul class="org-ul">
+<li>Tips: 要增加 <code>pyenv init --path</code> 这条命令，以便 <code>PATH</code> 中加上python的路径。官方文档中没提到，配置了以后，总是找不到python。参考 <code>~/.pyenv/libexec/pyenv-init</code> 和 <code>pyenv-init --help</code> 。</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">vim ~/.bashrc</span>
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">PYENV_ROOT</span>=<span style="color: #deb887;">"$HOME/.pyenv"</span>
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">PATH</span>=<span style="color: #deb887;">"$PYENV_ROOT/bin:$PATH"</span>
+
+<span style="color: #00bfff;">if</span> command -v pyenv 1&gt;/dev/null 2&gt;&amp;1; <span style="color: #00bfff;">then</span>
+  <span style="color: #f08080;">eval</span> <span style="color: #deb887;">"$(pyenv init --path)"</span>
+  <span style="color: #f08080;">eval</span> <span style="color: #deb887;">"$(pyenv init -)"</span>
+<span style="color: #00bfff;">fi</span>
+
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">VIRTUALENVWRAPPER_PYTHON</span>=/home/albert/.pyenv/versions/3.8.11/bin/python
+<span style="color: #f08080;">export</span> <span style="color: #4eee94;">WORKON_HOME</span>=$<span style="color: #4eee94;">HOME</span>/.virtualenvs
+
+<span style="color: #f08080;">source</span> /home/albert/.pyenv/versions/3.8.11/bin/virtualenvwrapper.sh
+</pre>
+</div>
+
+<h3>macos homebrew安装pyenv</h3>
 
 <div class="org-src-container">
 <pre class="src src-sh">brew install pyenv
@@ -73,7 +118,7 @@ $<span style="color: #4eee94;">echo</span> $<span style="color: #4eee94;">SHELL<
 </ol>
 
 
-<h3>pyenv安装指定版本python</h3>
+<h4>pyenv安装指定版本python</h4>
 
 <p>
 pyenv只能管理通过 <code>pyenv install</code> 安装的python版本和系统自带的版本。
@@ -123,7 +168,7 @@ pyenv rehash
 </ol>
 
 
-<h3>完整的.zshr</h3>
+<h4>完整的.zshr</h4>
 
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #00bfff;">if </span><span style="color: #f08080;">which</span> pyenv &gt; /dev/null; <span style="color: #00bfff;">then </span><span style="color: #f08080;">eval</span> <span style="color: #deb887;">"$(pyenv init -)"</span>; <span style="color: #00bfff;">fi</span>
@@ -379,7 +424,7 @@ M-x pyvenv-workon
 在项目root directory下新建 <code>pyrightconfig.json</code> 文件，指定虚拟环境的路径和虚拟环境的名字。这样emacs在打开项目下的文件时能自动初始化虚拟环境，不需要手工在emacs中激活对应的虚拟环境，lsp-mode可以直接使用正确的虚拟环境。
 </p>
 
-<pre class="example" id="orge12ccf4">
+<pre class="example" id="orgc02608a">
 {
     "venvPath": "/Users/albert/.virtualenvs/",
     "venv": "pandas"
