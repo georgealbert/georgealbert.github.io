@@ -1,16 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2021-09-06 Mon 21:33 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>emacs减少行高</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="albert">
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">emacs减少行高</h1>
+  <div class="post-date">2021年08月20日</div>
+  <h1>emacs减少行高</h1>
 
 
 <h2>emacs减少行高 <span class="timestamp-wrapper"><span class="timestamp">[2021-08-20 Fri 09:45]</span></span></h2>
@@ -40,14 +43,14 @@ emacs有个variable <code>line-spacing</code> ，测试后发现只能增加行�
 </pre>
 </div>
 
-<ul class="org-ul">
+<ul>
 <li>参考 <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Low_002dLevel-Font.html">https://www.gnu.org/software/emacs/manual/html_node/elisp/Low_002dLevel-Font.html</a></li>
 </ul>
 
 <p>
 用 <code>M-x describe-font</code> 看 <code>更纱黑 size:18px</code> 的字体详细信息。
 </p>
-<pre class="example" id="org2558692">
+<pre class="example" id="orga83b8d1">
 name (opened by): -*-Sarasa Mono T SC-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1
        full name: Sarasa Mono T SC:pixelsize=18:weight=normal:slant=normal:width=normal:spacing=100:scalable=true
             size: 18
@@ -89,7 +92,7 @@ font-&gt;height = font-&gt;ascent + font-&gt;descent
 如果能修改font的descent，应该能减少中文的height。问题是如何做到对特定的字体进行修改？
 </p>
 
-<ul class="org-ul">
+<ul>
 <li>字号与行高、descent、ascent可以看看 <a href="https://zhuanlan.zhihu.com/p/27381252">https://zhuanlan.zhihu.com/p/27381252</a></li>
 </ul>
 
@@ -119,7 +122,7 @@ font-&gt;height = font-&gt;ascent + font-&gt;descent
 因为是1/10，所以height是180/10=18，即设置的字体size是18象素。这里是不能设置每个字符的height，仅仅是height决定字体用什么字号而已。
 </p>
 
-<pre class="example" id="orgc3350a8">
+<pre class="example" id="orga859d95">
 height
 
     The font height on the screen, measured in tenths of a printer’s point. This is the point size of the font, times ten. For a given vertical resolution, height and pixels are proportional; therefore, it is common to specify just one of them and use ‘*’ for the other. 
@@ -169,7 +172,7 @@ height
 <span class="timestamp-wrapper"><span class="timestamp">[2021-08-20 Fri 11:19] </span></span> 看了大半天，搞不定，考虑修改更纱黑的高度吧。这个办法可以考虑，也不需要改emacs的代码。
 </p>
 
-<ul class="org-ul">
+<ul>
 <li><p>
 有什么办法自己调整 行间距和 字间距么 ？ <a href="https://github.com/be5invis/Sarasa-Gothic/issues/244">https://github.com/be5invis/Sarasa-Gothic/issues/244</a>
 这个是字表的工作。
@@ -178,7 +181,7 @@ height
 <p>
 用 ttx 导出要改的字体字表， <code>ttx -t OS/2 字体.ttf</code> 这样。间距和行高总共在两个表里，一个是全局表，一个是 Windows 专属的 OS/2 表，两个表里搜 width 和 height 之类的关键词——具体名称在文档里或网上搜一下，改好后再导回进字体 <code>ttx -b -m 字体.ttf</code> 修改过的字表.ttx。
 </p>
-<ul class="org-ul">
+<ul>
 <li><p>
 安装ttx(<a href="https://github.com/fonttools/fonttools">https://github.com/fonttools/fonttools</a>) 
 </p>
@@ -192,7 +195,7 @@ height
 也可以用 fontforge -&gt; 点击Element -&gt; FontInfo，切到OS/2的Metric标签
 </p>
 
-<dl class="org-dl">
+<dl>
 <dt>windows</dt><dd>Win Ascent/Win Descent</dd>
 <dt>macos</dt><dd>HHead Ascent/HHead Descent</dd>
 </dl></li>
@@ -201,6 +204,7 @@ height
 Q: mono-sc和mono-slab-sc有何区别
 A: Slab means the Latins will have serifs.</li>
 </ul>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

@@ -1,39 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2021-09-06 Mon 21:33 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>在windows上用mingw64编译emacs的feature/native-comp分支</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="albert">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        displayAlign: "center",
-        displayIndent: "0em",
-
-        "HTML-CSS": { scale: 100,
-                        linebreaks: { automatic: "false" },
-                        webFont: "TeX"
-                       },
-        SVG: {scale: 100,
-              linebreaks: { automatic: "false" },
-              font: "TeX"},
-        NativeMML: {scale: 100},
-        TeX: { equationNumbers: {autoNumber: "AMS"},
-               MultLineWidth: "85%",
-               TagSide: "right",
-               TagIndent: ".8em"
-             }
-});
-</script>
-<script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">在windows上用mingw64编译emacs的feature/native-comp分支</h1>
+  <div class="post-date">2020年01月25日</div>
+  <h1>在windows上用mingw64编译emacs的feature/native-comp分支</h1>
 <p>
 gccemacs(<a href="http://akrl.sdf.org/gccemacs.html">http://akrl.sdf.org/gccemacs.html</a>)已经合并到emacs的开发分支 <b>feature/native-comp</b> 。
 </p>
@@ -85,14 +65,14 @@ git clone --depth 1 git://gcc.gnu.org/git/gcc.git
 <p>
 只要支持c和c++就可以了。lto(link time optimize)看文档是默认的。jit看gccjit的文档上有，不知道不加有没有问题。
 </p>
-<pre class="example" id="org04cf7e2">
+<pre class="example" id="orgbf064dd">
 --enable-languages=c,jit,lto,c++
 </pre>
 
 <p>
 下面这2个参数是编译gccjit需要的。
 </p>
-<pre class="example" id="orgd624ed1">
+<pre class="example" id="orgebb137b">
 --enable-host-shared \
 --enable-languages=jit \
 </pre>
@@ -100,7 +80,7 @@ git clone --depth 1 git://gcc.gnu.org/git/gcc.git
 <p>
 如果enable的话，configure的时候会比较慢。
 </p>
-<pre class="example" id="orgc6fea68">
+<pre class="example" id="orgb75fc2b">
 --disable-bootstrap
 </pre>
 
@@ -134,7 +114,7 @@ drwxr-xr-x 1 Albert None 0 Jan 21 16:25 build <span style="color: #B0BED8;"># </
 
 <h3>pic/libiberty.a 报错</h3>
 
-<pre class="example" id="orgb6a9a27">
+<pre class="example" id="org6f6ea55">
 make[3]: *** No rule to make target '../build-x86_64-w64-mingw32/libiberty/pic/libiberty.a', needed by 'build/genmddeps.exe'.  Stop.
 </pre>
 
@@ -142,7 +122,7 @@ make[3]: *** No rule to make target '../build-x86_64-w64-mingw32/libiberty/pic/l
 enable-host-shared后，link的时候找pic目录下的libiberty.a，但是找不到。
 </p>
 
-<pre class="example" id="orgd8b7c5e">
+<pre class="example" id="orgdedfa5f">
 --enable-host-shared \
 --enable-languages=jit \
 </pre>
@@ -187,15 +167,14 @@ enable-host-shared后，link的时候找pic目录下的libiberty.a，但是找�
 参考<a href="https://stackoverflow.com/questions/6431345/how-to-specify-dll-onload-function-for-mingw32">https://stackoverflow.com/questions/6431345/how-to-specify-dll-onload-function-for-mingw32</a> 把jit-playback.c里面的
 </p>
 
-<ol class="org-ol">
+<ol>
 <li>用LoadLibrary()替换dlopen()</li>
 
 <li>用SetLastError(0)和GetLastError()替换dlerror()</li>
 </ol>
 
-
-<h5>安装dlfcn</h5>
-
+<ul>
+<li><a id="orgdb83409"></a>安装dlfcn<br>
 <p>
 编译gccjit的时候不知道安装dlfcn后还要不要改共享库相关的代码。
 </p>
@@ -216,6 +195,8 @@ $ find /mingw64/ -name <span style="color: #deb887;">'libdl*'</span> -ls
 2251799814067910      4 -rw-r--r--   1 Albert   None         3068 6&#26376; 21  2019 /mingw64/lib/libdl.dll.a
 </pre>
 </div>
+</li>
+</ul>
 
 
 <h4>注释掉fchmod()</h4>
@@ -969,13 +950,13 @@ index 10c528faf..457591708 100644
 
 <h3>修改src/comp.c的代码</h3>
 
-<ol class="org-ol">
+<ol>
 <li>mingw64中不支持signal <b>SIGIO</b> ，直接注释掉。</li>
 
 <li>mingw64中configure时居然不支持 <b>setjmp</b> 。在setjmp.h中有 <b>_setjmp</b> ，里面的宏太多了，搞不清楚是用哪个，编译时报错，提示有2个参数。从setjmp.h里看 _setjmp(jmp_buf, void * ptr)，第二个参数一般是0。反正没看懂。先填个0进去了。</li>
 </ol>
 
-<pre class="example" id="orgfe86810">
+<pre class="example" id="orgba64115">
 $ git diff
 diff --git a/src/comp.c b/src/comp.c
 index 290fc3a9c4..43b5273d45 100644
@@ -1055,7 +1036,7 @@ make install <span style="color: #4eee94;">prefix</span>=/e/emacs
 </pre>
 </div>
 
-<ol class="org-ol">
+<ol>
 <li>make时报 <b>error 127</b> ，可能是 <b>byte-run.el、subr.el</b> 等eln编译有问题，导致emacs在生成pdump文件有问题，启动报错，可以rm *.eln，再试试。</li>
 
 <li>有时候native compile某个elisp文件会coredump，只能再执行make。</li>
@@ -1123,7 +1104,7 @@ bt
 <span class="timestamp-wrapper"><span class="timestamp">[2020-01-26 Sun 22:09] </span></span> fail了2个test case。
 </p>
 
-<pre class="example" id="org5cac99f">
+<pre class="example" id="org5432af5">
 2 unexpected results:
    FAILED  comp-tests-bootstrap
    FAILED  comp-tests-fixnum
@@ -1155,7 +1136,7 @@ libgccjit.c中只有gcc_jit_context_new_rvalue_from_long() ，没有 <b>gcc_jit_
 直接修改gcc_jit_context_new_rvalue_from_long() ，直接cast为 long long int ，也是一个方法。
 </p>
 
-<pre class="example" id="org65a3964">
+<pre class="example" id="org6b023c9">
 make[1]: 进入目录“/e/workspace/emacs_src/emacs28/emacs/src”
   GEN      globals.h
   CC       comp.o
@@ -1192,7 +1173,7 @@ comp.c:3087:15: note: in expansion of macro 'MOST_NEGATIVE_FIXNUM'
 </pre>
 </div>
 
-<pre class="example" id="org4477572">
+<pre class="example" id="org2c8536f">
 Summary results:
 
 bubble.el                 byte time:  48.196685s native time:  22.676739s boost 112.537989%
@@ -1222,7 +1203,7 @@ Total                     byte time: 667.153574s native time: 287.974774s boost 
 </pre>
 </div>
 
-<pre class="example" id="org0000900">
+<pre class="example" id="org0216907">
 bubble.el                 byte time: 100.621556s native time:  20.373809s boost 393.876997%
 bubble-no-cons.el         byte time: 136.691828s native time:  35.343340s boost 286.754132%
 fibn.el                   byte time: 121.392839s native time:  67.133157s boost 80.823969%
@@ -1368,7 +1349,7 @@ Total                     byte time: 596.685092s native time: 170.268149s boost 
 
 <h4>linux</h4>
 
-<pre class="example" id="org98c2f97">
+<pre class="example" id="orga370a52">
 Summary results:
 bubble.el                 byte time: 145.803142s native time:  29.089018s  boost 401.230884%
 bubble-no-cons.el         byte time: 318.617107s native time:  38.999612s  boost 716.975064%
@@ -1396,9 +1377,8 @@ Total                     byte time: 737.046902s native time: 150.518523s  boost
 偶尔会segfault。
 </p>
 
-
-<h5>M-x org-publish-all执行几次后报错，出现过segfault。</h5>
-
+<ul>
+<li><a id="orgcd46763"></a>M-x org-publish-all执行几次后报错，出现过segfault。<br>
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2020-02-16 Sun 23:48] </span></span> 可能和ox-html.el编译为eln有关。不知道为什么用 <code>advice-add</code> override org-html-headline和org-html-section函数的时候没有生效。不编译eln就ok了。
 </p>
@@ -1431,21 +1411,21 @@ gdb emacs
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2020-01-29 Wed 16:49] </span></span> 貌似 org-publish-current-file 不会segfault。
 </p>
+</li>
 
-
-<h5>magit 在native compile后，commit的时候容易segfault。</h5>
-
+<li><a id="org93aa9f1"></a>magit 在native compile后，commit的时候容易segfault。<br>
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2020-01-29 Wed 16:47] </span></span> rm eln文件后，commit、push都不报错。为什么windows上的native compile问题这么多呢?
 </p>
+</li>
+</ul>
 
 
 <h4>功能</h4>
 
 
-
-<h5>helm</h5>
-
+<ul>
+<li><a id="orga0b168c"></a>helm<br>
 <p>
 helm-buffers.el 编译为eln后，切换buffer时非常容易segfault。
 </p>
@@ -1453,16 +1433,15 @@ helm-buffers.el 编译为eln后，切换buffer时非常容易segfault。
 <p>
 Update: 在3月的某个commit之后，忽然就正常了，神奇啊。
 </p>
+</li>
 
-
-<h5>evil的visual mode按c-v，列编辑，按I插入不正常。</h5>
-
+<li><a id="org288d86b"></a>evil的visual mode按c-v，列编辑，按I插入不正常。<br>
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2020-02-09 Sun 00:56] </span></span> evil-commands.el 编译成eln后，c-v是有问题的，去掉后ok。
 </p>
 
-<ul class="org-ul">
-<li><a id="org536befe"></a>undo-tree <span class="timestamp-wrapper"><span class="timestamp">[2020-02-16 Sun 23:29]</span></span><br>
+<ul>
+<li><a id="orgd6ba931"></a>undo-tree <span class="timestamp-wrapper"><span class="timestamp">[2020-02-16 Sun 23:29]</span></span><br>
 <p>
 发现undo-tree编译为eln后，doom-modeline在undo的时候，文件名不会从红色恢复为正常的颜色。
 </p>
@@ -1487,6 +1466,8 @@ Update: 在3月的某个commit之后，忽然就正常了，神奇啊。
 <p>
 把editor调整到ui启动前。
 </p>
+</li>
+</ul>
 </li>
 </ul>
 
@@ -1528,12 +1509,12 @@ NATIVE_FAST_BOOT编译选项打开后，只会编译生成pdump需要的elisp文
 
 <h3>update - 2020.04.22</h3>
 
-<ol class="org-ol">
+<ol>
 <li><p>
 更新到最新的代码后
 </p>
 
-<pre class="example" id="org3fd22ff">
+<pre class="example" id="org2f0e97c">
 (gdb) bt
 #0  0x00007ffe6d1e0aa3 in KERNELBASE!DebugBreak ()
    from C:\WINDOWS\System32\KernelBase.dll
@@ -1586,6 +1567,7 @@ NATIVE_FAST_BOOT编译选项打开后，只会编译生成pdump需要的elisp文
 
 <li>src/comp.c改了不少，对应fixnum，自动判断是否支持unsigned long long类型。在mingw64中，long是32bit的。现在不用在gcc里改libgccjit的代码了，也用不着了。当然想在mingw64中用gccjit，libgccjit其他的代码还是要改的。</li>
 </ol>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

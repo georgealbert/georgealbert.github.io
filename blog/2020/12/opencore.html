@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2021-09-06 Mon 21:33 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>修改opencore，在引导windows时不修改ACPI</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="albert">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">修改opencore，在引导windows时不修改ACPI</h1>
+  <div class="post-date">2020年12月20日</div>
+  <h1>修改opencore，在引导windows时不修改ACPI</h1>
 <p>
 opencore不需要在引导除macos以外的操作系统会按config.plist中的配置修改ACPI、nvram。黑苹果的BIOS本来就是适配windows、linux的，按macos的标准改了以后反而适得其反，出现各种问题。如oc会修改system-id，会导致windows的license失效。或者windows启动在不停转圈、蓝屏。
 </p>
@@ -23,7 +25,7 @@ opencore不需要在引导除macos以外的操作系统会按config.plist中的�
 <p>
 代码基于oc 0.6.5版本，主要是在引导其他操作系统时，不修改ACPI，具体如下：
 </p>
-<pre class="example" id="org6e6792a">
+<pre class="example" id="orgf98e2cc">
 $git diff 5c8f
 diff --git a/Include/Acidanthera/Library/OcConfigurationLib.h b/Include/Acidanthera/Library/OcConfigurationLib.h
 index f2a71123..91385265 100644
@@ -109,10 +111,11 @@ index 9f992ba4..eb716c42 100644
 
 <h2>参考</h2>
 
-<ul class="org-ul">
+<ul>
 <li><a href="https://github.com/hasashin/OpenCorePkg/commits/acpi-for-mac-dev">https://github.com/hasashin/OpenCorePkg/commits/acpi-for-mac-dev</a></li>
 <li><a href="https://github.com/acidanthera/OpenCorePkg/pull/147">https://github.com/acidanthera/OpenCorePkg/pull/147</a> 里面有相关讨论和oc的配置，有时间再试试。</li>
 </ul>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

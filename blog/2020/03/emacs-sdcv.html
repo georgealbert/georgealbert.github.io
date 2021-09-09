@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2021-09-06 Mon 21:33 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>在emacs中用星际词霸学习英文</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="albert">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">在emacs中用星际词霸学习英文</h1>
+  <div class="post-date">2020年03月31日</div>
+  <h1>在emacs中用星际词霸学习英文</h1>
 <p>
 在emacs中使用sdcv.el(<a href="https://github.com/manateelazycat/sdcv">https://github.com/manateelazycat/sdcv</a>)需要命令行的sdcv.exe，而不是stardict.exe。windows中的 <b>sdcv</b> 需要自己编译。需要安装 <code>cmake、zlib、readline</code> 等。
 </p>
@@ -44,7 +46,7 @@ make <span style="color: #4eee94;">VERBOSE</span>=1
 
 <h3>src/utils.cpp 编译报错</h3>
 
-<pre class="example" id="org14a6a62">
+<pre class="example" id="org4816d9a">
 /C/msys64/mingw64/bin/g++.exe  -DHAVE_CONFIG_H -DVERSION=\"0.5.2\" -I/C/msys64/mingw64/include/glib-2.0 -I/C/msys64/mingw64/lib/glib-2.0/include -I/E/workspace/sdcv/src/lib -I/E/workspace/build-sdcv  -std=c++11 -o CMakeFiles/sdcv.dir/src/utils.cpp.obj -c /E/workspace/sdcv/src/utils.cpp
 In file included from C:/msys64/mingw64/include/glib-2.0/glib/gi18n.h:23,
                  from E:/workspace/sdcv/src/utils.cpp:29:
@@ -190,7 +192,7 @@ sdcv的配置。
 windows调用sdcv的参数和linux里有点不一样，需要修改 <a href="https://github.com/manateelazycat/sdcv">https://github.com/manateelazycat/sdcv</a> 的 <code>sdcv.el</code> 。
 </p>
 
-<ul class="org-ul">
+<ul>
 <li><p>
 update:
 <span class="timestamp-wrapper"><span class="timestamp">[2020-09-30 Wed 16:33] </span></span> 用了最新的v3.4版本后，不改 <code>sdcv.el</code> 也是可以在win10上用的。
@@ -205,7 +207,7 @@ update:
 </p></li>
 </ul>
 
-<pre class="example" id="org7bfd9c3">
+<pre class="example" id="org52dcebc">
 modified   sdcv.el
 @@ -594,11 +594,13 @@ string of results."
    (sdcv-filter
@@ -229,9 +231,10 @@ modified   sdcv.el
 
 <h2>参考</h2>
 
-<ul class="org-ul">
+<ul>
 <li><a href="https://emacs-china.org/t/emacs/7750/37">https://emacs-china.org/t/emacs/7750/37</a></li>
 </ul>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

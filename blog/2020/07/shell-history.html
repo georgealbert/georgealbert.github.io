@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2021-09-06 Mon 21:33 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>bash的shell history和editing mode</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="albert">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">bash的shell history和editing mode</h1>
+  <div class="post-date">2020年07月12日</div>
+  <h1>bash的shell history和editing mode</h1>
 <p>
 经常需要在shell中查询命令历史。因为习惯vim的键绑定，所以在bash里进去就直接 <code>set -o vi</code> ，default editing mode 切换成vi mode了。bash默认是 <code>emacs mode</code> 。
 </p>
@@ -22,7 +24,7 @@
 <p>
 emacs mode的问题是，从history中查到命令后，回车就执行，这样太容易误操作了。
 </p>
-<ul class="org-ul">
+<ul>
 <li><p>
 Emacs mode:
 Ctrl-a 行首
@@ -50,7 +52,7 @@ Meta-&gt; 移动到历史列表末尾.
 vi mode可以用 C-r C-s，还用什么emacs mode啊。
 </p>
 
-<ul class="org-ul">
+<ul>
 <li>Vi mode:
 k 历史列表上一个.
 j 历史列表下一个.
@@ -96,7 +98,7 @@ UNIX tty（terminal）层的配置。UNIX沉重历史包袱的体现之一，大
 <p>
 群晖的shell（busybox ash）只有emacs模式，set -o vi 无效。唉，搞这么难用的shell干什么？
 </p>
-<ul class="org-ul">
+<ul>
 <li>有stty，默认ixon，可以设置 -ixon。</li>
 
 <li>有emacs模式的command line editing，但是找不到 history features</li>
@@ -111,7 +113,7 @@ UNIX tty（terminal）层的配置。UNIX沉重历史包袱的体现之一，大
 <p>
 shell只有emacs模式，set -o vi 无效。
 </p>
-<ul class="org-ul">
+<ul>
 <li>有stty，默认ixon，但是C-s后屏幕上还是会显示打的字。貌似无效。</li>
 <li>C-r 无效</li>
 <li>C-s 无效</li>
@@ -123,7 +125,7 @@ shell只有emacs模式，set -o vi 无效。
 <p>
 shell只有emacs模式，set -o vi 无效。
 </p>
-<ul class="org-ul">
+<ul>
 <li>无stty</li>
 <li>C-r 可用</li>
 <li>C-s 无效</li>
@@ -132,10 +134,11 @@ shell只有emacs模式，set -o vi 无效。
 
 <h2>参考</h2>
 
-<ul class="org-ul">
+<ul>
 <li>Bash强大的History命令 <a href="https://www.cnblogs.com/aquester/archive/2012/07/24/9891891.html">https://www.cnblogs.com/aquester/archive/2012/07/24/9891891.html</a></li>
 <li><a href="https://www.digitalocean.com/community/tutorials/how-to-use-bash-history-commands-and-expansions-on-a-linux-vps">https://www.digitalocean.com/community/tutorials/how-to-use-bash-history-commands-and-expansions-on-a-linux-vps</a></li>
 </ul>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>
