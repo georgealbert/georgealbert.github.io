@@ -1,39 +1,42 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2019-10-17 周四 17:32 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>ssh报"no hostkey alg"错误</title>
-<meta name="generator" content="Org mode">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">ssh报"no hostkey alg"错误</h1>
+  <div class="post-date">2019年10月17日</div>
+  <h1>ssh报"no hostkey alg"错误</h1>
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-10-17 周四 17:07]</span></span>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-10-17 Thu 17:07]</span></span>
 </p>
 
 <p>
-从1.1.1.1 ssh 2.2.2.2 报 <b>"no hostkey alg"</b> 。
+从 <code>1.1.1.1</code> ssh <code>2.2.2.2</code> 报 <b>"no hostkey alg"</b> 。
 </p>
 
-<ul class="org-ul">
+<ul>
 <li>1.1.1.1的ssh版本: 5.0</li>
 <li>2.2.2.2的ssh版本: 8.0</li>
 </ul>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-10-17 周四 16:40]</span></span>
-应该是2.2.2.2的 <code>/etc/ssh</code> 中的key的权限不对，只有 <b>ssh_host_ed25519_key</b> 是 <b>root:root</b> ，所以只能用ed25519，但是client是5.0的版本，没有ed25519。
+<span class="timestamp-wrapper"><span class="timestamp">[2019-10-17 Thu 16:40]</span></span>
+应该是 <code>2.2.2.2</code> 的 <code>/etc/ssh</code> 中的key的权限不对，只有 <b>ssh_host_ed25519_key</b> 是 <b>root:root</b> ，所以只能用ed25519，但是client是5.0的版本，没有ed25519。
 </p>
 
 
 <h2>先检查了user用户的.ssh权限和.ssh目录下的文件权限是ok的。</h2>
 
 <p>
-<b>$HOME/.ssh</b> 中有没有id_rsa都可以。没有的话用 <b>/etc/ssh/ssh_host_rsa_key</b> 和 <b>/etc/ssh/ssh_host_rsa_key.pub</b> ，没办法测试，不知道属主不是root:root会不会有问题。
+<b>$HOME/.ssh</b> 中有没有 <code>id_rsa</code> 都可以。没有的话用 <b>/etc/ssh/ssh_host_rsa_key</b> 和 <b>/etc/ssh/ssh_host_rsa_key.pub</b> ，没办法测试，不知道属主不是root:root会不会有问题。
 </p>
 
 <div class="org-src-container">
@@ -102,7 +105,7 @@ ssh的hostkey虽然可以支持多种算法，但是从debug log看，服务端�
 </p>
 
 <p>
-ssh -vvv的debug log，注意hostkey用的是哪个算法。
+<code>ssh -vvv</code> 的debug log，注意hostkey用的是哪个算法。
 </p>
 
 <p>
@@ -116,7 +119,7 @@ ssh -o <span style="color: #4eee94;">HostKeyAlgorithms</span>=ecdsa-sha2-nistp25
 </div>
 
 <p>
-在client(1.1.1.1)ssh -vvv时看见，5.0的版本比较低，v5.0不能用 <b>ssh -Q key</b> 查看支持的hostkey算法。v8.0可以。
+在client(1.1.1.1) ssh -vvv 时看见，5.0的版本比较低，5.0不能用 <b>ssh -Q key</b> 查看支持的hostkey算法。8.0可以。
 </p>
 
 <div class="org-src-container">
@@ -177,7 +180,7 @@ total 284
 </div>
 
 <p>
-hostkey的顺序是怎么确定的? 为什么是ssh-rsa在前面？
+hostkey的顺序是怎么确定的? 为什么是 <code>ssh-rsa</code> 在前面？
 </p>
 <div class="org-src-container">
 <pre class="src src-sh">[root@iZi9p0685 ~]# ssh -Q key
@@ -198,6 +201,7 @@ ssh-ed25519-cert-v01@openssh.com
 null
 </pre>
 </div>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

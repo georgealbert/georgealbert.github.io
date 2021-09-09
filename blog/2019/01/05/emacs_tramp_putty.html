@@ -1,38 +1,40 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2019-10-16 周三 10:23 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>emacs tramp、putty和openssl无密码登录</title>
-<meta name="generator" content="Org mode">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">emacs tramp、putty和openssl无密码登录</h1>
+  <div class="post-date">2019年01月05日</div>
+  <h1>emacs tramp、putty和openssl无密码登录</h1>
 <p>
 emacs可以使用 <b>tramp</b> 编辑一个远程server上的文件，在windows上通过 <b>plink</b> (putty自带)来访问，但是每次都要提示输入密码有点麻烦。是不是有办法不提示输入密码，putty不像secure crt和mobaXterm可以保存键盘输入的密码，只能通过秘钥的方式。plink不输入密码可以在putty中save一个session，在session中把private key加进去。所以要生成一对rsa公私钥。
 </p>
 
-<ul class="org-ul">
+<ul>
 <li>windows的emacs通过tramp编辑虚机中的文件速度非常慢，不如直接在虚机上编辑。放弃了。</li>
 </ul>
 
-<div id="outline-container-org434d311" class="outline-2">
-<h2 id="org434d311">emacs tramp</h2>
-<div class="outline-text-2" id="text-org434d311">
-<p>
-C-x C-f /plink:albert@master.k8s: 提示输入密码后就可以打开文件操作。
-</p>
 
-<p>
-C-x C-f /plinkx:master.k8s: 使用putty中保存的session登录。
-</p>
+<h2>emacs tramp</h2>
 
-<ul class="org-ul">
-<li>问题
-<ul class="org-ul">
+<dl>
+<dt>C-x C-f /plink:albert@master.k8s</dt><dd>提示输入密码后就可以打开文件操作。</dd>
+
+<dt>C-x C-f /plinkx:master.k8s</dt><dd>使用putty中保存的session登录。</dd>
+</dl>
+
+
+<h3>问题</h3>
+
+<ol>
 <li><p>
 在ggtags-mode中，默认eldoc打开提示时，显示tag时会非常慢，每次都要新开一个ssh登录后执行命令，慢得不能忍受。
 </p>
@@ -40,22 +42,18 @@ C-x C-f /plinkx:master.k8s: 使用putty中保存的session登录。
 <p>
 看来要继续用terminal了。在linux终端中的emacs好像对键盘的响应有点慢，我的神器大F茶轴键盘有时候按esc键有延迟，唉。只能忍着了。
 </p></li>
-</ul></li>
-</ul>
-</div>
-</div>
+</ol>
 
-<div id="outline-container-org68e59e7" class="outline-2">
-<h2 id="org68e59e7">openssl和putty</h2>
-<div class="outline-text-2" id="text-org68e59e7">
+
+<h2>openssl和putty</h2>
+
 <p>
 有2个生成秘钥的方法，ssh-keygen和openssl。
 </p>
-</div>
 
-<div id="outline-container-org6f4959c" class="outline-3">
-<h3 id="org6f4959c">ssh-keygen</h3>
-<div class="outline-text-3" id="text-org6f4959c">
+
+<h3>ssh-keygen</h3>
+
 <p>
 ssh-keygen生成密码非常方便，但是ssh-keygen生成的公私秘钥不能直接导入putty，putty不支持pem格式的秘钥。其实puttygen.exe是可以转换的。
 </p>
@@ -64,16 +62,14 @@ ssh-keygen生成密码非常方便，但是ssh-keygen生成的公私秘钥不能
 <pre class="src src-sh">ssh-keygen -t rsa -f albert_rsa
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-orgf4b2443" class="outline-3">
-<h3 id="orgf4b2443">openssl生成秘钥，转换为openssh格式，私钥用puttygen转为putty的ppk格式</h3>
-<div class="outline-text-3" id="text-orgf4b2443">
-</div>
-<div id="outline-container-orgec0d896" class="outline-4">
-<h4 id="orgec0d896">用openssl生成秘钥</h4>
-<div class="outline-text-4" id="text-orgec0d896">
+
+<h3>openssl生成秘钥，转换为openssh格式，私钥用puttygen转为putty的ppk格式</h3>
+
+
+
+<h4>用openssl生成秘钥</h4>
+
 <div class="org-src-container">
 <pre class="src src-sh">OpenSSL&gt; genrsa -out albert_rsa_private_key.pem 1024  <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">&#29983;&#25104;&#31169;&#38053;</span>
 OpenSSL&gt; rsa -in albert_rsa_private_key.pem -pubout -out albert_rsa_public_key.pem <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">&#29983;&#25104;&#20844;&#38053;</span>
@@ -91,19 +87,14 @@ ssh-keygen可以把pem格式的公钥转换为openssh格式的。
 cat albert_ssh_public_key.pub &gt;&gt; ~/.ssh/authorized_keys
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-org6e0de9d" class="outline-4">
-<h4 id="org6e0de9d">私钥用puttygen转为putty的ppk格式</h4>
-<div class="outline-text-4" id="text-org6e0de9d">
+
+<h4>私钥用puttygen转为putty的ppk格式</h4>
+
 <p>
 私钥albert_rsa_private_key.pem用puttygen转为putty的ppk格式，并保存，就可以在putty测试load session登录是否正常了。
 </p>
-</div>
-</div>
-</div>
-</div>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

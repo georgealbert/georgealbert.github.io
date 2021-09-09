@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-12-18 Fri 15:56 -->
+<!-- 2021-09-06 Mon 21:33 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ssh动态端口转发和加密算法性能测试</title>
@@ -26,7 +26,7 @@ ssh -f -N -D 0.0.0.0:1080 albert@192.168.1.1
 在配置文件 <code>~/.ssh/config</code> 中指定，由于安全原因，无法再用 <code>blowfish-cbc</code> 加密算法了，可以使用 <code>aes128-ctr</code>
 </p>
 
-<pre class="example">
+<pre class="example" id="org84af9a1">
 Host *
   Ciphers aes128-ctr
   Compression yes
@@ -36,7 +36,7 @@ Host *
 <p>
 如何知道ssh连接不同的host时，使用了哪种加密算法呢？可以用 <code>ssh -v</code> 查看ssh加密算法。如：
 </p>
-<pre class="example">
+<pre class="example" id="org458b2d7">
 debug1: kex: server-&gt;client cipher: chacha20-poly1305@openssh.com MAC: &lt;implicit&gt; compression: zlib@openssh.com
 debug1: kex: client-&gt;server cipher: chacha20-poly1305@openssh.com MAC: &lt;implicit&gt; compression: zlib@openssh.com
 </pre>
@@ -44,7 +44,7 @@ debug1: kex: client-&gt;server cipher: chacha20-poly1305@openssh.com MAC: &lt;im
 <p>
 修改为 <code>aes128-ctr</code> 后：
 </p>
-<pre class="example">
+<pre class="example" id="orgf22b01b">
 debug1: kex: algorithm: curve25519-sha256
 debug1: kex: host key algorithm: ecdsa-sha2-nistp256
 debug1: kex: server-&gt;client cipher: aes128-ctr MAC: umac-64-etm@openssh.com compression: zlib@openssh.com
@@ -54,7 +54,7 @@ debug1: kex: client-&gt;server cipher: aes128-ctr MAC: umac-64-etm@openssh.com c
 <p>
 msys2的ssh支持的加密算法：
 </p>
-<pre class="example">
+<pre class="example" id="orgb80a7f6">
 debug2: ciphers ctos: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,aes128-cbc,aes192-cbc,aes256-cbc,blowfish-cbc,cast128-cbc,3des-cbc
 debug2: ciphers stoc: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,aes128-cbc,aes192-cbc,aes256-cbc,blowfish-cbc,cast128-cbc,3des-cbc
 </pre>
@@ -85,7 +85,7 @@ dd <span style="color: #4eee94;">if</span>=/dev/zero <span style="color: #4eee94
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2020-11-11 Wed 16:55] </span></span> msys2 -&gt; ubuntu 20.04
 </p>
-<pre class="example">
+<pre class="example" id="org506768a">
 aes128-ctr: 86.4304 MB/s
 aes128-gcm@openssh.com: 83.2639 MB/s
 aes192-ctr: 80.8407 MB/s
@@ -97,7 +97,7 @@ chacha20-poly1305@openssh.com: 86.4304 MB/s
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2020-11-11 Wed 17:03] </span></span> msys2 -&gt; centos 第一次
 </p>
-<pre class="example">
+<pre class="example" id="org70dc8b0">
 3des-cbc: 164.745 MB/s
 aes128-cbc: 167.785 MB/s
 aes128-ctr: 123.305 MB/s
@@ -113,7 +113,7 @@ chacha20-poly1305@openssh.com: 130.378 MB/s
 <p>
 <span class="timestamp-wrapper"><span class="timestamp">[2020-11-11 Wed 17:04] </span></span> msys -&gt; centos 第二次
 </p>
-<pre class="example">
+<pre class="example" id="orgb993763">
 3des-cbc: 148.148 MB/s
 aes128-cbc: 125.313 MB/s
 aes128-ctr: 120.919 MB/s
@@ -147,7 +147,7 @@ chacha20-poly1305@openssh.com: 266.667 MB/s
 <p>
 网络时延高的时候，各种加密算法对速度的影响不大。打开压缩和使用连接复用的效果会更好。不过单纯从加密算法而言，aes128-gcm的性能最好。
 </p>
-<pre class="example">
+<pre class="example" id="orga61230b">
 #第一次
 3des-cbc: 20.0924 MB/s
 aes128-cbc: 16.5289 MB/s

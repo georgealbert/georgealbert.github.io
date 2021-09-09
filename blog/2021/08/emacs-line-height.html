@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2021-09-06 Mon 21:33 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>emacs减少行高</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="albert">
+</head>
+<body>
+<div id="content">
+<h1 class="title">emacs减少行高</h1>
+
+
+<h2>emacs减少行高 <span class="timestamp-wrapper"><span class="timestamp">[2021-08-20 Fri 09:45]</span></span></h2>
+
+<p>
+emacs在中英文显示使用更纱黑体时，行高比vim的大，导致同样是18象素的字体比vim要少显示几行。看看是否能减少行距，做到和vim一样的显示效果。
+</p>
+
+<p>
+有修改配置、代码和字体三种方法。
+</p>
+
+
+<h3>修改配置</h3>
+
+<p>
+emacs有个variable <code>line-spacing</code> ，测试后发现只能增加行高，不能减少行高。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp"><span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#21482;&#33021;&#22312;line&#30340;&#19979;&#38754;(descent)&#22686;&#21152;&#65292;&#19981;&#33021;&#20943;&#23569;&#34892;&#36317;&#65292;emacs&#23601;&#27809;&#26377;&#20943;&#23569;&#34892;&#39640;&#30340;&#26041;&#27861;&#12290;</span>
+<span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">&#20840;&#23616;&#65292;&#28014;&#28857;&#25968;&#30340;&#35805;&#65292;&#25353;&#27604;&#20363;</span>
+(setq-default line-spacing 0.2)
+
+<span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">buffer-local variable, &#25972;&#25968;&#30340;&#35805;&#65292;&#22686;&#21152;2&#20010;&#35937;&#32032;</span>
+(setq line-spacing 2)
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>参考 <a href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Low_002dLevel-Font.html">https://www.gnu.org/software/emacs/manual/html_node/elisp/Low_002dLevel-Font.html</a></li>
+</ul>
+
+<p>
+用 <code>M-x describe-font</code> 看 <code>更纱黑 size:18px</code> 的字体详细信息。
+</p>
+<pre class="example" id="org2558692">
+name (opened by): -*-Sarasa Mono T SC-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1
+       full name: Sarasa Mono T SC:pixelsize=18:weight=normal:slant=normal:width=normal:spacing=100:scalable=true
+            size: 18
+          height: 23 -&gt; = ascent+descent
+ baseline-offset:  0
+relative-compose:  0
+  default-ascent:  0
+          ascent: 18
+         descent:  5 -&gt; 这里能改吗?
+   average-width:  9
+     space-width:  9
+       max-width:  9
+</pre>
+
+
+<h3>修改代码</h3>
+
+<p>
+通过配置无法减少行高，修改代码是否能做到呢？看了一下emacs的代码。大概的流程是这样的：
+</p>
+
+<p>
+font.c -&gt; 在不同操作系统中使用不同的font driver(macos上是 nsfont.m)加载fontinfo -&gt; font_info-&gt;max_bounds.descent -&gt; font-&gt;descent
+</p>
+
+<p>
+而fontinfo是macos的系统级函数提供的(defined in nsgui.h)。
+</p>
+
+<p>
+font-&gt;height = font-&gt;ascent + font-&gt;descent
+</p>
+
+<p>
+中文和utf8(iso10646)的height和descent应该是一样的。通过 <code>M-x describe-font</code> 可以看出来。相同size的不同字体的height就不一定一样了。
+</p>
+
+<p>
+如果能修改font的descent，应该能减少中文的height。问题是如何做到对特定的字体进行修改？
+</p>
+
+<ul class="org-ul">
+<li>字号与行高、descent、ascent可以看看 <a href="https://zhuanlan.zhihu.com/p/27381252">https://zhuanlan.zhihu.com/p/27381252</a></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #00bfff;">static</span> <span style="color: #98f5ff;">Lisp_Object</span>
+<span style="color: #daa520;">calc_line_height_property</span> (<span style="color: #00bfff;">struct</span> <span style="color: #98f5ff;">it</span> *<span style="color: #4eee94;">it</span>, <span style="color: #98f5ff;">Lisp_Object</span> <span style="color: #4eee94;">val</span>, <span style="color: #00bfff;">struct</span> <span style="color: #98f5ff;">font</span> *<span style="color: #4eee94;">font</span>,
+                           <span style="color: #98f5ff;">int</span> <span style="color: #4eee94;">boff</span>, <span style="color: #98f5ff;">bool</span> <span style="color: #4eee94;">override</span>)
+  <span style="color: #B0BED8;">// </span><span style="color: #B0BED8;">calc&#36825;&#20010;&#20989;&#25968;&#37324;&#38754;&#24590;&#20040;&#21028;&#26029;line_spacing&#20026;&#36127;&#25968;&#30340;&#24773;&#20917;&#65311;</span>
+
+  <span style="color: #B0BED8;">// </span><span style="color: #B0BED8;">&#36825;&#20010;&#20989;&#25968;&#30340;&#21442;&#25968;descent&#26159;&#19981;&#26159;&#21487;&#20197;&#25511;&#21046;&#19968;&#19979;&#65311;</span>
+  <span style="color: #daa520;">normal_char_ascent_descent</span> (<span style="color: #98f5ff;">font</span>, -1, &amp;ascent, &amp;descent);
+
+  height = ascent + descent;
+</pre>
+</div>
+
+<p>
+<a href="https://www.gnu.org/software/emacs/manual/html_node/emacs/Fonts.html#Fonts">https://www.gnu.org/software/emacs/manual/html_node/emacs/Fonts.html#Fonts</a>
+从这里可以看出来，没法在emacs配置字体的时候设置 ascent 和 descent，这是emacs在加载字体时，字体的fontinfo是根据每种字体的配置信息进行初始化的。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp">(set-face-attribute 'default nil <span style="color: #f08080;">:font</span> <span style="color: #deb887;">"&#31561;&#36317;&#26356;&#32433;&#40657;&#20307; T SC 18"</span> <span style="color: #f08080;">:height</span> 180)
+</pre>
+</div>
+<p>
+因为是1/10，所以height是180/10=18，即设置的字体size是18象素。这里是不能设置每个字符的height，仅仅是height决定字体用什么字号而已。
+</p>
+
+<pre class="example" id="orgc3350a8">
+height
+
+    The font height on the screen, measured in tenths of a printer’s point. This is the point size of the font, times ten. For a given vertical resolution, height and pixels are proportional; therefore, it is common to specify just one of them and use ‘*’ for the other. 
+</pre>
+
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #B0BED8;">/* </span><span style="color: #B0BED8;">A subroutine that computes "normal" values of ASCENT and DESCENT</span>
+<span style="color: #B0BED8;">   for FONT.  Values are taken from font-global ones, except for fonts</span>
+<span style="color: #B0BED8;">   that claim preposterously large values, but whose glyphs actually</span>
+<span style="color: #B0BED8;">   have reasonable dimensions.  C is the character to use for metrics</span>
+<span style="color: #B0BED8;">   if the font-global values are too large; if C is negative, the</span>
+<span style="color: #B0BED8;">   function selects a default character.</span><span style="color: #B0BED8;">  */</span>
+<span style="color: #00bfff;">static</span> <span style="color: #98f5ff;">void</span>
+<span style="color: #daa520;">normal_char_ascent_descent</span> (<span style="color: #00bfff;">struct</span> <span style="color: #98f5ff;">font</span> *<span style="color: #4eee94;">font</span>, <span style="color: #98f5ff;">int</span> <span style="color: #4eee94;">c</span>, <span style="color: #98f5ff;">int</span> *<span style="color: #4eee94;">ascent</span>, <span style="color: #98f5ff;">int</span> *<span style="color: #4eee94;">descent</span>)
+{
+    *ascent = FONT_BASE (font);
+    *descent = FONT_DESCENT (font); <span style="color: #B0BED8;">// </span><span style="color: #B0BED8;">&#26377;&#24076;&#26395;&#25913;&#36825;&#37324;&#21527;&#65311;</span>
+
+    <span style="color: #00bfff;">if</span> (FONT_TOO_HIGH (font))
+    {
+        <span style="color: #98f5ff;">unsigned</span> <span style="color: #4eee94;">char2b</span>;
+
+        <span style="color: #B0BED8;">/* </span><span style="color: #B0BED8;">Get metrics of C, defaulting to a reasonably sized ASCII</span>
+<span style="color: #B0BED8;">           character.</span><span style="color: #B0BED8;">  */</span>
+        <span style="color: #00bfff;">if</span> (get_char_glyph_code (c &gt;= 0 ? c : <span style="color: #deb887;">'{'</span>, font, &amp;char2b))
+        {
+            <span style="color: #00bfff;">struct</span> <span style="color: #98f5ff;">font_metrics</span> *<span style="color: #4eee94;">pcm</span> = get_per_char_metric (font, &amp;char2b);
+
+            <span style="color: #00bfff;">if</span> (<span style="color: #ffd700;">!</span>(pcm-&gt;width == 0 &amp;&amp; pcm-&gt;rbearing == 0 &amp;&amp; pcm-&gt;lbearing == 0))
+            {
+                <span style="color: #B0BED8;">/* </span><span style="color: #B0BED8;">We add 1 pixel to character dimensions as heuristics</span>
+<span style="color: #B0BED8;">                   that produces nicer display, e.g. when the face has</span>
+<span style="color: #B0BED8;">                   the box attribute.</span><span style="color: #B0BED8;">  */</span>
+                *ascent = pcm-&gt;ascent + 1;
+                *descent = pcm-&gt;descent + 1;
+            }
+        }
+    }
+}
+</pre>
+</div>
+
+
+<h3>修改字体的高度</h3>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2021-08-20 Fri 11:19] </span></span> 看了大半天，搞不定，考虑修改更纱黑的高度吧。这个办法可以考虑，也不需要改emacs的代码。
+</p>
+
+<ul class="org-ul">
+<li><p>
+有什么办法自己调整 行间距和 字间距么 ？ <a href="https://github.com/be5invis/Sarasa-Gothic/issues/244">https://github.com/be5invis/Sarasa-Gothic/issues/244</a>
+这个是字表的工作。
+</p>
+
+<p>
+用 ttx 导出要改的字体字表， <code>ttx -t OS/2 字体.ttf</code> 这样。间距和行高总共在两个表里，一个是全局表，一个是 Windows 专属的 OS/2 表，两个表里搜 width 和 height 之类的关键词——具体名称在文档里或网上搜一下，改好后再导回进字体 <code>ttx -b -m 字体.ttf</code> 修改过的字表.ttx。
+</p>
+<ul class="org-ul">
+<li><p>
+安装ttx(<a href="https://github.com/fonttools/fonttools">https://github.com/fonttools/fonttools</a>) 
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">pip install fonttools
+</pre>
+</div></li>
+</ul>
+
+<p>
+也可以用 fontforge -&gt; 点击Element -&gt; FontInfo，切到OS/2的Metric标签
+</p>
+
+<dl class="org-dl">
+<dt>windows</dt><dd>Win Ascent/Win Descent</dd>
+<dt>macos</dt><dd>HHead Ascent/HHead Descent</dd>
+</dl></li>
+
+<li><a href="https://github.com/be5invis/Sarasa-Gothic/issues/159">https://github.com/be5invis/Sarasa-Gothic/issues/159</a>
+Q: mono-sc和mono-slab-sc有何区别
+A: Slab means the Latins will have serifs.</li>
+</ul>
+</div>
+</body>
+</html>

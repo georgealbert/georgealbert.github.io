@@ -1,12 +1,35 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-06-17 周三 15:33 -->
+<!-- 2021-09-06 Mon 21:33 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>在windows上用mingw64编译emacs的feature/native-comp分支</title>
 <meta name="generator" content="Org mode">
+<meta name="author" content="albert">
 <link rel="stylesheet" type="text/css" href="/main.css" />
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -62,14 +85,14 @@ git clone --depth 1 git://gcc.gnu.org/git/gcc.git
 <p>
 只要支持c和c++就可以了。lto(link time optimize)看文档是默认的。jit看gccjit的文档上有，不知道不加有没有问题。
 </p>
-<pre class="example">
+<pre class="example" id="org04cf7e2">
 --enable-languages=c,jit,lto,c++
 </pre>
 
 <p>
 下面这2个参数是编译gccjit需要的。
 </p>
-<pre class="example">
+<pre class="example" id="orgd624ed1">
 --enable-host-shared \
 --enable-languages=jit \
 </pre>
@@ -77,7 +100,7 @@ git clone --depth 1 git://gcc.gnu.org/git/gcc.git
 <p>
 如果enable的话，configure的时候会比较慢。
 </p>
-<pre class="example">
+<pre class="example" id="orgc6fea68">
 --disable-bootstrap
 </pre>
 
@@ -111,7 +134,7 @@ drwxr-xr-x 1 Albert None 0 Jan 21 16:25 build <span style="color: #B0BED8;"># </
 
 <h3>pic/libiberty.a 报错</h3>
 
-<pre class="example">
+<pre class="example" id="orgb6a9a27">
 make[3]: *** No rule to make target '../build-x86_64-w64-mingw32/libiberty/pic/libiberty.a', needed by 'build/genmddeps.exe'.  Stop.
 </pre>
 
@@ -119,7 +142,7 @@ make[3]: *** No rule to make target '../build-x86_64-w64-mingw32/libiberty/pic/l
 enable-host-shared后，link的时候找pic目录下的libiberty.a，但是找不到。
 </p>
 
-<pre class="example">
+<pre class="example" id="orgd8b7c5e">
 --enable-host-shared \
 --enable-languages=jit \
 </pre>
@@ -239,17 +262,17 @@ index da687002a..0757c08bc 100644
 +                             long long int value)
 +{
 +  // FIXME: type-checking, or coercion?
-+  tree inner_type = type-&gt;as_tree ();
++  tree <span style="color: #4eee94;">inner_type</span> = type-&gt;as_tree ();
 +  if (INTEGRAL_TYPE_P (inner_type))
 +    {
-+      tree inner = build_int_cst (inner_type, value);
++      tree <span style="color: #4eee94;">inner</span> = build_int_cst (inner_type, value);
 +      return new rvalue (this, inner);
 +    }
 +  else
 +    {
 +      REAL_VALUE_TYPE real_value;
 +      real_from_integer (&amp;real_value, VOIDmode, value, SIGNED);
-+      tree inner = build_real (inner_type, real_value);
++      tree <span style="color: #4eee94;">inner</span> = build_real (inner_type, real_value);
 +      return new rvalue (this, inner);
 +    }
 +}
@@ -268,7 +291,7 @@ index da687002a..0757c08bc 100644
     - We then run the <span style="color: #deb887;">"postprocess"</span> vfunc:
 @@ -2155,15 +2182,15 @@ playback::compile_to_file::copy_file (const char *src_path,
 
-   gcc_assert (total_sz_in == total_sz_out);
+   gcc_assert (<span style="color: #4eee94;">total_sz_in</span> == total_sz_out);
    <span style="color: #00bfff;">if</span> (get_logger ())
 -    get_logger ()-&gt;log (<span style="color: #deb887;">"total bytes copied: %ld"</span>, total_sz_out);
 +    get_logger ()-&gt;log (<span style="color: #deb887;">"total bytes copied: %lld"</span>, total_sz_out);
@@ -291,27 +314,27 @@ index da687002a..0757c08bc 100644
 @@ -2641,16 +2668,20 @@ dlopen_built_dso ()
    JIT_LOG_SCOPE (get_logger ());
    auto_timevar load_timevar (get_timer (), TV_LOAD);
-   void *handle = NULL;
--  const char *error = NULL;
-+  /* const char *error = NULL; */
-+  DWORD error = 0;
-   result *result_obj = NULL;
+   void *<span style="color: #4eee94;">handle</span> = NULL;
+-  const char *<span style="color: #4eee94;">error</span> = NULL;
++  /* const char *<span style="color: #4eee94;">error</span> = NULL; */
++  DWORD <span style="color: #4eee94;">error</span> = 0;
+   result *<span style="color: #4eee94;">result_obj</span> = NULL;
 
    /* Clear any existing error.  */
 -  dlerror ();
 -
--  handle = dlopen (m_tempdir-&gt;get_path_so_file (),
+-  <span style="color: #4eee94;">handle</span> = dlopen (m_tempdir-&gt;get_path_so_file (),
 -                  RTLD_NOW | RTLD_LOCAL);
--  if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
+-  if ((<span style="color: #4eee94;">error</span> = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
 -    add_error (NULL, <span style="color: #deb887;">"%s"</span>, error);
 +  /* dlerror (); */
 +  SetLastError(0);
 +
-+  /* handle = dlopen (m_tempdir-&gt;get_path_so_file (), */
++  /* <span style="color: #4eee94;">handle</span> = dlopen (m_tempdir-&gt;get_path_so_file (), */
 +  /*              RTLD_NOW | RTLD_LOCAL); */
-+  handle = LoadLibrary(m_tempdir-&gt;get_path_so_file ());
-+  /* if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
-+  if ((error = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
++  <span style="color: #4eee94;">handle</span> = LoadLibrary(m_tempdir-&gt;get_path_so_file ());
++  /* if ((<span style="color: #4eee94;">error</span> = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
++  if ((<span style="color: #4eee94;">error</span> = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
 +    add_error (NULL, <span style="color: #deb887;">"%ld"</span>, error);
    }
    <span style="color: #00bfff;">if</span> (handle)
@@ -320,7 +343,7 @@ diff --git a/gcc/jit/jit-recording.c b/gcc/jit/jit-recording.c
 index b73cd76a0..acb40730e 100644
 --- a/gcc/jit/jit-recording.c
 +++ b/gcc/jit/jit-recording.c
-@@ -4480,6 +4480,7 @@ recording::global::write_reproducer (reproducer &amp;r)
+@@ -4480,6 +4480,7 @@ recording::global::write_reproducer (reproducer &amp;<span style="color: #f08080;">r</span>)
  /* Explicit specialization of the various mementos we<span style="color: #deb887;">'re interested in.  */</span>
 <span style="color: #deb887;"> template class recording::memento_of_new_rvalue_from_const &lt;int&gt;;</span>
 <span style="color: #deb887;"> template class recording::memento_of_new_rvalue_from_const &lt;long&gt;;</span>
@@ -372,7 +395,7 @@ index b73cd76a0..acb40730e 100644
 <span style="color: #deb887;">+     and hence we'</span>d get:
 +       error: integer constant is so large that it is unsigned [-Werror]
 +       Workaround this by writing (LONG_MIN + 1) - 1.  */
-+  if (m_value == LONG_LONG_MIN)
++  if (<span style="color: #4eee94;">m_value</span> == LONG_LONG_MIN)
 +    {
 +      r.write (<span style="color: #deb887;">"  gcc_jit_rvalue *%s =\n"</span>
 +              <span style="color: #deb887;">"    gcc_jit_context_new_rvalue_from_long_long_int (%s, /* gcc_jit_context *ctxt */\n"</span>
@@ -433,17 +456,17 @@ index c10e5a13c..69c80f191 100644
    /* Clear any existing error.  */
 -  dlerror ();
 -
--  code = dlsym (m_dso_handle, funcname);
+-  <span style="color: #4eee94;">code</span> = dlsym (m_dso_handle, funcname);
 -
--  if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
+-  if ((<span style="color: #4eee94;">error</span> = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
 -    fprintf(stderr, <span style="color: #deb887;">"%s\n"</span>, error);
 +  /* dlerror (); */
 +  SetLastError(0);
 +
-+  /* code = dlsym (m_dso_handle, funcname); */
-+  code = (void *)GetProcAddress((HMODULE)m_dso_handle, funcname);
-+  /* if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
-+  if ((error = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
++  /* <span style="color: #4eee94;">code</span> = dlsym (m_dso_handle, funcname); */
++  <span style="color: #4eee94;">code</span> = (void *)GetProcAddress((HMODULE)m_dso_handle, funcname);
++  /* if ((<span style="color: #4eee94;">error</span> = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
++  if ((<span style="color: #4eee94;">error</span> = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
 +    fprintf(stderr, <span style="color: #deb887;">"%ld\n"</span>, error);
    }
 
@@ -461,14 +484,14 @@ index c10e5a13c..69c80f191 100644
 +  /* dlerror (); */
 +  SetLastError(0);
 
--  global = dlsym (m_dso_handle, name);
-+  /* global = dlsym (m_dso_handle, name); */
-+  global = (void *)GetProcAddress((HMODULE)m_dso_handle, name);
+-  <span style="color: #4eee94;">global</span> = dlsym (m_dso_handle, name);
++  /* <span style="color: #4eee94;">global</span> = dlsym (m_dso_handle, name); */
++  <span style="color: #4eee94;">global</span> = (void *)GetProcAddress((HMODULE)m_dso_handle, name);
 
--  if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
+-  if ((<span style="color: #4eee94;">error</span> = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  {
 -    fprintf(stderr, <span style="color: #deb887;">"%s\n"</span>, error);
-+  /* if ((error = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
-+  if ((error = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
++  /* if ((<span style="color: #4eee94;">error</span> = dlerror()) <span style="color: #ffd700;">!</span>= NULL)  { */
++  if ((<span style="color: #4eee94;">error</span> = GetLastError()) <span style="color: #ffd700;">!</span>= 0)  {
 +    fprintf(stderr, <span style="color: #deb887;">"%ld\n"</span>, error);
    }
 
@@ -610,11 +633,11 @@ index 10c528faf..457591708 100644
 <span style="color: #deb887;">+     pid = getpid();</span>
 <span style="color: #deb887;">+</span>
 <span style="color: #deb887;">+     /* Move to end of path and count trailing X'</span>s. */
-+     for (trv = path; *trv; ++trv)
-+         if (*trv == <span style="color: #deb887;">'X'</span>)
++     for (<span style="color: #4eee94;">trv</span> = path; *trv; ++trv)
++         if (*<span style="color: #4eee94;">trv</span> == <span style="color: #deb887;">'X'</span>)
 +             xcnt++;
 +         else
-+             xcnt = 0;
++             <span style="color: #4eee94;">xcnt</span> = 0;
 +
 +     /* Use at least one from xtra.  Use 2 if more than 6 X<span style="color: #deb887;">'s. */</span>
 <span style="color: #deb887;">+     if (xcnt &gt; 0)</span>
@@ -952,7 +975,7 @@ index 10c528faf..457591708 100644
 <li>mingw64中configure时居然不支持 <b>setjmp</b> 。在setjmp.h中有 <b>_setjmp</b> ，里面的宏太多了，搞不清楚是用哪个，编译时报错，提示有2个参数。从setjmp.h里看 _setjmp(jmp_buf, void * ptr)，第二个参数一般是0。反正没看懂。先填个0进去了。</li>
 </ol>
 
-<pre class="example">
+<pre class="example" id="orgfe86810">
 $ git diff
 diff --git a/src/comp.c b/src/comp.c
 index 290fc3a9c4..43b5273d45 100644
@@ -1097,10 +1120,10 @@ bt
 </div>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2020-01-26 周日 22:09] </span></span> fail了2个test case。
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-26 Sun 22:09] </span></span> fail了2个test case。
 </p>
 
-<pre class="example">
+<pre class="example" id="org5cac99f">
 2 unexpected results:
    FAILED  comp-tests-bootstrap
    FAILED  comp-tests-fixnum
@@ -1121,7 +1144,7 @@ bt
 <h4>comp-tests-fixnum</h4>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 周二 16:55] </span></span> 由于mingw64中的long和int是4字节，long long int是8字节。在linux上long是8字节。comp.c中的代码默认long是8字节。导致类型转换时精度降低，无法通过测试。
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 Tue 16:55] </span></span> 由于mingw64中的long和int是4字节，long long int是8字节。在linux上long是8字节。comp.c中的代码默认long是8字节。导致类型转换时精度降低，无法通过测试。
 </p>
 
 <p>
@@ -1132,7 +1155,7 @@ libgccjit.c中只有gcc_jit_context_new_rvalue_from_long() ，没有 <b>gcc_jit_
 直接修改gcc_jit_context_new_rvalue_from_long() ，直接cast为 long long int ，也是一个方法。
 </p>
 
-<pre class="example">
+<pre class="example" id="org65a3964">
 make[1]: 进入目录“/e/workspace/emacs_src/emacs28/emacs/src”
   GEN      globals.h
   CC       comp.o
@@ -1169,7 +1192,7 @@ comp.c:3087:15: note: in expansion of macro 'MOST_NEGATIVE_FIXNUM'
 </pre>
 </div>
 
-<pre class="example">
+<pre class="example" id="org4477572">
 Summary results:
 
 bubble.el                 byte time:  48.196685s native time:  22.676739s boost 112.537989%
@@ -1199,7 +1222,7 @@ Total                     byte time: 667.153574s native time: 287.974774s boost 
 </pre>
 </div>
 
-<pre class="example">
+<pre class="example" id="org0000900">
 bubble.el                 byte time: 100.621556s native time:  20.373809s boost 393.876997%
 bubble-no-cons.el         byte time: 136.691828s native time:  35.343340s boost 286.754132%
 fibn.el                   byte time: 121.392839s native time:  67.133157s boost 80.823969%
@@ -1345,7 +1368,7 @@ Total                     byte time: 596.685092s native time: 170.268149s boost 
 
 <h4>linux</h4>
 
-<pre class="example">
+<pre class="example" id="org98c2f97">
 Summary results:
 bubble.el                 byte time: 145.803142s native time:  29.089018s  boost 401.230884%
 bubble-no-cons.el         byte time: 318.617107s native time:  38.999612s  boost 716.975064%
@@ -1377,7 +1400,7 @@ Total                     byte time: 737.046902s native time: 150.518523s  boost
 <h5>M-x org-publish-all执行几次后报错，出现过segfault。</h5>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2020-02-16 周日 23:48] </span></span> 可能和ox-html.el编译为eln有关。不知道为什么用 <code>advice-add</code> override org-html-headline和org-html-section函数的时候没有生效。不编译eln就ok了。
+<span class="timestamp-wrapper"><span class="timestamp">[2020-02-16 Sun 23:48] </span></span> 可能和ox-html.el编译为eln有关。不知道为什么用 <code>advice-add</code> override org-html-headline和org-html-section函数的时候没有生效。不编译eln就ok了。
 </p>
 
 <p>
@@ -1398,22 +1421,22 @@ gdb emacs
 </div>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 周二 11:35] </span></span> 增加 gcc_jit_context_new_rvalue_from_long_long_int() 重新编译gcc后，rm lisp/org/*.elc 重新编译后测试。segfault
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 Tue 11:35] </span></span> 增加 gcc_jit_context_new_rvalue_from_long_long_int() 重新编译gcc后，rm lisp/org/*.elc 重新编译后测试。segfault
 </p>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 周二 11:54] </span></span> rm helm*.eln 照样segfault。make clean重新编译后，M-x org-publish-all segfault。
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-28 Tue 11:54] </span></span> rm helm*.eln 照样segfault。make clean重新编译后，M-x org-publish-all segfault。
 </p>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2020-01-29 周三 16:49] </span></span> 貌似 org-publish-current-file 不会segfault。
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-29 Wed 16:49] </span></span> 貌似 org-publish-current-file 不会segfault。
 </p>
 
 
 <h5>magit 在native compile后，commit的时候容易segfault。</h5>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2020-01-29 周三 16:47] </span></span> rm eln文件后，commit、push都不报错。为什么windows上的native compile问题这么多呢?
+<span class="timestamp-wrapper"><span class="timestamp">[2020-01-29 Wed 16:47] </span></span> rm eln文件后，commit、push都不报错。为什么windows上的native compile问题这么多呢?
 </p>
 
 
@@ -1435,11 +1458,11 @@ Update: 在3月的某个commit之后，忽然就正常了，神奇啊。
 <h5>evil的visual mode按c-v，列编辑，按I插入不正常。</h5>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2020-02-09 周日 00:56] </span></span> evil-commands.el 编译成eln后，c-v是有问题的，去掉后ok。
+<span class="timestamp-wrapper"><span class="timestamp">[2020-02-09 Sun 00:56] </span></span> evil-commands.el 编译成eln后，c-v是有问题的，去掉后ok。
 </p>
 
 <ul class="org-ul">
-<li><a id="orgf694364"></a>undo-tree <span class="timestamp-wrapper"><span class="timestamp">[2020-02-16 周日 23:29]</span></span><br>
+<li><a id="org536befe"></a>undo-tree <span class="timestamp-wrapper"><span class="timestamp">[2020-02-16 Sun 23:29]</span></span><br>
 <p>
 发现undo-tree编译为eln后，doom-modeline在undo的时候，文件名不会从红色恢复为正常的颜色。
 </p>
@@ -1510,7 +1533,7 @@ NATIVE_FAST_BOOT编译选项打开后，只会编译生成pdump需要的elisp文
 更新到最新的代码后
 </p>
 
-<pre class="example">
+<pre class="example" id="org3fd22ff">
 (gdb) bt
 #0  0x00007ffe6d1e0aa3 in KERNELBASE!DebugBreak ()
    from C:\WINDOWS\System32\KernelBase.dll

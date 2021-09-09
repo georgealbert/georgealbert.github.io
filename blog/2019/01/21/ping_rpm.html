@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2019-10-16 周三 09:11 -->
+<!-- 2021-09-06 Mon 21:33 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>如何用rpm打包</title>
 <meta name="generator" content="Org mode">
+<meta name="author" content="albert">
 <link rel="stylesheet" type="text/css" href="/main.css" />
 </head>
 <body>
@@ -236,10 +237,10 @@ grep -q ^%{_user}: /etc/passwd || %{_sbin_path}/useradd -g %{_group} -u %{_user_
 </div></li>
 </ol>
 
-<div id="outline-container-org72c6d49" class="outline-2">
-<h2 id="org72c6d49">rpmbuild报错Installed (but unpackaged) file(s) found <a href="https://blog.csdn.net/zhoujiaxq/article/details/38108787">https://blog.csdn.net/zhoujiaxq/article/details/38108787</a></h2>
-<div class="outline-text-2" id="text-org72c6d49">
-<pre class="example">
+
+<h2>rpmbuild报错Installed (but unpackaged) file(s) found <a href="https://blog.csdn.net/zhoujiaxq/article/details/38108787">https://blog.csdn.net/zhoujiaxq/article/details/38108787</a></h2>
+
+<pre class="example" id="org121c0a1">
 _unpackaged_files_terminate_build 0  
 _missing_doc_files_terminate_build 0 
 
@@ -247,12 +248,10 @@ _missing_doc_files_terminate_build 0
 %define _unpackaged_files_terminate_build 0
 %define _missing_doc_files_terminate_build 0
 </pre>
-</div>
-</div>
 
-<div id="outline-container-org6a877d7" class="outline-2">
-<h2 id="org6a877d7">非root用户安装rpm包，只能 sudo 了</h2>
-<div class="outline-text-2" id="text-org6a877d7">
+
+<h2>非root用户安装rpm包，只能 sudo 了</h2>
+
 <div class="org-src-container">
 <pre class="src src-sh">
 [albert@master x86_64]$ rpm -qpl tengine-2.2.3-1.x86_64.rpm
@@ -300,8 +299,6 @@ Description :
 Taobao tengine for pingmesh with modified ngx_tcp_proxy_module
 
 </pre>
-</div>
-</div>
 </div>
 </div>
 </body>

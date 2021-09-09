@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>ubuntu qemu raw partition</title>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
+<body>
+<div id="preamble" class="status"></div>
+<div id="content">
+  <div class="post-date">2021年09月05日</div>
+  <h1>ubuntu qemu raw partition</h1>
+
+
+<h2>soft raid</h2>
+
+<p>
+linux下的玩法就是多啊，用2个raw image文件，挂上loop设备，然后再用 <code>JBOD</code> 模式(即 <code>linear</code>) 的soft raid，拼成一个虚拟的盘，已现实单独访问一个raw physical partition。
+</p>
+
+<p>
+由于单独的partition是没有 gpt 分区表的，需要为单独的partition造出一个gpt分区表了。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">mdadm --detail /dev/md0
+/dev/md0:
+           Version : 
+     Creation Time : Mon Sep  6 09:49:32 2021
+        Raid Level : linear
+        Array Size : 101811712 (97.10 GiB 104.26 GB)
+      Raid Devices : 3
+     Total Devices : 3
+
+             State : clean 
+    Active Devices : 3
+   Working Devices : 3
+    Failed Devices : 0
+     Spare Devices : 0
+
+          Rounding : 512K
+
+Consistency Policy : none
+
+    Number   Major   Minor   RaidDevice State
+       0       7        0        0      active sync   /dev/loop0
+       1     259        1        1      active sync   /dev/nvme0n1p1
+       2       7        1        2      active sync   /dev/loop1
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">mdadm --examine /dev/md0
+/dev/md0:
+   MBR Magic : aa55
+Partition[0] :    203623423 sectors at            1 (<span style="color: #f08080;">type</span> ee)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">parted /dev/md0 unit s print
+Model: Linux Software RAID Array (md)
+Disk /dev/md0: 203623424s
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+Disk Flags: 
+
+Number  Start    End         Size        File system  Name     Flags
+ 1      2048s    204799s     202752s     fat32        EFI      boot, esp
+ 2      204800s  203622283s  203417484s  ntfs         Windows  msftdata
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">parted /dev/nvme0n1 unit s print
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#30465;&#30053;...</span>
+Disk /dev/nvme0n1: 1000215216s
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+Disk Flags: 
+
+Number  Start       End          Size        File system     Name                  Flags
+ 1      239616s     203638667s   203399052s  ntfs            Basic data partition  msftdata
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#30465;&#30053;...</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">~# fdisk -l /dev/loop0
+GPT PMBR size mismatch (203623423 != 204799) will be corrected by write.
+Disk /dev/loop0: 100 MiB, 104857600 bytes, 204800 sectors
+Units: sectors of 1 * <span style="color: #4eee94;">512</span> = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x00000000
+
+Device       Boot Start    End Sectors  Size Id Type
+/dev/loop0p1          1 204799  204799  100M ee GPT
+~# fdisk -l /dev/loop1
+Disk /dev/loop1: 10 MiB, 10485760 bytes, 20480 sectors
+Units: sectors of 1 * <span style="color: #4eee94;">512</span> = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+</pre>
+</div>
+
+<p>
+204800 + 203399052 + 20480 = 203624332
+</p>
+
+<p>
+为什么少了908个扇区？
+203624332 - 203623424 = 908
+</p>
+
+<ul>
+<li>gpt分区数据格式 <a href="http://www.360doc.com/content/18/0526/10/51888465_757122283.shtml">http://www.360doc.com/content/18/0526/10/51888465_757122283.shtml</a></li>
+</ul>
+
+<p>
+这里才少34个扇区，正好是gpt的备份 <a href="https://superuser.com/questions/1117683/why-is-mdadm-shorting-me-33-sectors-on-my-linear-virtual-software-raid-device?rq=1">https://superuser.com/questions/1117683/why-is-mdadm-shorting-me-33-sectors-on-my-linear-virtual-software-raid-device?rq=1</a>
+</p>
+
+<p>
+最后34个扇区是gpt分区的备份分区头和备份分区表项。为什么我会少了908个扇区？
+</p>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
+</body>
+</html>

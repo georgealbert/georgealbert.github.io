@@ -1,60 +1,60 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2019-10-16 周三 10:23 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>virtualbox中的nat和host-only双网卡配置</title>
-<meta name="generator" content="Org mode">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
+<meta charset="UTF-8">
+<title>VirtualBox中的NAT和host-only双网卡配置</title>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">virtualbox中的nat和host-only双网卡配置</h1>
+  <div class="post-date">2019年02月02日</div>
+  <h1>VirtualBox中的NAT和host-only双网卡配置</h1>
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-05-31 周五 15:45]</span></span>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-05-31 Fri 15:45]</span></span>
 </p>
 
-<div id="outline-container-org5dfed9d" class="outline-2">
-<h2 id="org5dfed9d">virtualbox中的nat和host-only双网卡配置</h2>
-<div class="outline-text-2" id="text-org5dfed9d">
-<p>
-原来只使用host-only网络，但是我的机器重装了一次vb以后，每次重启以后都需要手工再配置网络共享，
-否则host-only网络总是ping不通外网。而且使用host-only网络无法在vpn后ping通内网的ip。
-</p>
+
+<h2>VirtualBox中的NAT和host-only双网卡配置</h2>
 
 <p>
-考虑使用nat网络进行内网访问，host-only网络用来从我的机器访问虚机。
+在VirtualBox中原来只用 <code>host-only</code> 网络，但我的机器重装了VirtualBox以后，每次重启以后都需要手工再配置网络共享，
+否则 <code>host-only</code> 网络总是ping不通外网。而且使用 <code>host-only</code> 网络无法在vpn后ping通内网的ip。
 </p>
 
 <p>
-需要同时使用nat和host-only网络。原来的host-only网络配置时，由于需要指定每个虚机的ip，
+考虑使用 <code>NAT</code> 网络进行内网访问， <code>host-only</code> 网络用来从宿主机访问虚机。
+</p>
+
+<p>
+需要同时使用NAT和host-only网络。原来在 <code>host-only</code> 网络配置时，由于手工配置了每个虚机的ip，
 所以把host-only网络的dhcp server给停掉了。导致再增加nat网络的时候，nat网络对应的虚机中的网卡总是无法从dhcp server分配到ip。
 </p>
-</div>
 
-<div id="outline-container-org94230e0" class="outline-3">
-<h3 id="org94230e0">virtualbox配置</h3>
-<div class="outline-text-3" id="text-org94230e0">
+
+<h3>virtualbox配置</h3>
+
 <p>
 在"网络"中网卡1是nat网络，网卡2是host-only网络。不知道为什么eth0是host-only的，而eth1是nat的。
 </p>
 
-<dl class="org-dl">
+<dl>
 <dt>host-only</dt><dd>支持DHCP</dd>
 
 <dt>nat</dt><dd>启动DHCP，默认的
-<ol class="org-ol">
+<ol>
 <li>“管理” -&gt; “主机网络管理器” -&gt; 单击 “DHCP服务器” tab -&gt; 勾选 “启用服务器”
 虽然启用了dhcp，但是在centos的 <b>ifcfg-eth0</b> 中仍然可以设置静态ip，这样访问起来不会乱。</li>
 </ol></dd>
 </dl>
-</div>
-</div>
 
-<div id="outline-container-org1d14422" class="outline-3">
-<h3 id="org1d14422">虚机中的默认路由</h3>
-<div class="outline-text-3" id="text-org1d14422">
+
+<h3>虚机中的默认路由</h3>
+
 <p>
 启动后 <code>ip a</code> 可以看见eth0、eth1的ip都已经是正确的，但是 <code>ip route</code> 有2条默认路由。
 </p>
@@ -71,9 +71,7 @@
 ip route del default via 192.168.56.1
 </pre>
 </div>
-</div>
-</div>
-</div>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

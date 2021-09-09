@@ -1,16 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2019-10-16 周三 12:05 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>用goaccess解析阿里cdn的log</title>
-<meta name="generator" content="Org mode">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">用goaccess解析阿里cdn的log</h1>
+  <div class="post-date">2019年09月20日</div>
+  <h1>用goaccess解析阿里cdn的log</h1>
 <p>
 以前使用awstats解析过某门户网站的apache log。最近需要分析ali云cdn的log，考虑到awstats安装配置有点麻烦，又不太喜欢perl，所以在网上找到了goaccess。
 </p>
@@ -53,7 +56,7 @@ rpm安装的版本低了一点，用源代码安装。
 <p>
 开发包说明:
 </p>
-<dl class="org-dl">
+<dl>
 <dt>ncurses-devel</dt><dd>goaccess只依赖ncurses-devel</dd>
 <dt>openssl-devel</dt><dd>通过TLS/SSL访问goaccess的WebSocket需要openssl-devel</dd>
 <dt>libmaxminddb-devel</dt><dd>使用maxminddb格式的geoip地址库</dd>
@@ -84,7 +87,7 @@ make &amp;&amp; make install
 </pre>
 </div>
 
-<ol class="org-ol">
+<ol>
 <li>指定安装目录为 <b>/usr/local/goaccess</b> ，改为其他的也可以，习惯而已。</li>
 
 <li>&#x2013;enable-utf8 支持中文字符处理。</li>
@@ -107,17 +110,17 @@ goacesss的log format参考 <a href="https://goaccess.io/man">https://goaccess.i
 阿里cdn的格式在cdn日志下载页面上有简单说明。
 </p>
 
-<ul class="org-ul">
+<ul>
 <li><p>
 阿里cdn日志字段对应goaccess的格式，部分字段在goaccess上没有对应的，用 <code>%^</code> 忽略掉该字段。
 [时间]、访问IP %h、代理IP %^、responsetime %L、"referer %R"、"method %m、访问URL %U"、httpcode %s、requestsize %^、responsesize %b、cache命中状态 %^、"UA头 %u"、"文件类型" %^
 </p>
 
-<pre class="example">
+<pre class="example" id="org341086f">
 [%d:%t %^] %h %^ %L \"%R\" \"%m %U\" %s %^ %b %^ \"%u\" %^  
 </pre>
 
-<ol class="org-ol">
+<ol>
 <li>代理IP，应该是x-forward-for，但是goaccess没找到对应的格式，用 <code>%^</code> 忽略掉这个字段。</li>
 <li>responsetime，貌似以毫秒为单位，如果以微秒为单位，看分析结果，似乎太快了。</li>
 <li>requestsize，goaccess没找到对应的格式，用 <code>%^</code> 忽略掉这个字段。</li>
@@ -128,7 +131,7 @@ goacesss的log format参考 <a href="https://goaccess.io/man">https://goaccess.i
 
 <h2>命令行生成html报表</h2>
 
-<pre class="example">
+<pre class="example" id="org172e402">
 1. --real-time-html : web界面查看实时日志分析
 2. -o /path/to/report.html : 指定生成报表路径
 </pre>
@@ -156,7 +159,7 @@ goacesss的log format参考 <a href="https://goaccess.io/man">https://goaccess.i
 
 <h2>配置文件</h2>
 
-<ol class="org-ol">
+<ol>
 <li>rpm安装的默认配置文件在 <code>/etc/goaccess.conf</code></li>
 
 <li>指定了安装目录为/usr/local/goaccess 的配置文件在 <code>/usr/local/goaccess/goaccess/goaccess.conf</code></li>
@@ -168,7 +171,7 @@ goacesss的log format参考 <a href="https://goaccess.io/man">https://goaccess.i
 配置文件有下面几行就能解析cdn的log了。
 </p>
 
-<pre class="example">
+<pre class="example" id="orgaa0e301">
 time-format %H:%M:%S
 
 date-format %d/%b/%Y
@@ -198,6 +201,7 @@ GeoLite2 Free是免费的，每周二更新一次。不过不如收费的MaxMind
 <p>
 IP数据库的比较和选择，参考 <a href="https://blog.csdn.net/matthewei6/article/details/50536609">https://blog.csdn.net/matthewei6/article/details/50536609</a> 
 </p>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

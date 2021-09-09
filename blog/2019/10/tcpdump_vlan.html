@@ -1,22 +1,25 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2019-10-17 周四 14:54 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>tcpdump抓包分析LLDP协议</title>
-<meta name="generator" content="Org mode">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
+<meta charset="UTF-8">
+<title>tcpdump抓包分析vlan和dhcp协议</title>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">tcpdump抓包分析LLDP协议</h1>
+  <div class="post-date">2019年10月16日</div>
+  <h1>tcpdump抓包分析vlan和dhcp协议</h1>
 <p>
 -<b>- mode: Org; org-download-image-dir: "~/org/notes/images/tcpdump_vlan"; -</b>-
 </p>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-10-16 周三 14:48]</span></span>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-10-16 Wed 14:48]</span></span>
 </p>
 
 
@@ -130,7 +133,7 @@ tcpdump: listening on eth0, link-type EN10MB (Ethernet), capture size 262144 byt
 </p>
 
 
-<h3>tplink 703n连到ar750s上去后ok了，从eth0 br-lan上获取到了192.168.9.x的ip <span class="timestamp-wrapper"><span class="timestamp">[2019-08-11 周日 21:52]</span></span></h3>
+<h3>tplink 703n连到ar750s上去后ok了，从eth0 br-lan上获取到了192.168.9.x的ip <span class="timestamp-wrapper"><span class="timestamp">[2019-08-11 Sun 21:52]</span></span></h3>
 
 <p>
 Sun Aug 11 21:47:15 2019 daemon.info dnsmasq-dhcp[1771]: DHCPDISCOVER(br-lan) 5c:63:bf:d8:e1:de
@@ -242,7 +245,7 @@ traceroute to 192.168.4.1 (192.168.4.1), 30 hops max, 38 byte packets
 </div>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-08-11 周日 21:58] </span></span> hp笔记本连接到广联 AR750s
+<span class="timestamp-wrapper"><span class="timestamp">[2019-08-11 Sun 21:58] </span></span> hp笔记本连接到广联 AR750s
 </p>
 
 <p>
@@ -260,7 +263,7 @@ IPv4 地址 . . . . . . . . . . . . : 192.168.1.173
 
 <h3>dhclient</h3>
 
-<dl class="org-dl">
+<dl>
 <dt>释放ip命令</dt><dd>dhclient eth1 -r -v</dd>
 
 <dt>获取ip命令</dt><dd>dhclient eth1 -v
@@ -344,7 +347,7 @@ virsh list --all
 </pre>
 </div>
 
-<h3>kvm bridge vlan <span class="timestamp-wrapper"><span class="timestamp">[2019-08-11 周日 13:25]</span></span></h3>
+<h3>kvm bridge vlan <span class="timestamp-wrapper"><span class="timestamp">[2019-08-11 Sun 13:25]</span></span></h3>
 
 <p>
 <a href="https://www.cnblogs.com/wanglm/articles/5766701.html">https://www.cnblogs.com/wanglm/articles/5766701.html</a>
@@ -358,10 +361,11 @@ virsh list --all
 <h3>kvm</h3>
 
 
-<div class="figure">
-<p><img src="2019-10-17_14-53-22_66839370-4c5cd180-ef34-11e9-9751-241a9d085a63.png" alt="2019-10-17_14-53-22_66839370-4c5cd180-ef34-11e9-9751-241a9d085a63.png">
-</p>
-</div>
-</div>
+<figure id="orge4fb1f7">
+<img src="2019-10-17_14-53-22_66839370-4c5cd180-ef34-11e9-9751-241a9d085a63.png" alt="2019-10-17_14-53-22_66839370-4c5cd180-ef34-11e9-9751-241a9d085a63.png">
+
+</figure>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

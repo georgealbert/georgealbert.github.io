@@ -1,21 +1,24 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2019-10-16 周三 10:08 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>使用bind和dnsmasq的阿里云CDN 本地DNS CNAME配置</title>
-<meta name="generator" content="Org mode">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">使用bind和dnsmasq的阿里云CDN 本地DNS CNAME配置</h1>
+  <div class="post-date">2018年12月09日</div>
+  <h1>使用bind和dnsmasq的阿里云CDN 本地DNS CNAME配置</h1>
 <p>
 最近申请了阿里云CDN对应用使用的图片和大文件进行下载加速。在做阿里云CDN测试时，调整DNS的CNAME需要走的审批流程比较长，想先用自己虚机上的dns配置CNAME进行CDN测试。
 </p>
 
-<dl class="org-dl">
+<dl>
 <dt>源站</dt><dd>albertzhou.net</dd>
 
 <dt>加速域名</dt><dd><p>
@@ -50,9 +53,9 @@
 </table></dd>
 </dl>
 
-<div id="outline-container-org37b6ec4" class="outline-2">
-<h2 id="org37b6ec4">dnsmasq</h2>
-<div class="outline-text-2" id="text-org37b6ec4">
+
+<h2>dnsmasq</h2>
+
 <p>
 在dnsmas的配置文件中只要新增配置一行CNAME配置就可以，比bind的配置简单多了，所以先用dnsmasq进行测试。测试了半天发现总是解析不到cname，原来dnsmasq的CNAME配置对target是有要求的。
 </p>
@@ -61,7 +64,7 @@
 具体如下：
 </p>
 
-<pre class="example">
+<pre class="example" id="org03e8d91">
 There are significant limitations on the target; it must be a DNS name which is known to dnsmasq from /etc/hosts (or additional hosts files), from DHCP, from --interface-name or from another --cname.
 </pre>
 
@@ -81,20 +84,17 @@ vim /etc/hosts
 124.165.219.100    download.albertzhou.net.w.kunlunca.com
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-orgfa350eb" class="outline-2">
-<h2 id="orgfa350eb">bind</h2>
-<div class="outline-text-2" id="text-orgfa350eb">
+
+<h2>bind</h2>
+
 <p>
 dnsmasq的CNAME中的target要在/etc/hosts中配，就算可以配置多个，也有点麻烦，而且不能完全模拟实际环境，只能上bind了。bind的配置比较麻烦，唉，再麻烦也要上。
 </p>
-</div>
 
-<div id="outline-container-org557b8db" class="outline-3">
-<h3 id="org557b8db">前提</h3>
-<div class="outline-text-3" id="text-org557b8db">
+
+<h3>前提</h3>
+
 <p>
 一级域名 <code>albertzhou.net</code> 已经在 <code>/etc/named.rfc1912.zones</code> 中配置了，可以直接在zone文件里面配置。
 </p>
@@ -128,12 +128,10 @@ rndc reload
 <p>
 bind的配置ok了，就可以直接把cname的lookup递归到阿里云的dns，这点比dnsmasq省事。
 </p>
-</div>
-</div>
 
-<div id="outline-container-org3ab490a" class="outline-3">
-<h3 id="org3ab490a">测试</h3>
-<div class="outline-text-3" id="text-org3ab490a">
+
+<h3>测试</h3>
+
 <p>
 dig测试域名的解析。
 </p>
@@ -182,9 +180,7 @@ ns4.kunlunca.com.       10799   IN      A       101.200.28.73
 <pre class="src src-sh">curl -vvv -o /dev/null download.albertzhou.net/bigfile.txt
 </pre>
 </div>
-</div>
-</div>
-</div>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

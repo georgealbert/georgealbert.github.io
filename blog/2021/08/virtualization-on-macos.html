@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>macos上的虚拟化</title>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
+<body>
+<div id="preamble" class="status"></div>
+<div id="content">
+  <div class="post-date">2021年08月30日</div>
+  <h1>macos上的虚拟化</h1>
+
+
+<h2>操作系统引导恢复</h2>
+
+
+
+<h3>Win10</h3>
+
+<p>
+Win10引导需要用Win10系统盘来修复。从 <code>M$</code> 官方网站下载，创建安装u盘。
+</p>
+
+<p>
+在BIOS里设置U盘启动，进入Win10安装界面，点击 “下一步” ，在新的页面选择左下角的 “修复计算机”。
+</p>
+
+<p>
+修复界面依次选择：疑难解答-&gt;高级工具-&gt;命令提示符 进入命令行，显示 <code>X:\Sources&gt;</code> ，之后用到 <code>diskpart</code> 和 <code>bcdboot</code> 命令。
+</p>
+
+
+<h4>用 <code>diskpart</code> 找到efi分区</h4>
+
+<p>
+用到如下指令
+list disk 	列出所有挂在磁盘
+list par 	列出当前磁盘分区
+sel disk x 	选择某一磁盘x
+sel par x 	选择某一分区x
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">diskpart      //&#36827;&#20837;diskpart&#24037;&#20855;
+list disk     //&#26597;&#30475;&#25152;&#26377;&#30913;&#30424;
+sel disk x      //&#26681;&#25454;&#24773;&#20917;&#36873;&#25321;windows&#30340;&#30913;&#30424;&#32534;&#21495;&#65292;x&#20026;&#30913;&#30424;&#32534;&#21495;
+list par     //&#21015;&#20986;&#19978;&#19968;&#27493;&#25152;&#36873;&#30913;&#30424;&#30340;&#20998;&#21306;&#65292;&#20854;&#20013;&#23601;&#26377;&#23384;&#25918;efi&#30340;&#20998;&#21306;&#65292;&#31867;&#22411;&#20026;&#31995;&#32479;&#65292;&#22823;&#23567;&#20960;&#30334;M
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#25110;&#32773; list vol&#65292;&#27880;&#24847;&#30475;&#27599;&#20010;volumne&#30340;&#20998;&#21306;&#26684;&#24335;&#26159;&#21542;&#27491;&#30830;</span>
+
+<span style="color: #00bfff;">select</span> par x       //&#36873;&#25321;efi&#30340;&#20998;&#21306;&#65292;x&#20026;&#20998;&#21306;&#32534;&#21495;
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#25110;&#32773; select volumne x</span>
+
+assign <span style="color: #4eee94;">letter</span>=o     //&#20026;&#36873;&#25321;&#30340;&#20998;&#21306;&#20998;&#37197;&#19968;&#20010;&#30424;&#31526;&#20026;o&#20197;&#20415;&#20462;&#22797;
+<span style="color: #00bfff;">exit</span>      //&#36864;&#20986;diskpart&#65292;&#19981;&#35201;&#20851;&#38381;&#21629;&#20196;&#34892;&#26694;
+</pre>
+</div>
+
+
+<h4>bcdboot进行修复</h4>
+
+<p>
+<code>c:\</code> 不一定是系统盘，需要用 <code>dir</code> 命令查看盘内文件来判断哪个是系统盘， <code>dir c:\</code> 和 <code>dir d:\</code> 等，记住系统盘是哪个。
+</p>
+
+<p>
+然后执行
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">bcdboot x:\windows /s o: /f uefi /l zh-cn <span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">&#20854;&#20013;x&#20026;&#31995;&#32479;&#30424;&#30424;&#31526;&#12290;</span>
+</pre>
+</div>
+
+<p>
+会提示“已成功创建启动文件”。
+</p>
+
+<p>
+然后输入 <code>exit</code> 退出命令行，关机重启或者 “继续” 就能进入Windows了。
+</p>
+
+
+<h3>Ubuntu</h3>
+
+<p>
+用Ubuntu的安装u盘启动，选择第四项 “firmware”，重启后就可以直接进入grub引导。
+</p>
+
+
+<h2>恢复UEFI引导项</h2>
+
+<p>
+装完catalina后，win10和Ubuntu的引导项都丢失了。在恢复Ubuntu的引导项后，OC的又没有了，真是折腾啊。
+</p>
+
+<h3>Ubuntu中增加uefi启动选项</h3>
+
+<p>
+Ubuntu的u盘启动速度比win10的快，命令多，优先使用Ubuntu恢复OC的启动选项。
+</p>
+
+<p>
+用efibootmgr增加启动选项到bios。Ubuntu默认安装了efibootmgr。
+</p>
+
+<p>
+U盘引导后，命令行
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">sudo su -
+lsbkf -f
+blkid
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#30830;&#35748;</span>
+eftbootmgr
+</pre>
+</div>
+
+
+<h3>win10中增加uefi启动选项</h3>
+
+<p>
+RE
+</p>
+
+
+<h2>引导</h2>
+
+
+
+<h3>OC引导Ubuntu</h3>
+
+<p>
+OC看不见Ubuntu分区。
+</p>
+
+
+<h3>Ubuntu的grub2引导OC</h3>
+
+<p>
+grub2引导oc的问题是，不确定会对黑苹果造成什么影响，为了更好的定位问题，还是考虑用OC进行引导。
+</p>
+
+
+<h2>host macos/VirtualBox</h2>
+
+<p>
+在同一块nvme ssd上的不同分区。想通过VirtualBox直接访问ssd上对应的分区。
+</p>
+
+<p>
+efi安装的系统，启动是麻烦啊。
+</p>
+
+<p>
+efi分区由于是macos在用，为了安全起见，不能把用户的读写权限给加到 <code>/dev/disk0s5</code> 上。只能把分区 dd 后，转为 vdi 格式。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">dd <span style="color: #4eee94;">if</span>=/dev/disk0s5 <span style="color: #4eee94;">of</span>=~/VirtualBox_VMs/win10/efi.img
+VBoxMange convertrawdisk efi.img efi.vdi
+</pre>
+</div>
+
+
+<h3>win10 vm</h3>
+
+<p>
+efi
+windows ntfs
+windows recovery
+linux
+linux swap
+</p>
+
+<p>
+fs0:
+EFI\Microsoft\Boot\bootmgfw.efi # 没有反应，不知道为什么？
+</p>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2021-08-31 Tue 16:48] </span></span> 昨天晚上在用本地的nvme ssd盘的partition 1、5后，win10启动会蓝屏，checksum不正确，应该是系统认为换成sata盘的问题，今天安装了extention pack后，应该可以支持nvme了。在hp zhan66 pro g1上用macos测试，会蓝屏，win10起不来。
+</p>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2021-09-01 Wed 17:54] </span></span> 要关闭win10 home edition的更新，否则一更新就容易把虚机搞定。
+</p>
+
+<h4>德语的，要翻译 <a href="https://the-digital-native.de/?p=366">https://the-digital-native.de/?p=366</a></h4>
+
+<p>
+主要看grub的那部份。
+</p>
+
+<p>
+I recently purchased a Lenovo P1 that already had Windows 10 Pro preinstalled . Of course, I installed a Linux right away: In my case, a Kubuntu 20.04. For this I reduced the existing NTFS partition with Windows installation to 850GB and created 100GB free space for Linux. Why did I leave the NTFS partition so big? Because, according to my research, it works much better to write from Linux on an NTFS partition than to set up an ext4 partition in Windows. The common data partition becomes the Windows NTFS partition. I did not use a swap partition at all, since 48GB Ram will be enough for everything.
+</p>
+
+<p>
+So now I have a dual boot system Ubuntu 20.04 / Windows 10. That's fine. But even under Linux I like to quickly need the Windows functionalities at hand (Photoshop, &#x2026;). And since maintaining two Windows 10 instances is twice the effort, a possibility to boot the physical system in VirtualBox comes in handy here. That’s what this is about.
+</p>
+
+<ul>
+<li><a id="org503f7d0"></a>Identify the Windows partitions<br>
+<p>
+I'll just use the KDE Partition Manager here. If you don't have Kubuntu and where the KDE partition manager is missing, you can install it:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">sudo apt-get install partitionmanager
+</pre>
+</div>
+
+<p>
+Let's take a look at the partitioning. This should look similar on every system with EFI.
+</p>
+
+<p>
+Here we see the following partitions:
+</p>
+<pre class="example" id="orgdb1bd1e">
+/dev/nvme0n1p1  #a fat32 partition belonging to the EFI. You can also recognize it because it is /boot/efimounted below . This partition is relevant to us because we need it to boot.
+/dev/nvme0n1p2  #is a so-called Microsoft Reserved Partition , which is actually no longer relevant nowadays.
+/dev/nvme0n1p3  #is now the really important partition for us. Windows is here.
+/dev/nvme0n1p5  #contains our Linux distribution
+/dev/nvme0n1p4  #contains a Windows recovery, in case you have to set up Windows again.
+</pre>
+</li>
+
+<li><a id="org4c7ee2d"></a>Access rights in the file system<br>
+<p>
+In order sudo to have full access to our Windows 10 partition even without full access, we still have to do something. The best way to do this is to define a <code>udev rule</code> that <code>groupadds</code> the Windows 10 partition to a specific one.
+</p>
+
+<p>
+First, let's create a new group for the Windows 10 partition:
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">sudo groupadd win10disk
+
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">Now add your own user to the group</span>
+sudo usermod -a -G win10disk youruser
+
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">Now we need to find out the UUID of the Windows 10 partition. It works like this:</span>
+sudo udevadm info /dev/nvme0n1p3 | grep UUID
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">This should output the UUID, e.g. as follows:</span>
+E: <span style="color: #4eee94;">ID_PART_TABLE_UUID</span>=579b23f9-843f-4fec-a246-0ed74800bef1
+</pre>
+</div>
+
+<p>
+If there is a different unique ID than <code>ID_PART_TABLE_UUID</code>, this also works. Copy the variable and create the file <code>/etc/udev/rules.d/99-win10disk.ruleswith</code> something like the following:
+</p>
+
+<pre class="example" id="orge3a2895">
+ENV{ID_PART_TABLE_UUID}=="579b23f9-843f-4fec-a246-0ed74800bef1", GROUP="win10disk"
+</pre>
+
+<p>
+Save the file and now do a restart. Now check whether everything worked with:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">ls -l /dev/nvme0n1p3
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">The output should look something like this:</span>
+brw-rw---- 1 root win10disk 259, 3 Jun  1 13:29 /dev/nvme0n1p3
+</pre>
+</div>
+</li>
+
+<li><a id="orgf2970b1"></a>VirtualBox Raw Host Access VMDK file<br>
+<p>
+In order for VirtualBox to be able to boot the physical partitions from EFI and Windows, a special VMDK (Virtual Machine Disk) file must be created that represents the partitions. This file does not contain any data from the physical partitions, but is just a kind of reference that allows VirtualBox access.
+</p>
+
+<p>
+You can <code>VBoxManage create</code> the VirtualBox raw disk image with. The target directory can be <code>-filename</code> specified with the option. We want to integrate the partitions /dev/nvme0n1p1(EFI) and /dev/nvme0n1p3(Windows). That would be partitions 1 and 3 of /dev/nvme0n1:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">VBoxManage internalcommands createrawvmdk -filename ~/win10.vmdk -rawdisk /dev/nvme0n1 -partitions 1,3
+
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">The output should look something like this:</span>
+RAW host disk access VMDK file /path/to/windows10.vmdk created successfully.
+</pre>
+</div>
+</li>
+
+<li><a id="orgd7a1829"></a>Create and configure the virtual machine<br>
+<p>
+Create a Windows 10 VM as usual. Under Hard disk, select the option “Use an existing virtual hard disk file” and select the one you created previously win10.vmdk.
+</p>
+
+<p>
+When the wizard is finished, open the settings of the new VM. Under System under “Boot Order” select “Hard Disk” and deactivate all other options. Activate the option “Enable EFI (special OSses only)” if your laptop uses EFI (this is what we assume here):
+</p>
+
+<p>
+Under Storage you can check again whether everything is correctly integrated. The file should be selected under Controller: SATAwin10.vmdk . You will probably want to activate the “Solid-state Drive” option .
+</p>
+</li>
+
+<li><a id="orgbb08b1e"></a>Set up GRUB<br>
+<p>
+Now let's start the virtual machine. Most likely, GRUB will now start without being able to load Windows directly. With <code>ls</code> you can display all partitions:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">grub&gt; ls
+(proc) (hd0) (hd0,gtp5) (hd0,gpt3) (hd0,gpt2) (hd0,gpt1)
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">We already know that our Windows installation is on partition 3. Let's verify this:</span>
+
+grub&gt; ls (hd0,gpt3)
+Partition hd0,gpt3: Filesystem type ntfs - Label <span style="color: #deb887;">'Windows'</span>, UUID ABCDEF - Partition start at 283648KiB
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">Now do the following:</span>
+
+grub&gt; insmod part_gpt
+grub&gt; insmod chain
+grub&gt; set <span style="color: #4eee94;">root</span>=(hd0,gpt3)
+grub&gt; insmod ntfs
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">We still have to define the /boot/efi partition mounted on our Linux as /dev/nvme0n1p1a chainloader :</span>
+
+grub&gt; chainloader (hd0,gtp1)/EFI/Microsoft/Boot/bootmgfw.efi
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">And that was it! We can now start the boot process. The settings made are saved and Windows will start up automatically in the future.</span>
+
+grub&gt; boot
+</pre>
+</div>
+</li>
+
+<li><a id="org7c06aaf"></a>What else needs to be considered<br>
+<p>
+Now don't forget to insert themVBoxGuestAdditions.iso ( Devices → Insert Guest Additions CD Image ) and install them. After restarting Windows, everything should now work. In particular, it should be possible to freely change the window size.
+</p>
+
+<p>
+If this is not the case, it is due to a bug in the current VirtualBox version (6.1.8), which seems to appear in some and not in some. The problem can be solved by setting the Graphics Controller to <code>VBoxVGA</code> in the settings of the VM under Display and deactivating Enable 3D Acceleration. That is not optimal, but it is better than working on a screen that is much too small. Then shut down the VM cleanly via the operating system and restart it. It should work now.
+</p>
+</li>
+
+<li><a id="org3261d5e"></a>Windows 10 Quick Start &amp; Hibernate<br>
+<p>
+Remember that you have to deactivate the quick start in Windows 10. But you should also do that for a simple dual boot. Otherwise there will be problems with possible data loss. Hibernate is also problematic at times and I advise against using it.
+</p>
+</li>
+
+<li><a id="org1e7a255"></a>Conclusion<br>
+<p>
+It's amazing that Windows 10 works so well in this form. Remember that with every direct start we have different hardware than via VirtualBox. So one should suspect driver problems. It is also astonishing that you do not have to reactivate it every time you change hardware. But everything is great and it works!
+</p>
+
+<p>
+I personally use the VM mainly for Adobe products (Photoshop, Lightroom, Illustrator, Acrobat Pro), Canon EOS Utility, the Brother P-Touch Editor (label printer) and the tax return (Taxman 2020 for self-employed). Photoshop and Lightroom, in particular, work better under a native booted system (hardware acceleration!) Unfortunately, there does not seem to be any usable software for tax declarations by independent small businesses for Linux (happily proves the opposite to me!)
+</p>
+</li>
+
+<li><a id="org0f755ed"></a>参考<br>
+<ul>
+<li>Booting a Physical Windows 10 Disk Using VirtualBox on Linux <a href="https://forums.virtualbox.org/viewtopic.php?f=7&amp;t=98410">https://forums.virtualbox.org/viewtopic.php?f=7&amp;t=98410</a></li>
+<li><a href="https://www.jamieweb.net/blog/booting-a-physical-windows-10-disk-using-virtualbox-on-linux/">https://www.jamieweb.net/blog/booting-a-physical-windows-10-disk-using-virtualbox-on-linux/</a></li>
+</ul>
+</li>
+</ul>
+
+<h3>ubuntu vm</h3>
+
+
+
+<h4>生成raw partition的vmdk文件</h4>
+
+<p>
+<a href="https://www.virtualbox.org/manual/ch09.html#adv-storage-config">https://www.virtualbox.org/manual/ch09.html#adv-storage-config</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26597;&#30475;partition</span>
+diskutil list
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26597;&#30475;partition&#30340;uuid</span>
+diskutil info /dev/disk0s5
+
+diskutil umountDisk /dev/disk0s3
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#20462;&#25913;owner</span>
+sudo chown albert /dev/disk0s3
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#25226;Ubuntu&#20351;&#29992;&#30340;ext4&#20998;&#21306;&#21644;swap&#20998;&#21306;&#21152;&#21040;raw partition&#20013;.</span>
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">disk0s3&#26159;&#20027;&#20998;&#21306;</span>
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">disk0s4&#26159;swap&#20998;&#21306;</span>
+$ VBoxManage internalcommands createrawvmdk -filename <span style="color: #deb887;">\</span>
+~/VirtualBox_VMs/ubuntu/raw-ubuntu.vmdk -rawdisk /dev/disk0 -partitions 3,4
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#22312;Virtualbox&#20013;&#27880;&#20876;Ubuntu&#20351;&#29992;&#30340;partition&#65292;&#33267;&#23569;&#35201;&#26377; read &#26435;&#38480;&#65292;&#21542;&#21017;&#27880;&#20876;&#20250;&#25253;&#38169;</span>
+</pre>
+</div>
+
+
+<h4>efi启动</h4>
+
+<p>
+sudo chmod o+r /dev/disk0s5
+</p>
+
+<p>
+sudo vifs
+</p>
+
+<p>
+efi
+linux
+linux swap
+</p>
+
+<p>
+使用host io
+</p>
+
+<p>
+efi启动后，会进入 efi shell中
+fs0:
+EFI\ubuntu\grub2x64.efi # 
+</p>
+
+<p>
+选择高级
+e
+ctrl+x 启动
+然后就看见kernel panic，这是什么意思？
+</p>
+
+<ul>
+<li><a id="org3c413aa"></a>Raw disk booting of Windows 10 broken with Ubuntu artful <a href="https://forums.virtualbox.org/viewtopic.php?f=2&amp;t=85903">https://forums.virtualbox.org/viewtopic.php?f=2&amp;t=85903</a><br>
+<p>
+You can enter this in GRUB to Start Windows 10.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">insmod chain
+<span style="color: #f08080;">set</span> <span style="color: #4eee94;">root</span>=(hd0,gpt1)
+chainloader /EFI/Microsoft/Boot/bootmgfw.efi
+boot
+</pre>
+</div>
+
+<p>
+found at
+stackoverflow (dot) com/questions/51101487/booting-raw-disk-windows-10-vm-in-virtualbox-boots-to-grub-shell
+</p>
+</li>
+<li><a id="orgfa5b7ce"></a><a href="https://forums.virtualbox.org/viewtopic.php?f=3&amp;t=98765">https://forums.virtualbox.org/viewtopic.php?f=3&amp;t=98765</a><br>
+<p>
+Are you installing Ubuntu Guest for the first time on UEFI boot? (Settings&gt;System&gt;Extended Features&gt;Enable EFI)
+Found this command somewhere (if we are in the Shell like attached picture)
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">fs0:
+<span style="color: #f08080;">cd</span> EFI/ubuntu
+grubx64.efi
+</pre>
+</div>
+
+<p>
+For my case, just typed the last one "grubx64.efi" and enter then the live CD somehow take over. (Shell&gt; grubx64.efi)
+Make sure your Settings&gt;General&gt;Version is Ubuntu(64-Bit).
+I'm using "ubuntu-20.04.1-desktop-amd64.iso", "VirtualBox-6.1.16-140961-Win.exe", also add "Oracle_VM_VirtualBox_Extension_Pack-6.1.16.vbox-extpack" for NVME virtualization.
+Source = Just search keyword: serverfault + how-to-install-ubuntu-server-12-04-in-a-virtualbox-vm-with-uefi-boot-enabled
+</p>
+</li>
+</ul>
+
+<h3>dsm vm</h3>
+
+
+
+<h4>panic问题 <span class="timestamp-wrapper"><span class="timestamp">[2021-09-02 Thu 10:49]</span></span></h4>
+
+<p>
+发现VirtualBox启动后，在一分钟以内，必然panic重启。可能和sata控制器有关，具体原因不明。但是用qemu是ok的
+</p>
+
+<h4>bridge模式无法获取通过dhcp分配ip问题 <span class="timestamp-wrapper"><span class="timestamp">[2021-09-02 Thu 10:51]</span></span></h4>
+
+<p>
+在启动了VirtualBox的dhcp功能后，可以获取到ip了，神奇啊，折腾了好久都搞不定，配上dhcp地址池后就ok了，什么原因？
+</p>
+
+<h4>pci passthrough - 在macos明确不支持，操作系统不支持</h4>
+
+<p>
+只有linux才能支持
+</p>
+
+<h4>nat + intel桌面网卡 <span class="timestamp-wrapper"><span class="timestamp">[2021-09-02 Thu 09:18]</span></span></h4>
+
+<p>
+可以获取到ip，能上网
+</p>
+
+<h4>nat + virtio</h4>
+
+<h4>panic <span class="timestamp-wrapper"><span class="timestamp">[2021-09-02 Thu 10:02]</span></span></h4>
+
+<p>
+admin@dsm617:/$ [   96.549152] init: Caught abort, core dumped
+[   96.555890] Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000600
+[   96.555890]
+[   96.563169] CPU: 1 PID: 1 Comm: init Tainted: P         C O 3.10.102 #15284
+[   96.567909] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[   96.574741]  ffffffff814aafc8 ffffffff814aa09c 0000000000000010 ffff8800bb4a7ee8
+[   96.580367]  ffff8800bb4a7e80 ffffffff8105dbf5 0000000000000600 ffff8800bb485b58
+[   96.586268]  ffff8800bb485af0 0000000000000000 000000000000bb07 ffff8800b9275480
+[   96.592308] Call Trace:
+[   96.594147]  [&lt;ffffffff814aafc8&gt;] ? dump_stack+0xc/0x15
+[   96.597834]  [&lt;ffffffff814aa09c&gt;] ? panic+0xbb/0x1ce
+[   96.600463]  [&lt;ffffffff8105dbf5&gt;] ? sched_move_task+0x95/0x110
+[   96.604490]  [&lt;ffffffff81036689&gt;] ? do_exit+0xa29/0xa30
+[   96.609159]  [&lt;ffffffff810366f7&gt;] ? do_group_exit+0x37/0x90
+[   96.612572]  [&lt;ffffffff8103675b&gt;] ? SyS_exit_group+0xb/0x10
+[   96.617626]  [&lt;ffffffff814b0fb2&gt;] ? system_call_fastpath+0x16/0x1b
+[   96.622303] Rebooting in 3 seconds..
+[   99.709414] ACPI MEMORY or I/O RESET_REG.
+</p>
+
+
+<h2>host macos/QEMU <span class="timestamp-wrapper"><span class="timestamp">[2021-09-01 Wed 17:56]</span></span></h2>
+
+<p>
+通过串口debug的时候真是爽，不知道VirtualBox要怎么配置，倒是可以把console的log打到文件里面，就是需要登录到console上，看看dsm磁盘和网卡的情况。为什么获取不到ip，不挂硬盘，单独用dsm的image是可以进入到console的。
+</p>
+
+<h3>dsm vm</h3>
+
+<p>
+网卡只能用bridge方式，需要tuntap 或者 tunnelblick的tuntap kext。推荐用tunnelblick进行过签名的kext版本。
+</p>
+
+<h4>nat + e1000 <span class="timestamp-wrapper"><span class="timestamp">[2021-09-02 Thu 09:21]</span></span></h4>
+
+<p>
+不配置网卡的话，默认是e1000
+</p>
+
+<p>
+可以获取到ip，能上网
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">sudo qemu-system-x86_64 <span style="color: #deb887;">\</span>
+-cpu host <span style="color: #deb887;">\</span>
+-accel hvf <span style="color: #deb887;">\</span>
+-display none <span style="color: #deb887;">\</span>
+-machine pc <span style="color: #deb887;">\</span>
+-monitor tcp:0.0.0.0:4001,server,nowait <span style="color: #deb887;">\</span>
+-m 3072 <span style="color: #deb887;">\</span>
+-serial telnet:0.0.0.0:5001,server,nowait <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">if</span>=ide,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=synoboot-ds3617xs-dsm617-20200824.img <span style="color: #deb887;">\</span>
+-net nic,<span style="color: #4eee94;">model</span>=e1000e,<span style="color: #4eee94;">macaddr</span>=00:11:32:f4:e4:18 <span style="color: #deb887;">\</span>
+-net tap,<span style="color: #4eee94;">ifname</span>=tap0,<span style="color: #4eee94;">script</span>=no,<span style="color: #4eee94;">downscript</span>=no
+
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">-net nic,model=virtio,macaddr=00:11:32:f4:e4:32 \</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">sudo qemu-system-x86_64 <span style="color: #deb887;">\</span>
+-cpu host <span style="color: #deb887;">\</span>
+-accel hvf <span style="color: #deb887;">\</span>
+-display none <span style="color: #deb887;">\</span>
+-machine pc <span style="color: #deb887;">\</span>
+-monitor tcp:0.0.0.0:4001,server,nowait <span style="color: #deb887;">\</span>
+-m 3072 <span style="color: #deb887;">\</span>
+-serial telnet:0.0.0.0:5001,server,nowait <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">if</span>=ide,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=synoboot-ds3617xs-dsm617-20200824.img <span style="color: #deb887;">\</span>
+-device virtio-net-pci,<span style="color: #4eee94;">netdev</span>=eth0,<span style="color: #4eee94;">mac</span>=<span style="color: #deb887;">'00:00:00:01:00:02'</span> <span style="color: #deb887;">\</span>
+-netdev tap,<span style="color: #4eee94;">ifname</span>=tap0,<span style="color: #4eee94;">id</span>=eth0,<span style="color: #4eee94;">script</span>=no,<span style="color: #4eee94;">downscript</span>=no
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">-device e1000e,netdev=eth0,mac='00:00:00:01:00:01' \</span>
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">-netdev tap,ifname=tap0,id=eth0,script=no,downscript=no,vhost=on</span>
+
+-device virtio-net-pci,<span style="color: #4eee94;">netdev</span>=dev1,<span style="color: #4eee94;">mac</span>=<span style="color: #deb887;">'00:00:00:01:00:02'</span>,<span style="color: #4eee94;">vectors</span>=32,<span style="color: #4eee94;">mq</span>=on <span style="color: #deb887;">\</span>
+-netdev tap,<span style="color: #4eee94;">ifname</span>=tap-0,<span style="color: #4eee94;">id</span>=dev1,<span style="color: #4eee94;">script</span>=no,<span style="color: #4eee94;">downscript</span>=no,<span style="color: #4eee94;">vhost</span>=on,<span style="color: #4eee94;">queues</span>=16 <span style="color: #deb887;">\</span>
+
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">sudo sysctl net.inet.ip.forwarding=1
+sudo sysctl net.link.ether.inet.proxyall=1
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">sudo sysctl net.inet.ip.fw.enable=1</span>
+</pre>
+</div>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2021-09-02 Thu 15:17] </span></span> <a href="https://github.com/Tunnelblick/Tunnelblick/issues/73">https://github.com/Tunnelblick/Tunnelblick/issues/73</a>
+<span class="timestamp-wrapper"><span class="timestamp">[2021-09-02 Thu 15:56] </span></span> 设置DHCP后，在tap0上居然可以抓到dhcp的ack包了，神奇了，但是为什么dsm不认呢？
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">sudo ifconfig bridge0 addm tap0
+sudo ipconfig set tap0 DHCP
+</pre>
+</div>
+
+<h4>qemu help <span class="timestamp-wrapper"><span class="timestamp">[2021-09-02 Thu 15:39]</span></span></h4>
+
+<div class="org-src-container">
+<pre class="src src-sh">$<span style="color: #4eee94;">qemu</span>-system-x86_64 -nic <span style="color: #4eee94;">model</span>=help
+Supported NIC models:
+e1000
+e1000-82544gc
+e1000-82545em
+e1000e
+i82550
+i82551
+i82557a
+i82557b
+i82557c
+i82558a
+i82558b
+i82559a
+i82559b
+i82559c
+i82559er
+i82562
+i82801
+ne2k_pci
+pcnet
+rtl8139
+tulip
+virtio-net-pci
+virtio-net-pci-non-transitional
+virtio-net-pci-transitional
+vmxnet3
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">$<span style="color: #4eee94;">qemu</span>-system-x86_64 -device e1000e,help
+e1000e options:
+  acpi-index=&lt;uint32&gt;    -  (default: 0)
+  <span style="color: #4eee94;">addr</span>=&lt;int32&gt;           - Slot and optional <span style="color: #00bfff;">function</span> <span style="color: #daa520;">number</span>, example: 06.0 or 06 (default: -1)
+  <span style="color: #4eee94;">bootindex</span>=&lt;int32&gt;
+  <span style="color: #4eee94;">disable_vnet_hdr</span>=&lt;uint8&gt; - Do not use virtio headers, perform SW offloads emulation instead (default: 0)
+  <span style="color: #4eee94;">failover_pair_id</span>=&lt;str&gt;
+  <span style="color: #4eee94;">mac</span>=&lt;str&gt;              - Ethernet 6-byte MAC Address, example: 52:54:00:12:34:56
+  <span style="color: #4eee94;">multifunction</span>=&lt;bool&gt;   - on/off (default: false)
+  <span style="color: #4eee94;">netdev</span>=&lt;str&gt;           - ID of a netdev to use as a backend
+  <span style="color: #4eee94;">rombar</span>=&lt;uint32&gt;        -  (default: 1)
+  <span style="color: #4eee94;">romfile</span>=&lt;str&gt;
+  <span style="color: #4eee94;">romsize</span>=&lt;uint32&gt;       -  (default: 4294967295)
+  <span style="color: #4eee94;">subsys</span>=&lt;uint16&gt;        - PCI device Subsystem ID (default: 0)
+  <span style="color: #4eee94;">subsys_ven</span>=&lt;uint16&gt;    - PCI device Subsystem Vendor ID (default: 32902)
+  x-pcie-extcap-init=&lt;bool&gt; - on/off (default: true)
+  x-pcie-lnksta-dllla=&lt;bool&gt; - on/off (default: true)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">-device e1000e,<span style="color: #4eee94;">netdev</span>=dev0,<span style="color: #4eee94;">mac</span>=<span style="color: #deb887;">'00:00:00:01:00:01'</span> <span style="color: #deb887;">\</span>
+-netdev tap,<span style="color: #4eee94;">ifname</span>=tap-int,<span style="color: #4eee94;">id</span>=dev0,<span style="color: #4eee94;">script</span>=no,<span style="color: #4eee94;">downscript</span>=no,<span style="color: #4eee94;">vhost</span>=on <span style="color: #deb887;">\</span>
+
+-device virtio-net-pci,<span style="color: #4eee94;">netdev</span>=dev1,<span style="color: #4eee94;">mac</span>=<span style="color: #deb887;">'00:00:00:01:00:02'</span>,<span style="color: #4eee94;">vectors</span>=32,<span style="color: #4eee94;">mq</span>=on <span style="color: #deb887;">\</span>
+-netdev tap,<span style="color: #4eee94;">ifname</span>=tap-0,<span style="color: #4eee94;">id</span>=dev1,<span style="color: #4eee94;">script</span>=no,<span style="color: #4eee94;">downscript</span>=no,<span style="color: #4eee94;">vhost</span>=on,<span style="color: #4eee94;">queues</span>=16 <span style="color: #deb887;">\</span>
+</pre>
+</div>
+
+<h4>nat + e1000 + raw physical disk <span class="timestamp-wrapper"><span class="timestamp">[2021-09-02 Thu 10:53]</span></span></h4>
+
+<p>
+可以telnet正常登录，看见盘，需要解决dhcp获取ip的问题
+</p>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2021-09-02 Thu 11:05] </span></span> 如果VirtualBox可以bridge方式获取dhcp，那intel的网卡驱动应该是没有问题的吧，为什么qemu使用操作系统的bridge方式就不行呢？
+</p>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2021-09-02 Thu 11:13] </span></span> 不用tunnelblick的tap kext，改为tuntaposx的看看，用brew install tuntap 安装
+</p>
+
+<h4>vmnet for qemu on macos - 要编译源码吗？ <span class="timestamp-wrapper"><span class="timestamp">[2021-09-02 Thu 16:28]</span></span></h4>
+
+<p>
+<a href="https://forum.osdev.org/viewtopic.php?f=1&amp;t=39828">https://forum.osdev.org/viewtopic.php?f=1&amp;t=39828</a>
+</p>
+
+<p>
+<a href="https://lists.gnu.org/archive/html/qemu-devel/2021-02/msg04637.html">https://lists.gnu.org/archive/html/qemu-devel/2021-02/msg04637.html</a>
+</p>
+
+<p>
+另外一个用vmnet.framework给qemu打patch的，牛逼啊 <a href="https://www.mail-archive.com/qemu-devel@nongnu.org/msg816630.html">https://www.mail-archive.com/qemu-devel@nongnu.org/msg816630.html</a>
+</p>
+
+<p>
+真多，有问问题的，没有答案 <a href="https://www.mail-archive.com/qemu-devel@nongnu.org/msg750375.html">https://www.mail-archive.com/qemu-devel@nongnu.org/msg750375.html</a>
+</p>
+
+<h2>compile qemu on macos <span class="timestamp-wrapper"><span class="timestamp">[2021-09-02 Thu 17:41]</span></span></h2>
+
+<p>
+<a href="https://alexwinston.wordpress.com/2015/09/10/compiling-qemu-on-osx/">https://alexwinston.wordpress.com/2015/09/10/compiling-qemu-on-osx/</a>
+</p>
+
+<p>
+Compiling QEMU on OSX
+</p>
+
+<p>
+After googling quite extensively I was unable to find a definitive guide to compile QEMU on OS X Yosemite so I pieced together the steps myself and have documented them below. It should be noted that MacPorts does have a port for QEMU 2.3 but I wanted to compile the newest version from GitHub myself.
+</p>
+
+<p>
+It is assumed that Xcode and the CLI tools are already installed.
+</p>
+
+<p>
+The first and most important step is to install MacPorts
+</p>
+
+<p>
+After this is complete it is a simple matter of installing the required ports from the command line.
+</p>
+
+<p>
+sudo port install pkgconfig
+sudo port install glib2
+sudo port install libpixman
+sudo port self update
+sudo port upgrade outdated
+</p>
+
+<p>
+After the ports have been installed the QEMU source should be downloaded from github from the command line.
+</p>
+
+<p>
+git clone git://git.qemu.org/qemu.git;
+</p>
+
+<p>
+After downloading the source the most important piece of the puzzle seems to be the following
+</p>
+
+<p>
+cd qemu
+git submodule update –init dtc
+</p>
+
+<p>
+Once this submodule has been downloaded you can configure and make QEMU.
+</p>
+
+<p>
+./configure &#x2013;enable-cocoa &#x2013;target-list=i386-softmmu,arm-softmmu,x86_64-softmmu,aarch64-softmmu &#x2013;disable-vnc
+make
+</p>
+
+<p>
+This particular configuration demonstrates compiling several of the target architectures available in QEMU. Adding or removing architectures from the –target-list will be required to meet your particular needs.
+</p>
+
+<p>
+If QEMU builds successfully you should now have directories for each architecture listed in the –target-list.
+</p>
+
+<p>
+A simple way to test that everything is working as expected is to run QEMU for x86_64. Before you do this however it is worth downloading the Tiny Core Linux iso for testing in QEMU.
+</p>
+
+<p>
+./x86_64-softmmu/qemu-system-x86_64 -cdrom Core-current.iso -boot d -net nic -net user,hostfwd=tcp:127.0.0.1:8008-:80
+</p>
+
+<p>
+Tiny Core Linux should boot and drop you to a command prompt after pressing “enter”.
+</p>
+
+<p>
+The following links were invaluable in helping to determine exactly how to build and test QEMU 2.4 on the Mac.
+</p>
+
+<p>
+<a href="https://jon.sprig.gs/blog/post/53">https://jon.sprig.gs/blog/post/53</a>
+<a href="https://github.com/psema4/pine/wiki/Installing-QEMU-on-OS-X">https://github.com/psema4/pine/wiki/Installing-QEMU-on-OS-X</a>
+<a href="http://blog.definedcode.com/osx-qemu-kvm">http://blog.definedcode.com/osx-qemu-kvm</a>
+<a href="https://theintobooks.wordpress.com/2012/10/30/installing-qemu/">https://theintobooks.wordpress.com/2012/10/30/installing-qemu/</a>
+<a href="http://blogs.coreboot.org/blog/2015/06/03/gsoc-coreboot-for-arm64-qemu-week-1/">http://blogs.coreboot.org/blog/2015/06/03/gsoc-coreboot-for-arm64-qemu-week-1/</a>
+<a href="http://www.bennee.com/~alex/blog/2014/05/09/running-linux-in-qemus-aarch64-system-emulation-mode/">http://www.bennee.com/~alex/blog/2014/05/09/running-linux-in-qemus-aarch64-system-emulation-mode/</a>
+</p>
+
+<p>
+也可以看看 <a href="https://theintobooks.wordpress.com/2016/03/03/installing-qemu-on-mac-os-x-el-capitan/">https://theintobooks.wordpress.com/2016/03/03/installing-qemu-on-mac-os-x-el-capitan/</a>
+</p>
+
+<p>
+Build qemu on MacOS Submitted by peter on Fri, 02/02/2018 - 11:51 看着qemu的版本很老 <a href="https://notes.bitfunnel.net/?q=node/50">https://notes.bitfunnel.net/?q=node/50</a>
+</p>
+
+<h3>使用不同的glibc <span class="timestamp-wrapper"><span class="timestamp">[2021-09-08 Wed 09:35]</span></span></h3>
+
+<p>
+brew install安装的glib版本太高，查到只有2.58.3及以下的版本编译的qemu，bridge+tap才是正常的。而且2.58.3以下版本编译的qemu，使用vmnet framework也是ok的。
+</p>
+
+<h4>失败的尝试</h4>
+
+<p>
+试了下面几个环境变量，configure会报错。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #4eee94;">GLIBC</span>=/Volumes/sandisk/Users/albert/glib-2.58.3
+./configure --enable-cocoa --target-list=x86_64-softmmu <span style="color: #4eee94;">GLIB_LIBS</span>=<span style="color: #deb887;">"-L/Volumes/sandisk/Users/albert/glib-2.58.3 -lglib-2.0 -lgobject-2.0 -lgthread-2.0 -lgmodule-2.0"</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">export</span> <span style="color: #4eee94;">GLIB_CONFIG</span>=/Volumes/sandisk/Users/albert/glib-2.58.3
+./configure --enable-cocoa --target-list=x86_64-softmmu
+
+./configure --enable-cocoa --target-list=x86_64-softmmu --with-internal-glib=/Volumes/sandisk/Users/albert/glib-2.58.3
+</pre>
+</div>
+
+<p>
+尝试一下自己编译的c文件是否能读到glib版本，编译过不去。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">-I/usr/local/Cellar/glib/2.68.4/include -I/usr/local/Cellar/glib/2.68.4/include/glib-2.0 -I/usr/local/Cellar/glib/2.68.4/lib/glib-2.0/include -I/usr/local/opt/gettext/include -I/usr/local/Cellar/pcre/8.45/include -Werror -o config-temp/qemu-conf.exe config-temp/qemu-conf.c -m64 -fstack-protector-strong -L/usr/local/Cellar/glib/2.68.4/lib -L/usr/local/opt/gettext/lib -lgthread-2.0 -lglib-2.0</span>
+
+gcc -I/Volumes/sandisk/Users/albert/glib-2.58.3/include -I/Volumes/sandisk/Users/albert/glib-2.58.3/lib/glib-2.0/include -I/Volumes/sandisk/Users/albert/glib-2.58.3/include/glib-2.0 -Werror -L/Volumes/sandisk/Users/albert/glib-2.58.3/include -lglib-2.0 *.c
+</pre>
+</div>
+
+
+<h4>qemu的configure里是通过pkg-config来找依赖的modules的编译和头文件路径的</h4>
+
+<p>
+详解pkg-config &#x2013;cflags &#x2013;libs glib-2.0的作用 <a href="https://blog.csdn.net/shenwansangz/article/details/48738677">https://blog.csdn.net/shenwansangz/article/details/48738677</a>
+</p>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2021-09-08 Wed 11:02] </span></span> 看了半天，在configure里面看见是通过 <code>pkg-config</code> 来查找 <code>glib</code> 的path，服了，搞死人啊。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">./configure
+
+3294 <span style="color: #B0BED8;">##########################################</span>
+3295 <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">glib support probe</span>
+3296 
+3297 <span style="color: #4eee94;">glib_req_ver</span>=2.48
+3298 <span style="color: #4eee94;">glib_modules</span>=gthread-2.0
+3299 if test <span style="color: #deb887;">"$modules"</span> = yes; <span style="color: #00bfff;">then</span>
+3300     <span style="color: #4eee94;">glib_modules</span>=<span style="color: #deb887;">"$glib_modules gmodule-export-2.0"</span>
+3301 fi
+3302 if test <span style="color: #deb887;">"$plugins"</span> = yes; <span style="color: #00bfff;">then</span>
+3303     <span style="color: #4eee94;">glib_modules</span>=<span style="color: #deb887;">"$glib_modules gmodule-2.0"</span>
+3304 fi
+3305 
+3306 for i<span style="color: #00bfff;"> in</span> $<span style="color: #4eee94;">glib_modules</span>; <span style="color: #00bfff;">do</span>
+3307     if $<span style="color: #4eee94;">pkg_config</span> --atleast-version=$<span style="color: #4eee94;">glib_req_ver</span> $<span style="color: #4eee94;">i</span>; <span style="color: #00bfff;">then</span>
+3308         <span style="color: #4eee94;">glib_cflags</span>=$($<span style="color: #4eee94;">pkg_config</span> --cflags $<span style="color: #4eee94;">i</span>)
+3309         <span style="color: #4eee94;">glib_libs</span>=$($<span style="color: #4eee94;">pkg_config</span> --libs $<span style="color: #4eee94;">i</span>)
+3310     else
+3311         error_exit <span style="color: #deb887;">"glib-$glib_req_ver $i is required to compile QEMU"</span>
+3312     fi
+3313 done
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#30452;&#25509;&#35774;&#32622;&#29615;&#22659;&#21464;&#37327;</span>
+<span style="color: #4eee94;">PKG_CONFIG_PATH</span>=/Volumes/sandisk/Users/albert/glib-2.58.3/lib/pkgconfig pkg-config --libs gthread-2.0
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#36825;&#26679;&#32534;&#35793;&#26159;ok&#30340;&#12290;&#26597;&#30475; build/config.log&#37324;&#38754;&#30340;glib&#25351;&#21521;&#20102;2.58.3&#29256;&#26412;&#30340;glib</span>
+<span style="color: #4eee94;">PKG_CONFIG_PATH</span>=/Volumes/sandisk/Users/albert/glib-2.58.3/lib/pkgconfig:$<span style="color: #4eee94;">PKG_CONFIG_PATH</span> ./configure --enable-cocoa --target-list=x86_64-softmmu
+</pre>
+</div>
+
+<p>
+本机上用 pkg-config 查看 gthread-2.0 的结果，用的是brew安装的glib，版本是2.66.4_1
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">$<span style="color: #4eee94;">pkg</span>-config --libs gthread-2.0
+
+-L/usr/local/Cellar/glib/2.66.4_1/lib -L/usr/local/opt/gettext/lib -lgthread-2.0 -lglib-2.0 -lintl
+</pre>
+</div>
+
+
+<h4>pkg-config说明</h4>
+
+<p>
+The pkg-config package contains tools for passing the include path and/or library paths to build tools during the make file execution.
+</p>
+
+<p>
+pkg-config is a function that returns meta information for the specified library.
+</p>
+
+<p>
+The default setting for PKG_CONFIG_PATH is /usr/lib/pkgconfig because of the prefix we use to install pkgconfig. You may add to PKG_CONFIG_PATH by exporting additional paths on your system where pkgconfig files are installed. Note that PKG_CONFIG_PATH is only needed when compiling packages, not during run-time. 
+</p>
+
+<ul>
+<li><a id="org6e737cc"></a>PKG_CONFIG_PATH 环境变量<br>
+<p>
+<a href="https://www.freebsd.org/cgi/man.cgi?query=pkg-config&amp;sektion=1&amp;apropos=0&amp;manpath=FreeBSD+9.0-RELEASE+and+Ports">https://www.freebsd.org/cgi/man.cgi?query=pkg-config&amp;sektion=1&amp;apropos=0&amp;manpath=FreeBSD+9.0-RELEASE+and+Ports</a>
+</p>
+<pre class="example" id="org5b42c2d">
+ENVIRONMENT VARIABLES
+       PKG_CONFIG_PATH
+	      A	colon-separated	(on Windows, semicolon-separated) list of  di-
+	      rectories	 to  search for	.pc files.  The	default	directory will
+	      always be	searched after searching  the  path;  the  default  is
+	      libdir/pkgconfig:datadir/pkgconfig  where	 libdir	 is the	libdir
+	      for pkg-config and datadir is the	datadir	for pkg-config when it
+	      was installed.
+</pre>
+</li>
+
+<li><a id="orgc949fce"></a>下个问题是我怎么知道到底链接了哪个glib？ <code>otool</code> ？ macos下是没有 <code>ldd</code> 的。<br>
+<div class="org-src-container">
+<pre class="src src-sh">sudo ./qemu-system-x86_64 <span style="color: #deb887;">\</span>
+-cpu host <span style="color: #deb887;">\</span>
+-accel hvf <span style="color: #deb887;">\</span>
+-display none <span style="color: #deb887;">\</span>
+-machine pc <span style="color: #deb887;">\</span>
+-monitor tcp:0.0.0.0:4001,server,nowait <span style="color: #deb887;">\</span>
+-m 3072 <span style="color: #deb887;">\</span>
+-serial telnet:0.0.0.0:5001,server,nowait <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">if</span>=ide,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=/Users/albert/dsm/synoboot-ds3617xs-dsm617-20200824.img <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">if</span>=sata,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=/dev/disk1s4 <span style="color: #deb887;">\</span>
+-device virtio-net-pci,<span style="color: #4eee94;">netdev</span>=eth0,<span style="color: #4eee94;">mac</span>=<span style="color: #deb887;">'00:11:32:01:02:03'</span> <span style="color: #deb887;">\</span>
+-netdev vmnet-macos,<span style="color: #4eee94;">id</span>=eth0,<span style="color: #4eee94;">mode</span>=bridged,<span style="color: #4eee94;">ifname</span>=en3
+</pre>
+</div>
+</li>
+</ul>
+
+
+<h4>vmnet-v6.1.0-patches-v2版本</h4>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2021-09-08 Wed 12:14] </span></span> 编译
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> /Volumes/sandisk/Users/albert/workspace/vmnet-v6.1.0-patches-v2/qemu
+<span style="color: #4eee94;">PKG_CONFIG_PATH</span>=/Volumes/sandisk/Users/albert/glib-2.58.3/lib/pkgconfig:$<span style="color: #4eee94;">PKG_CONFIG_PATH</span> ./configure --enable-cocoa --target-list=x86_64-softmmu --enable-vmnet --enable-vhost-net
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#25253;&#38169;&#65292;&#21482;&#25903;&#25345;linux --enable-vhost-scsi --enable-vhost-kernel</span>
+
+[2021-09-08 Wed 12:25:11] --enable-vhost-net &#22312;link&#30340;&#26102;&#20505;&#25253;&#38169;&#20102;&#12290;
+</pre>
+</div>
+
+<p>
+查看编译的qemu支持的网络模式
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[albert@G1 /Volumes/sandisk/Users/albert/workspace/vmnet-v6.1.0-patches-v2/qemu/build]
+$./qemu-system-x86_64 -netdev <span style="color: #4eee94;">type</span>=help 
+Available netdev backend types:
+socket
+hubport
+tap
+user
+vde
+bridge
+vhost-user
+vmnet-host
+vmnet-shared
+vmnet-bridged
+</pre>
+</div>
+
+<p>
+用qemu启动DSM进行测试，很好，DSM启动ok，可以进入系统，通过DHCP获取ip。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> /Volumes/sandisk/Users/albert/workspace/vmnet-v6.1.0-patches-v2/qemu/build
+sudo ./qemu-system-x86_64 <span style="color: #deb887;">\</span>
+-cpu host <span style="color: #deb887;">\</span>
+-smp 2 <span style="color: #deb887;">\</span>
+-accel hvf <span style="color: #deb887;">\</span>
+-display none <span style="color: #deb887;">\</span>
+-machine pc <span style="color: #deb887;">\</span>
+-monitor tcp:0.0.0.0:4001,server,nowait <span style="color: #deb887;">\</span>
+-m 3072 <span style="color: #deb887;">\</span>
+-serial telnet:0.0.0.0:5001,server,nowait <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">if</span>=ide,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=/Users/albert/dsm/synoboot-ds3617xs-dsm617-20200824.img <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=/dev/disk1s4 <span style="color: #deb887;">\</span>
+-device virtio-net-pci,<span style="color: #4eee94;">netdev</span>=eth0,<span style="color: #4eee94;">mac</span>=<span style="color: #deb887;">'00:11:32:01:02:03'</span> <span style="color: #deb887;">\</span>
+-netdev vmnet-bridged,<span style="color: #4eee94;">id</span>=eth0,<span style="color: #4eee94;">ifname</span>=en3
+
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">-drive if=ide,format=raw,file=/dev/disk1s4 \</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">sudo ./qemu-system-x86_64 <span style="color: #deb887;">\</span>
+-cpu host <span style="color: #deb887;">\</span>
+-smp 2 <span style="color: #deb887;">\</span>
+-accel hvf <span style="color: #deb887;">\</span>
+-display none <span style="color: #deb887;">\</span>
+-machine q35 <span style="color: #deb887;">\</span>
+-monitor tcp:0.0.0.0:4001,server,nowait <span style="color: #deb887;">\</span>
+-m 3072 <span style="color: #deb887;">\</span>
+-serial telnet:0.0.0.0:5001,server,nowait <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">if</span>=ide,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=/Users/albert/Downloads/alpine-standard-3.14.2-x86_64.iso <span style="color: #deb887;">\</span>
+-device virtio-net-pci,<span style="color: #4eee94;">netdev</span>=eth0,<span style="color: #4eee94;">mac</span>=<span style="color: #deb887;">'00:11:32:01:02:03'</span> <span style="color: #deb887;">\</span>
+-netdev vmnet-bridged,<span style="color: #4eee94;">id</span>=eth0,<span style="color: #4eee94;">ifname</span>=en3
+</pre>
+</div>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2021-09-08 Wed 15:18] </span></span> 使用 virtio-scsi，没有悬念，必挂无疑，直接panic了。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">./qemu-system-x86_64 <span style="color: #deb887;">\</span>
+-cpu host <span style="color: #deb887;">\</span>
+-smp 2 <span style="color: #deb887;">\</span>
+-accel hvf <span style="color: #deb887;">\</span>
+-display none <span style="color: #deb887;">\</span>
+-machine q35 <span style="color: #deb887;">\</span>
+-monitor tcp:0.0.0.0:4001,server,nowait <span style="color: #deb887;">\</span>
+-m 3072 <span style="color: #deb887;">\</span>
+-serial telnet:0.0.0.0:5001,server,nowait <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">if</span>=ide,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=/Users/albert/dsm/synoboot-ds3617xs-dsm617-20200824.img <span style="color: #deb887;">\</span>
+-device virtio-scsi-pci,<span style="color: #4eee94;">id</span>=scsi0,<span style="color: #4eee94;">num_queues</span>=4 <span style="color: #deb887;">\</span>
+-device scsi-hd,<span style="color: #4eee94;">drive</span>=drive0,<span style="color: #4eee94;">bus</span>=scsi0.0,<span style="color: #4eee94;">channel</span>=0,scsi-id=0,<span style="color: #4eee94;">lun</span>=0 <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">file</span>=/dev/disk1s4,<span style="color: #4eee94;">if</span>=none,<span style="color: #4eee94;">id</span>=drive0
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">sudo ./qemu-system-x86_64 <span style="color: #deb887;">\</span>
+-cpu host <span style="color: #deb887;">\</span>
+-smp 2 <span style="color: #deb887;">\</span>
+-accel hvf <span style="color: #deb887;">\</span>
+-display none <span style="color: #deb887;">\</span>
+-machine q35 <span style="color: #deb887;">\</span>
+-monitor tcp:0.0.0.0:4001,server,nowait <span style="color: #deb887;">\</span>
+-m 3072 <span style="color: #deb887;">\</span>
+-serial telnet:0.0.0.0:5001,server,nowait <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">if</span>=ide,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=/Users/albert/dsm/synoboot-ds3617xs-dsm617-20200824.img <span style="color: #deb887;">\</span>
+-device megasas,<span style="color: #4eee94;">id</span>=scsi0 <span style="color: #deb887;">\</span>
+-device scsi-hd,<span style="color: #4eee94;">drive</span>=drive0,<span style="color: #4eee94;">bus</span>=scsi0.0,<span style="color: #4eee94;">channel</span>=0,scsi-id=0,<span style="color: #4eee94;">lun</span>=0 <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">file</span>=/dev/disk1s4,<span style="color: #4eee94;">if</span>=none,<span style="color: #4eee94;">id</span>=drive0
+</pre>
+</div>
+
+<p>
+virtio-blk 看看如何？找不到硬盘。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">sudo ./qemu-system-x86_64 <span style="color: #deb887;">\</span>
+-cpu host -smp 2 -accel hvf  -machine q35  -m 3072 <span style="color: #deb887;">\</span>
+-display none -monitor tcp:0.0.0.0:4001,server,nowait <span style="color: #deb887;">\</span>
+-serial telnet:0.0.0.0:5001,server,nowait <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">if</span>=ide,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=/Users/albert/dsm/synoboot-ds3617xs-dsm617-20200824.img <span style="color: #deb887;">\</span>
+-device virtio-blk-pci,<span style="color: #4eee94;">drive</span>=drive0,<span style="color: #4eee94;">id</span>=virtblk0,num-queues=4 <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">file</span>=/dev/disk1s4,<span style="color: #4eee94;">if</span>=none,<span style="color: #4eee94;">id</span>=drive0
+</pre>
+</div>
+
+<p>
+看看iso格式，如何用qemu命令行加载。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">qemu-system-x86_64 -bios /usr/share/ovmf/ovmf_x64.bin <span style="color: #deb887;">\</span>
+-cpu host -enable-kvm -m 2G <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">file</span>=/dev/md0,<span style="color: #4eee94;">media</span>=disk,<span style="color: #4eee94;">format</span>=raw <span style="color: #deb887;">\</span>
+-cdrom /path/to/windows.iso
+</pre>
+</div>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2021-09-08 Wed 16:42] </span></span> 用这个命令
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">sudo ./qemu-system-x86_64 <span style="color: #deb887;">\</span>
+-machine q35 -cpu host -smp 2 -accel hvf -m 3072 <span style="color: #deb887;">\</span>
+-display none <span style="color: #deb887;">\</span>
+-monitor tcp:0.0.0.0:4001,server,nowait <span style="color: #deb887;">\</span>
+-serial telnet:0.0.0.0:5001,server,nowait <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">if</span>=ide,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=/Users/albert/dsm/synoboot-ds3617xs-dsm617-20200824.img <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=/dev/disk1s4 <span style="color: #deb887;">\</span>
+-device virtio-net-pci,<span style="color: #4eee94;">netdev</span>=eth0 <span style="color: #deb887;">\</span>
+-netdev vmnet-bridged,<span style="color: #4eee94;">id</span>=eth0,<span style="color: #4eee94;">ifname</span>=en3
+</pre>
+</div>
+
+
+<h4>macports是如何编译qemu的 <span class="timestamp-wrapper"><span class="timestamp">[2021-09-09 Thu 09:19]</span></span></h4>
+
+<p>
+已经从前几天安装是的5.2版本升级到6.1.0版本了 <a href="https://github.com/macports/macports-ports/blob/master/emulators/qemu/Portfile">https://github.com/macports/macports-ports/blob/master/emulators/qemu/Portfile</a>
+</p>
+
+<ul>
+<li><a id="orgefa62ef"></a>dependency<br>
+<ul>
+<li><a id="org99f7785"></a>glib2<br>
+<p>
+<a href="https://download.gnome.org/sources/glib/2.58/glib-2.58.3.tar.xz">https://download.gnome.org/sources/glib/2.58/glib-2.58.3.tar.xz</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">[albert@Macmini /Users/albert/workspace/glib-2.58.3]
+$./autogen.sh                                                                                                                                           
+You don<span style="color: #deb887;">'t have gtk-doc installed, and thus won'</span>t be able to generate the documentation.
+ *** No autoreconf found, please install it ***
+[albert@Macmini /Users/albert/workspace/glib-2.58.3]
+$<span style="color: #4eee94;">brew</span> install autoconf
+
+</pre>
+</div>
+
+<p>
+接着报错，需要安装 automake
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">autoreconf: configure.ac: not using Gettext
+autoreconf: running: aclocal --force -I m4macros ${<span style="color: #4eee94;">ACLOCAL_FLAGS</span>}
+sh: aclocal: command not found
+autoreconf: error: aclocal failed with exit status: 127
+
+brew install automake
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">
+./configure --prefix=/Users/albert/qemu/glib-2.58.3
+</pre>
+</div>
+</li>
+<li><a id="org781f6ae"></a>libpixman<br>
+<p>
+Pixel region Library
+</p>
+
+<p>
+libpixman is a generic library for manipulating pixel regions. A PixRegion is a set of Y-X banded rectangles that cover the desired region.
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">$<span style="color: #4eee94;">brew</span> install pixman
+Updating Homebrew...
+Warning: pixman 0.40.0 is already installed and up-to-date.
+To reinstall 0.40.0, run:
+  brew reinstall pixman
+</pre>
+</div>
+</li>
+
+<li><a id="orgf44ba5c"></a>libusb<br>
+<div class="org-src-container">
+<pre class="src src-sh">$<span style="color: #4eee94;">brew</span> install libusb
+Warning: libusb 1.0.24 is already installed and up-to-date.
+To reinstall 1.0.24, run:
+  brew reinstall libusb
+</pre>
+</div>
+</li>
+
+<li><a id="orgedd41c3"></a>zlib<br>
+<div class="org-src-container">
+<pre class="src src-sh">$<span style="color: #4eee94;">brew</span> install zlib
+==&gt; Pouring zlib--1.2.11.catalina.bottle.tar.gz
+==&gt; Caveats
+zlib is keg-only, which means it was not symlinked into /usr/local,
+because macOS already provides this software and installing another version<span style="color: #00bfff;"> in</span>
+parallel can cause all kinds of trouble.
+
+For compilers to find zlib you may need to set:
+  <span style="color: #f08080;">export</span> <span style="color: #4eee94;">LDFLAGS</span>=<span style="color: #deb887;">"-L/usr/local/opt/zlib/lib"</span>
+  <span style="color: #f08080;">export</span> <span style="color: #4eee94;">CPPFLAGS</span>=<span style="color: #deb887;">"-I/usr/local/opt/zlib/include"</span>
+
+For pkg-config to find zlib you may need to set:
+  <span style="color: #f08080;">export</span> <span style="color: #4eee94;">PKG_CONFIG_PATH</span>=<span style="color: #deb887;">"/usr/local/opt/zlib/lib/pkgconfig"</span>
+
+==&gt; Summary
+&#65533;  /usr/local/Cellar/zlib/1.2.11: 12 files, 376.6KB
+</pre>
+</div>
+</li>
+</ul>
+</li>
+
+
+<li><a id="org43ab638"></a>compile <span class="timestamp-wrapper"><span class="timestamp">[2021-09-09 Thu 09:45]</span></span><br>
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> ~/workspace/vmnet-v6.1.0-patches-v2
+git clone -b vmnet-v6.1.0-patches-v2 --depth=10 git@github.com:shchuko/qemu
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#26816;&#26597;glib&#30340;&#29256;&#26412;&#26159;2.58.3&#21527;</span>
+pkg-config --libs gthread-2.0
+
+<span style="color: #4eee94;">PKG_CONFIG_PATH</span>=/Users/albert/qemu/glib-2.58.3/lib/pkgconfig:$<span style="color: #4eee94;">PKG_CONFIG_PATH</span> pkg-config --libs gthread-2.0
+-L/Users/albert/qemu/glib-2.58.3/lib -lgthread-2.0 -lglib-2.0 -lintl -Wl,-framework -Wl,CoreFoundation
+
+<span style="color: #4eee94;">PKG_CONFIG_PATH</span>=/Users/albert/qemu/glib-2.58.3/lib/pkgconfig:$<span style="color: #4eee94;">PKG_CONFIG_PATH</span> ./configure --prefix=/Users/albert/qemu --enable-cocoa --target-list=x86_64-softmmu --enable-vmnet --enable-vhost-net --enable-vhost-kernel
+</pre>
+</div>
+
+<p>
+如果需要支持avx avx2，参考 <a href="https://wiki.qemu.org/Hosts/Mac">https://wiki.qemu.org/Hosts/Mac</a> ，安装 <code>llvm</code>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #f08080;">cd</span> /Users/albert/workspace/vmnet-v6.1.0-patches-v2/qemu/build
+sudo ./qemu-system-x86_64 <span style="color: #deb887;">\</span>
+-machine q35 -cpu host -smp 2 -accel hvf -m 3072 <span style="color: #deb887;">\</span>
+-display none <span style="color: #deb887;">\</span>
+-monitor tcp:0.0.0.0:4001,server,nowait <span style="color: #deb887;">\</span>
+-serial telnet:0.0.0.0:5001,server,nowait <span style="color: #deb887;">\</span>
+-usb -drive <span style="color: #4eee94;">if</span>=none,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">id</span>=disk1,<span style="color: #4eee94;">file</span>=/Users/albert/dsm/synoboot-ds3617xs-dsm617-20200824.img <span style="color: #deb887;">\</span>
+-device usb-storage,<span style="color: #4eee94;">drive</span>=disk1 <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=/dev/disk1 <span style="color: #deb887;">\</span>
+-device virtio-net-pci,<span style="color: #4eee94;">netdev</span>=eth0 <span style="color: #deb887;">\</span>
+-netdev vmnet-bridged,<span style="color: #4eee94;">id</span>=eth0,<span style="color: #4eee94;">ifname</span>=en0
+
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">-drive format=raw,file=/dev/disk1 \</span>
+</pre>
+</div>
+
+<ul>
+<li><a id="org7c57756"></a>vhost-net是不支持macos的 <span class="timestamp-wrapper"><span class="timestamp">[2021-09-09 Thu 15:53]</span></span><br>
+<p>
+<a href="https://www.redhat.com/en/blog/introduction-virtio-networking-and-vhost-net">https://www.redhat.com/en/blog/introduction-virtio-networking-and-vhost-net</a>
+<a href="https://www.redhat.com/en/blog/deep-dive-virtio-networking-and-vhost-net">https://www.redhat.com/en/blog/deep-dive-virtio-networking-and-vhost-net</a>
+</p>
+
+<p>
+<code>vhost-net</code> 需要 <code>vhost-kernel</code> ，vhost-kernel只支持linux。无法在host层面实现了。只能在guest vm中使用 <code>virtio-net</code> 。
+</p>
+
+<p>
+为什么会报错呢？在笔记本上编译为什么不报错？
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">tls/3.6.16/lib -Wl,-rpath,/usr/local/Cellar/pixman/0.40.0/lib -Wl,-rpath,/usr/lib -Wl,-rpath,/usr/local/Cellar/jpeg/9d/lib -Wl,-rpath,/usr/local/Cellar/libusb/1.0.24/lib -lc++
+Undefined symbols for architecture x86_64:
+  <span style="color: #deb887;">"_vhost_ack_features"</span>, referenced from:
+      _vhost_net_ack_features<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+      _vhost_net_init<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+  <span style="color: #deb887;">"_vhost_dev_cleanup"</span>, referenced from:
+      _vhost_net_init<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+      _vhost_net_cleanup<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+  <span style="color: #deb887;">"_vhost_dev_disable_notifiers"</span>, referenced from:
+      _vhost_net_start<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+      _vhost_net_stop_one<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+  <span style="color: #deb887;">"_vhost_dev_enable_notifiers"</span>, referenced from:
+      _vhost_net_start<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+  <span style="color: #deb887;">"_vhost_dev_get_config"</span>, referenced from:
+      _vhost_net_get_config<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+  <span style="color: #deb887;">"_vhost_dev_init"</span>, referenced from:
+      _vhost_net_init<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+  <span style="color: #deb887;">"_vhost_dev_set_config"</span>, referenced from:
+      _vhost_net_set_config<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+  <span style="color: #deb887;">"_vhost_dev_start"</span>, referenced from:
+      _vhost_net_start<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+  <span style="color: #deb887;">"_vhost_dev_stop"</span>, referenced from:
+      _vhost_net_start<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+      _vhost_net_stop_one<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+  <span style="color: #deb887;">"_vhost_get_features"</span>, referenced from:
+      _vhost_net_get_features<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+  <span style="color: #deb887;">"_vhost_net_set_backend"</span>, referenced from:
+      _vhost_net_start<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+      _vhost_net_stop_one<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+  <span style="color: #deb887;">"_vhost_virtqueue_mask"</span>, referenced from:
+      _vhost_net_virtqueue_mask<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+     (maybe you meant: _cryptodev_vhost_virtqueue_mask)
+  <span style="color: #deb887;">"_vhost_virtqueue_pending"</span>, referenced from:
+      _vhost_net_virtqueue_pending<span style="color: #00bfff;"> in</span> hw_net_vhost_net.c.o
+     (maybe you meant: _cryptodev_vhost_virtqueue_pending)
+ld: symbol(s) not found for architecture x86_64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+  Configurable features
+                    Documentation: NO
+            system-mode emulation: YES
+              user-mode emulation: NO
+                      block layer: YES
+                    Install blobs: YES
+                   module support: NO
+                  fuzzing support: NO
+                    Audio drivers: coreaudio sdl
+                   Trace backends: log
+                    QOM debugging: YES
+             vhost-kernel support: NO
+                vhost-net support: YES
+             vhost-crypto support: NO
+               vhost-scsi support: NO
+              vhost-vsock support: NO
+               vhost-user support: NO
+    vhost-user-blk server support: NO
+            vhost-user-fs support: NO
+               vhost-vdpa support: NO
+                    vmnet support: YES
+                build guest agent: YES
+
+  vhost-net       vhost-net kernel acceleration support
+  vhost-vsock     virtio sockets device support
+  vhost-scsi      vhost-scsi kernel target support
+  vhost-crypto    vhost-user-crypto backend support
+  vhost-kernel    vhost kernel backend support
+  vhost-user      vhost-user backend support
+  vhost-user-blk-server    vhost-user-blk server support
+  vhost-vdpa      vhost-vdpa kernel backend support
+
+  Crypto
+                     TLS priority: <span style="color: #deb887;">"NORMAL"</span>
+                   GNUTLS support: YES
+                    GNUTLS crypto: YES
+                        libgcrypt: NO
+                           nettle: NO
+                     crypto afalg: NO
+                         rng-none: NO
+                    Linux keyring: NO
+
+<span style="color: #4eee94;">PKG_CONFIG_PATH</span>=/Users/albert/qemu/glib-2.58.3/lib/pkgconfig:$<span style="color: #4eee94;">PKG_CONFIG_PATH</span> ./configure --prefix=/Users/albert/qemu --enable-cocoa --target-list=x86_64-softmmu --enable-vmnet --enable-vhost-net 
+
+ERROR: --enable-vhost-vsock requires --enable-vhost-kernel
+ERROR: vhost-user is only available on Linux
+ERROR: vhost-vdpa is only available on Linux
+ERROR: --enable-vhost-scsi requires --enable-vhost-kernel
+ERROR: vhost-kernel is only available on Linux
+
+--enable-mpath
+../meson.build:164:2: ERROR: Problem encountered: Multipath is supported only on Linux
+</pre>
+</div>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2021-09-09 Thu 11:22]</span></span>
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">brew install libgcrypt <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#20877;&#30475;&#30475;&#65311;</span>
+brew install nettle <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#24050;&#32463;&#23433;&#35013;&#20102;</span>
+
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">[2021-09-09 Thu 12:03:07] Has header "lzfse.h" : NO</span>
+brew install lzfse
+/usr/local/Cellar/lzfse/1.0: 7 files, 63.5KB
+
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">[2021-09-09 Thu 12:06:29]</span>
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">Run-time dependency capstone found: NO (tried pkgconfig)</span>
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">Configuring capstone-defs.h using configuration</span>
+<span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">capstone - Multi-platform, multi-architecture disassembly framework</span>
+brew install capstone
+/usr/local/Cellar/capstone/4.0.2: 25 files, 14.6MB
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">sudo ./qemu-system-x86_64 <span style="color: #deb887;">\</span>
+-machine q35 -cpu host -smp 2 -accel hvf -m 3072 <span style="color: #deb887;">\</span>
+-display none <span style="color: #deb887;">\</span>
+-monitor tcp:0.0.0.0:4001,server,nowait <span style="color: #deb887;">\</span>
+-serial telnet:0.0.0.0:5001,server,nowait <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">if</span>=ide,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=/Users/albert/dsm/synoboot-ds3617xs-dsm617-20200824.img <span style="color: #deb887;">\</span>
+-drive <span style="color: #4eee94;">media</span>=disk,<span style="color: #4eee94;">format</span>=raw,<span style="color: #4eee94;">file</span>=/dev/disk1 <span style="color: #deb887;">\</span>
+-device virtio-net-pci,<span style="color: #4eee94;">netdev</span>=eth0 <span style="color: #deb887;">\</span>
+-netdev vmnet-bridged,<span style="color: #4eee94;">id</span>=eth0,<span style="color: #4eee94;">ifname</span>=en0
+</pre>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+
+<h2>iperf3 测试网速和cpu <span class="timestamp-wrapper"><span class="timestamp">[2021-09-08 Wed 16:46]</span></span></h2>
+
+<p>
+用wifi的效果可以。在600Mb/s，再用网线试试。
+</p>
+
+
+<h2>macos是否有losetup和mdadm类似的命令</h2>
+
+<p>
+<a href="https://apple.stackexchange.com/questions/9284/does-mac-have-something-similar-to-a-linux-loop-device-alternative-to-losetup">https://apple.stackexchange.com/questions/9284/does-mac-have-something-similar-to-a-linux-loop-device-alternative-to-losetup</a>
+</p>
+
+
+<h2>gvt-d on macos</h2>
+
+<p>
+linux上的，不是macos上的 <a href="https://www.reddit.com/r/VFIO/comments/innriq/successful_macos_catalina_with_intel_gvtg/">https://www.reddit.com/r/VFIO/comments/innriq/successful_macos_catalina_with_intel_gvtg/</a>
+</p>
+
+<p>
+没有说怎么做 <a href="https://apple.stackexchange.com/questions/205514/virtualization-with-intels-gvt-d-on-mid-2015-macbook-pro">https://apple.stackexchange.com/questions/205514/virtualization-with-intels-gvt-d-on-mid-2015-macbook-pro</a>
+</p>
+
+<p>
+这里讨论了gpu pci passthrough在macos的情况，结论是没有可能。 <a href="https://forums.macrumors.com/threads/egpu-parallels.2276462/">https://forums.macrumors.com/threads/egpu-parallels.2276462/</a>
+</p>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
+</body>
+</html>

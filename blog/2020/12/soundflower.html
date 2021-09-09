@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2021-01-03 Sun 16:26 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>在macos catalina 10.15.6中使用soundflower录制系统音频</title>
-<meta name="generator" content="Org mode">
-<meta name="author" content="albert">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">在macos catalina 10.15.6中使用soundflower录制系统音频</h1>
+  <div class="post-date">2020年12月31日</div>
+  <h1>在macos catalina 10.15.6中使用soundflower录制系统音频</h1>
 <p>
 macos中默认无法录制系统音频，所有需要用第三方的内核扩展来实现。
 </p>
 
 <p>
-Soundflower是一个虚拟音频数据传输软件，可以捕获系统声频，而不仅仅是外部麦克风输入音频。
+<code>Soundflower</code> 是一个虚拟音频数据传输软件，可以捕获系统声频，而不仅仅是外部麦克风输入音频。
 </p>
 
 <h2>安装</h2>
@@ -28,11 +30,11 @@ Soundflower是一个虚拟音频数据传输软件，可以捕获系统声频，
 
 <h2>配置</h2>
 
-<ol class="org-ol">
+<ol>
 <li>在 <b>启动台</b> 中找到 <b>音频MIDI设置</b> ，点击加号，选择“创建多输出设备”。
 <img src="../../../images/soundflower-midi-setting.png" alt="soundflower-midi-setting.png">
 
-<ul class="org-ul">
+<ul>
 <li><p>
 创建一个多输出设备。
 </p>
@@ -46,7 +48,7 @@ Soundflower是一个虚拟音频数据传输软件，可以捕获系统声频，
 打开“系统偏好设置” -&gt; “声音”。你现在可以看到输出设备里面有 <code>Soundflower (2ch)</code> 和 <code>Soundflower (64ch)</code> ，以及刚刚创建的多输出设备。
 <img src="../../../images/soundflower-preference-sound.png" alt="soundflower-preference-sound.png">
 </p>
-<ul class="org-ul">
+<ul>
 <li>在输出设备里选我们创建的 <code>多输出设备</code></li>
 <li>在输入设备里面选 <code>Soundflower (2ch)</code></li>
 </ul>
@@ -65,7 +67,7 @@ c. 如果把 "输出设备" 设置为新建的 <code>多输出设备</code> ，�
 
 <li>Quicktime Player录制系统音频
 
-<ol class="org-ol">
+<ol>
 <li>选择File(菜单)-&gt;New Screen Recording(新录制)，新建屏幕录制。</li>
 
 <li>在录制按钮的旁边有一个小按钮，点击它，选 <code>Soundflower (2ch)</code> 。点击Quicktime的录制按钮，开始捕获音视频。</li>
@@ -80,10 +82,10 @@ macos的Quicktime录制的视频太大，而OBS的功能更加强大，还可以
 </p>
 
 
-<div class="figure">
-<p><img src="../../../images/soundflower-obs-sound.png" alt="soundflower-obs-sound.png">
-</p>
-</div>
+<figure id="org3c419da">
+<img src="../../../images/soundflower-obs-sound.png" alt="soundflower-obs-sound.png">
+
+</figure>
 
 <p>
 Preference -&gt; 音频 -&gt; 全局音频设备 -&gt; 桌面音频 -&gt; <code>Soundflower (2ch)</code>
@@ -92,9 +94,10 @@ Preference -&gt; 音频 -&gt; 全局音频设备 -&gt; 桌面音频 -&gt; <code>
 
 <h2>参考</h2>
 
-<ul class="org-ul">
+<ul>
 <li><a href="http://www.pc6.com/edu/184206.html">http://www.pc6.com/edu/184206.html</a></li>
 </ul>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

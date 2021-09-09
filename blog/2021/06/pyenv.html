@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2021-08-25 Wed 15:18 -->
+<!-- 2021-09-06 Mon 21:33 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pyenv、虚拟环境 on macos和linux</title>
@@ -88,7 +88,7 @@ $<span style="color: #4eee94;">echo</span> $<span style="color: #4eee94;">SHELL<
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">vim ~/.zshr</span>
+<pre class="src src-sh"><span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">vim ~/.zshrc</span>
 <span style="color: #00bfff;">if </span><span style="color: #f08080;">which</span> pyenv &gt; /dev/null; <span style="color: #00bfff;">then </span><span style="color: #f08080;">eval</span> <span style="color: #deb887;">"$(pyenv init -)"</span>; <span style="color: #00bfff;">fi</span>
 <span style="color: #f08080;">export</span> <span style="color: #4eee94;">PYENV_ROOT</span>=/usr/local/var/pyenv
 </pre>
@@ -128,7 +128,7 @@ $<span style="color: #4eee94;">echo</span> $<span style="color: #4eee94;">SHELL<
 <h4>配置</h4>
 
 <p>
-我用的是zsh，在 <code>~/.zshrc</code> 中增加下面的内容：
+在 <code>~/.zshrc</code> 中增加下面的内容：
 </p>
 <div class="org-src-container">
 <pre class="src src-sh"><span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">vim ~/.zshrc</span>
@@ -441,7 +441,7 @@ M-x pyvenv-workon
 在项目root directory下新建 <code>pyrightconfig.json</code> 文件，指定虚拟环境的路径和虚拟环境的名字。这样emacs在打开项目下的文件时能自动初始化虚拟环境，不需要手工在emacs中激活对应的虚拟环境，lsp-mode可以直接使用正确的虚拟环境。
 </p>
 
-<pre class="example" id="org301b70d">
+<pre class="example" id="org1f5bd24">
 {
     "venvPath": "/Users/albert/.virtualenvs/",
     "venv": "pandas"

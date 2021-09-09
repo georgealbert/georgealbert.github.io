@@ -1,18 +1,27 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2019-11-22 周五 15:21 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>在windows上使用OpenDHCPServer</title>
-<meta name="generator" content="Org mode">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">在windows上使用OpenDHCPServer</h1>
+  <div class="post-date">2019年11月22日</div>
+  <h1>在windows上使用OpenDHCPServer</h1>
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-11-22 周五 14:31]</span></span>
+;#+HTML_DOCTYPE: html5
+;#+OPTIONS: toc:nil
+;#+HTML_HEAD: &lt;link rel="stylesheet" type="text/css" href="/main.css" /&gt;
+</p>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-11-22 Fri 14:31]</span></span>
 </p>
 
 <p>
@@ -37,12 +46,12 @@ OpenDHCPServer的功能很全，我只用了最基础的功能。
 
 <h2>配置</h2>
 
-<ol class="org-ol">
+<ol>
 <li><p>
 配置OpenDHCPServer.ini
 </p>
 
-<ul class="org-ul">
+<ul>
 <li><p>
 dhcp分配ip的地址池: 192.168.1.5~192.168.1.5。
 </p>
@@ -63,7 +72,7 @@ leasetime设置为360秒。
 <p>
 OpenDHCPServer.ini配置文件比较长，都是注释掉的，找第一段[RANGE_SET]修改即可。
 </p>
-<pre class="example">
+<pre class="example" id="org8151dbe">
 vim OpenDHCPServer.ini
 [RANGE_SET]
 # This section is also simple [RANGE_SET] section
@@ -79,11 +88,12 @@ AddressTime=360
 
 <h2>Run</h2>
 
-<ol class="org-ol">
+<ol>
 <li>进入解压目录，在cmd中执行 <code>RunStandAlone.bat</code> 即可。运行后可以在log中看见服务器管理口分配的ip。</li>
 
 <li>打开浏览器，访问<a href="http://192.168.1.5">http://192.168.1.5</a>。</li>
 </ol>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

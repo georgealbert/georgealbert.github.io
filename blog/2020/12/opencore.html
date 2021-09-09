@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-12-31 Thu 17:32 -->
+<!-- 2021-09-06 Mon 21:33 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>修改opencore，在引导windows时不修改ACPI</title>
@@ -23,7 +23,7 @@ opencore不需要在引导除macos以外的操作系统会按config.plist中的�
 <p>
 代码基于oc 0.6.5版本，主要是在引导其他操作系统时，不修改ACPI，具体如下：
 </p>
-<pre class="example">
+<pre class="example" id="org6e6792a">
 $git diff 5c8f
 diff --git a/Include/Acidanthera/Library/OcConfigurationLib.h b/Include/Acidanthera/Library/OcConfigurationLib.h
 index f2a71123..91385265 100644

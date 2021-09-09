@@ -1,16 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2019-10-15 周二 15:08 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>linux报Resource temporarily unavailable的问题</title>
-<meta name="generator" content="Org mode">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">linux报Resource temporarily unavailable的问题</h1>
+  <div class="post-date">2019年08月06日</div>
+  <h1>linux报Resource temporarily unavailable的问题</h1>
 
 
 <h2>问题</h2>
@@ -22,7 +25,7 @@
 
 <h3><code>Resource temporarily unavailable</code> 错误的原因分类</h3>
 
-<ol class="org-ol">
+<ol>
 <li>物理内存耗尽。</li>
 <li>进程启动超过了用户的ulimit限制。</li>
 <li>进程、线程启动过多，linux无法分配新的pid。</li>
@@ -68,7 +71,7 @@ When it can no more create threads check nlwp count [ nlwp is the number threads
 
 <p>
 TODO: 貌似centos 7上可以起很多thread，远远超过物理内存限制，在创建thread是没分配stack吗?
-<span class="timestamp-wrapper"><span class="timestamp">[2019-08-05 周一 15:13] </span></span> 唉，代码写错了，thread的代码，应该
+<span class="timestamp-wrapper"><span class="timestamp">[2019-08-05 Mon 15:13] </span></span> 唉，代码写错了，thread的代码，应该
 </p>
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #00bfff;">do</span> {
@@ -114,19 +117,39 @@ bash: fork: retry: No child processes
 
 <h3>进程、线程启动过多，linux无法分配新的pid</h3>
 
-<ol class="org-ol">
-<li>/proc/sys/kernel/pid_max
+<ol>
+<li><p>
+/proc/sys/kernel/pid_max
+</p>
+
+<p>
 （操作系统进程、线程ID的最大值）系统支持的最大线程数
-sysctl kernel.pid_max</li>
+sysctl kernel.pid_max
+</p></li>
 
-<li>/proc/sys/kernel/threads-max
-表示内核所能使用的线程的最大数目</li>
+<li><p>
+/proc/sys/kernel/threads-max
+</p>
 
-<li>max_user_process
-ulimit -u #系统限制某用户下最多可以运行多少进程或线程</li>
+<p>
+表示内核所能使用的线程的最大数目
+</p></li>
 
-<li>/proc/sys/vm/max_map_count
-单进程mmap的限制会影响单个进程可创建的线程数</li>
+<li><p>
+max_user_process
+</p>
+
+<p>
+ulimit -u #系统限制某用户下最多可以运行多少进程或线程
+</p></li>
+
+<li><p>
+/proc/sys/vm/max_map_count
+</p>
+
+<p>
+单进程mmap的限制会影响单个进程可创建的线程数
+</p></li>
 </ol>
 
 <div class="org-src-container">
@@ -138,7 +161,7 @@ ulimit -u #系统限制某用户下最多可以运行多少进程或线程</li>
 </div>
 
 <p>
-pid_max比threads-max小一个数量级，pid_max可能是瓶颈。
+<code>pid_max</code> 比 <code>threads-max</code> 小一个数量级，pid_max可能是瓶颈。
 </p>
 
 <p>
@@ -184,7 +207,7 @@ zombie进程不怎么吃cpu。top是实时显示当前系统中的进程，会�
 
 <h2>解决方案</h2>
 
-<ol class="org-ol">
+<ol>
 <li>不重启系统，动态调整pid_max。
 重启物理机动静比较大，先治标，解决问题。</li>
 
@@ -199,7 +222,7 @@ zombie进程不怎么吃cpu。top是实时显示当前系统中的进程，会�
 Linux的进程和线程有很多异同点，可以Google下。但只要能清楚地理解一下几点，则足够理解Linux中各种ID的含义。
 </p>
 
-<ol class="org-ol">
+<ol>
 <li>进程是资源分配的基本单位， <code>线程是调度的基本单位。</code></li>
 <li><code>进程是资源的集合</code> ，这些资源包括内存地址空间，文件描述符等等，一个进程中的多个线程共享这些资源。</li>
 <li>CPU对任务进行调度时， <code>可调度的基本单位 (dispatchable entity)是线程</code> 。如果一个进程中没有其他线程，可以理解成这个进程中只有一个 <code>主线程</code> ，这个主进程独享进程中的所有资源。</li>
@@ -214,17 +237,62 @@ Linux的进程和线程有很多异同点，可以Google下。但只要能清楚
 初步理解各种ID。基本上按照重要程度从高到低，在分割线下方的IDs不太重要。
 </p>
 
-<dl class="org-dl">
-<dt>pid</dt><dd>进程ID。</dd>
-<dt>lwp</dt><dd>线程ID。在用户态的命令(比如ps)中常用的显示方式。</dd>
-<dt>tid</dt><dd>线程ID，等于lwp。tid在系统提供的接口函数中更常用，比如syscall(SYS_gettid)和syscall(__NR_gettid)。</dd>
-<dt>tgid</dt><dd>线程组ID，也就是线程组leader的进程ID，等于pid。
-<code>------分割线------</code></dd>
-<dt>pgid</dt><dd>进程组ID，也就是进程组leader的进程ID。</dd>
-<dt>pthread id</dt><dd>pthread库提供的ID，生效范围不在系统级别，可以忽略。</dd>
-<dt>sid</dt><dd>session ID for the session leader。</dd>
-<dt>tpgid</dt><dd>tty process group ID for the process group leader。</dd>
-</dl>
+<table border="1" rules="all" frame="border">
+<caption class="t-above"><span class="table-number">Table 1:</span> 各种ID</caption>
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">分类</th>
+<th scope="col" class="org-left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">pid</td>
+<td class="org-left">进程ID</td>
+</tr>
+
+<tr>
+<td class="org-left">lwp</td>
+<td class="org-left">线程ID。在用户态的命令(比如ps)中常用的显示方式。</td>
+</tr>
+
+<tr>
+<td class="org-left">tid</td>
+<td class="org-left">线程ID，等于lwp。tid在系统提供的接口函数中更常用，比如syscall(SYS_gettid)和syscall(__NR_gettid)。</td>
+</tr>
+
+<tr>
+<td class="org-left">tgid</td>
+<td class="org-left">线程组ID，也就是线程组leader的进程ID，等于pid。</td>
+</tr>
+
+<tr>
+<td class="org-left">pgid</td>
+<td class="org-left">进程组ID，也就是进程组leader的进程ID。</td>
+</tr>
+
+<tr>
+<td class="org-left">pthread id</td>
+<td class="org-left">pthread库提供的ID，生效范围不在系统级别，可以忽略。</td>
+</tr>
+
+<tr>
+<td class="org-left">sid</td>
+<td class="org-left">session ID for the session leader。</td>
+</tr>
+
+<tr>
+<td class="org-left">tpgid</td>
+<td class="org-left">tty process group ID for the process group leader。</td>
+</tr>
+</tbody>
+</table>
 
 <p>
 从上面的列表看出，各种ID最后都归结到pid和lwp(tid)上。所以理解各种ID， <code>最终归结为理解pid和lwp(tid)的联系和区别。</code>
@@ -233,7 +301,7 @@ Linux的进程和线程有很多异同点，可以Google下。但只要能清楚
 <p>
 关于线程继承关系图如下：
 </p>
-<pre class="example">
+<pre class="example" id="orgbd8a63a">
                USER VIEW
  &lt;-- PID 43 --&gt; &lt;----------------- PID 42 -----------------&gt;
                      +---------+
@@ -255,7 +323,7 @@ Linux的进程和线程有很多异同点，可以Google下。但只要能清楚
 上图很好地描述了用户视角(user view)和内核视角(kernel view)看到线程的差别：
 </p>
 
-<ul class="org-ul">
+<ul>
 <li>从用户视角出发，在pid 42中产生的tid 44线程，属于tgid(线程组leader的进程ID) 42。甚至用ps和top的默认参数，你都无法看到tid 44线程。</li>
 <li>从内核视角出发，tid 42和tid 44是独立的调度单元，可以把他们视为"pid 42"和"pid 44"。</li>
 </ul>
@@ -271,7 +339,7 @@ Linux的进程和线程有很多异同点，可以Google下。但只要能清楚
 
 <h3>Linux通过进程查看线程的方法</h3>
 
-<ol class="org-ol">
+<ol>
 <li><p>
 htop 
 默认系统没有安装
@@ -352,7 +420,7 @@ Linux 3.10.0-957.1.3.el7.x86_64 (master.k8s)    07/31/2019      _x86_64_        
 </pre>
 </div>
 
-<ul class="org-ul">
+<ul>
 <li>pidstat概述
 pidstat是sysstat工具的一个命令，用于监控全部或指定进程的cpu、内存、线程、设备IO等系统资源的占用情况。pidstat首次运行时显示自系统启动开始的各项统计信息，之后运行pidstat将显示自上次运行该命令以后的统计信息。用户可以通过指定统计的次数和时间来获得所需的统计信息。</li>
 
@@ -377,6 +445,7 @@ CentOS/Fedora/RHEL版本的linux中则使用下面的命令：
 </pre>
 </div></li>
 </ul>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

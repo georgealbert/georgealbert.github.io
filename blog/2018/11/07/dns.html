@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2019-10-16 周三 09:42 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>DNS递归解析过程</title>
-<meta name="generator" content="Org mode">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">DNS递归解析过程</h1>
-<ul class="org-ul">
+  <div class="post-date">2018年11月07日</div>
+  <h1>DNS递归解析过程</h1>
+<ul>
 <li>目标
-<ul class="org-ul">
+<ul>
 <li>模拟local - dns递归解析一个域名www.albert.com的过程</li>
 <li>本地DNS服务器向根DNS转发 - node3.k8s上的local dns(dnsmasq or bind) -&gt; master.k8s上的根域DNS(bind)转发</li>
 <li>com域实现主从域的搭建 - 没有做，只用了master dns</li>
@@ -35,11 +38,11 @@ rndc reload
 </pre>
 </div>
 
-<div id="outline-container-org6291370" class="outline-2">
-<h2 id="org6291370">根DNS(root server) - master.k8s(192.168.56.100)</h2>
-<div class="outline-text-2" id="text-org6291370">
+
+<h2>根DNS(root server) - master.k8s(192.168.56.100)</h2>
+
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2018-11-07 周三 11:11]</span></span>
+<span class="timestamp-wrapper"><span class="timestamp">[2018-11-07 Wed 11:11]</span></span>
 使用bind9来做根dns服务器。
 </p>
 <div class="org-src-container">
@@ -49,10 +52,9 @@ zone ./IN: loaded serial 2
 OK
 </pre>
 </div>
-</div>
-<div id="outline-container-org4c7a2b2" class="outline-3">
-<h3 id="org4c7a2b2">[root@master ~]# cat /etc/named.conf</h3>
-<div class="outline-text-3" id="text-org4c7a2b2">
+
+<h3>[root@master ~]# cat /etc/named.conf</h3>
+
 <div class="org-src-container">
 <pre class="src src-sh">options {
         // listen-on port 53 { 127.0.0.1; }; // ipv4 &#30417;&#21548;&#31471;&#21475;, &#27880;&#37322;&#25481;&#65292;&#22914;&#26524;&#19981;&#27880;&#37322;&#30340;&#35805;&#19981;&#30693;&#36947;&#24590;&#20040;&#37197;&#32622;&#21487;&#20197;&#30417;&#21548;&#25152;&#26377;ip
@@ -77,57 +79,51 @@ zone <span style="color: #deb887;">"."</span> IN {  // <span style="color: #deb8
 }; // <span style="color: #deb887;">"}"</span>&#21518;&#20063;&#24471;&#20998;&#21495;&#32467;&#26463;
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-orge5e1536" class="outline-3">
-<h3 id="orge5e1536">[root@master ~]# cat /var/named/root.zone</h3>
-<div class="outline-text-3" id="text-orge5e1536">
+
+<h3>[root@master ~]# cat /var/named/root.zone</h3>
+
 <p>
 至此看来，named.conf的配置并不复杂，不过接下来的zone文件的配置就会改变你的看法。
 </p>
 
 <div class="org-src-container">
-<pre class="src src-conf"><span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">&#27880;&#24847;&#65292;zone&#25991;&#20214;&#30340;&#27880;&#37322;&#26159;&#20197;&#20998;&#21495;";"&#24320;&#22987;&#30340;&#12290;</span>
-<span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">&#28155;&#21152;&#22495;&#25968;&#25454;&#24211;&#25991;&#20214;&#65306;vim /var/named/root.zone</span>
-$TTL 1D <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">&#29983;&#23384;&#26399;, &#40664;&#35748;&#21333;&#20301;&#20026;&#31186;&#65292;&#21478;&#21487;&#35774;&#23450;&#20026;[W|D|H|M]</span>
+<pre class="src src-conf">; &#27880;&#24847;&#65292;zone&#25991;&#20214;&#30340;&#27880;&#37322;&#26159;&#20197;&#20998;&#21495;<span style="color: #deb887;">";"</span>&#24320;&#22987;&#30340;&#12290;
+; &#28155;&#21152;&#22495;&#25968;&#25454;&#24211;&#25991;&#20214;&#65306;vim /var/named/root.zone
+$TTL 1D ; &#29983;&#23384;&#26399;, &#40664;&#35748;&#21333;&#20301;&#20026;&#31186;&#65292;&#21478;&#21487;&#35774;&#23450;&#20026;[W|D|H|M]
 
-<span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">[zone] IN SOA [&#20027;&#26426;&#21517;] [&#31649;&#29702;&#21592;email] ([&#20116;&#32452;&#26356;&#26032;&#26102;&#38388;&#21442;&#25968;])  </span>
-<span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">@=&gt;zone IN SOA @=&gt;&#20027;&#26426;&#21517; rname.invalid.=&gt;email  </span>
-<span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">@&#20195;&#34920;&#26681;&#22495;  </span>
-<span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">rname.invalid.&#35299;&#26512;&#20026;rname@invalid&#65292;&#31532;&#19968;&#20010;"."&#20026;"@"&#30340;&#26367;&#20195;&#65292;&#23614;&#37096;&#30340;"."&#20026;&#26681;&#22495;&#65292;&#34920;&#26126;&#20854;&#20026;&#32477;&#23545;URL&#12290;</span>
+; [zone] IN SOA [&#20027;&#26426;&#21517;] [&#31649;&#29702;&#21592;email] ([&#20116;&#32452;&#26356;&#26032;&#26102;&#38388;&#21442;&#25968;])  
+<span style="color: #4eee94;">; @</span>=&gt;zone IN SOA @=&gt;&#20027;&#26426;&#21517; rname.invalid.=&gt;email  
+; @&#20195;&#34920;&#26681;&#22495;  
+; rname.invalid.&#35299;&#26512;&#20026;rname@invalid&#65292;&#31532;&#19968;&#20010;<span style="color: #deb887;">"."</span>&#20026;<span style="color: #deb887;">"@"</span>&#30340;&#26367;&#20195;&#65292;&#23614;&#37096;&#30340;<span style="color: #deb887;">"."</span>&#20026;&#26681;&#22495;&#65292;&#34920;&#26126;&#20854;&#20026;&#32477;&#23545;URL&#12290;
 
-<span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">@&#26159;SOA&#35760;&#24405;&#20013;&#30340;name&#23383;&#27573;&#30340;&#32553;&#20889;&#65292;a.root-server.net&#26159;&#24403;&#21069;&#26381;&#21153;&#22120;&#20027;&#26426;&#21517;&#31216;&#65292;mail.albert.com&#26159;&#24403;&#21069;&#21306;&#22495;&#25991;&#20214;&#36127;&#36131;&#20154;&#37038;&#31665;&#65292;&#21487;&#20197;&#30475;&#20570;mail@albert.com&#65292;&#22240;&#20026;@&#26377;&#29305;&#27530;&#29992;&#36884;&#65292;&#29992;.&#20195;&#26367;</span>
+; @&#26159;SOA&#35760;&#24405;&#20013;&#30340;name&#23383;&#27573;&#30340;&#32553;&#20889;&#65292;a.root-server.net&#26159;&#24403;&#21069;&#26381;&#21153;&#22120;&#20027;&#26426;&#21517;&#31216;&#65292;mail.albert.com&#26159;&#24403;&#21069;&#21306;&#22495;&#25991;&#20214;&#36127;&#36131;&#20154;&#37038;&#31665;&#65292;&#21487;&#20197;&#30475;&#20570;mail@albert.com&#65292;&#22240;&#20026;@&#26377;&#29305;&#27530;&#29992;&#36884;&#65292;&#29992;.&#20195;&#26367;
 @ IN  SOA  a.root-server.net  mail.albert.com. (
-                   2       <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">serial</span>
-                   1D      <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">refresh</span>
-                   1H      <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">retry</span>
-                   1W      <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">expire</span>
-                   3H )    <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">minimuim</span>
+                   2       ; serial
+                   1D      ; refresh
+                   1H      ; retry
+                   1W      ; expire
+                   3H )    ; minimuim
 
-<span style="color: #B0BED8;">;       </span><span style="color: #B0BED8;">NS      @          ; &#30452;&#25509;&#36755;&#20837;&#22495;&#21517;&#65292;&#35775;&#38382;@  </span>
-<span style="color: #B0BED8;">;       </span><span style="color: #B0BED8;">A       127.0.0.1  ; &#30452;&#25509;&#36755;&#20837;&#22495;&#21517;&#65292;&#35299;&#26512;&#21040;&#30340;IPV4&#30340;IP  </span>
-<span style="color: #B0BED8;">;       </span><span style="color: #B0BED8;">AAAA    ::1        ; &#30452;&#25509;&#36755;&#20837;&#22495;&#21517;&#65292;&#35299;&#26512;&#21040;&#30340;IPV6&#30340;IP</span>
+;       NS      @          ; &#30452;&#25509;&#36755;&#20837;&#22495;&#21517;&#65292;&#35775;&#38382;@  
+;       A       127.0.0.1  ; &#30452;&#25509;&#36755;&#20837;&#22495;&#21517;&#65292;&#35299;&#26512;&#21040;&#30340;IPV4&#30340;IP  
+;       AAAA    ::1        ; &#30452;&#25509;&#36755;&#20837;&#22495;&#21517;&#65292;&#35299;&#26512;&#21040;&#30340;IPV6&#30340;IP
                       NS a.root-server.net.
-com                IN NS a.tl-server.net.  <span style="color: #B0BED8;">;</span><span style="color: #B0BED8;">//&#22996;&#27966;</span>
+com                IN NS a.tl-server.net.  ;//&#22996;&#27966;
 a.root-server.net. IN A  192.168.56.100
 a.tl-server.net.   IN A  192.168.56.101
 </pre>
 </div>
-</div>
-</div>
-</div>
-<div id="outline-container-org1165321" class="outline-2">
-<h2 id="org1165321">com权威DNS server - node1.k8s(192.168.56.101)</h2>
-<div class="outline-text-2" id="text-org1165321">
+
+<h2>com权威DNS server - node1.k8s(192.168.56.101)</h2>
+
 <p>
 使用bind9来做com域dns服务器
 </p>
-</div>
 
-<div id="outline-container-org1843f53" class="outline-3">
-<h3 id="org1843f53">[root@node1 ~]# cat /etc/named.conf</h3>
-<div class="outline-text-3" id="text-org1843f53">
+
+<h3>[root@node1 ~]# cat /etc/named.conf</h3>
+
 <div class="org-src-container">
 <pre class="src src-sh">vim /etc/named.conf
 options {
@@ -146,12 +142,10 @@ options {
         dnssec-validation yes;  // &#32771;&#34385;&#25913;&#20026;no
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-org379ffcc" class="outline-3">
-<h3 id="org379ffcc">[root@node1 ~]# cat /etc/named.rfc1912.zones</h3>
-<div class="outline-text-3" id="text-org379ffcc">
+
+<h3>[root@node1 ~]# cat /etc/named.rfc1912.zones</h3>
+
 <div class="org-src-container">
 <pre class="src src-sh">// &#26032;&#22686;&#19979;&#38754;&#30340;&#20869;&#23481;
 zone <span style="color: #deb887;">"com"</span> IN {
@@ -160,12 +154,10 @@ zone <span style="color: #deb887;">"com"</span> IN {
 }
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-org4399b3c" class="outline-3">
-<h3 id="org4399b3c">[root@node1 ~]# cat /var/named/com.zone</h3>
-<div class="outline-text-3" id="text-org4399b3c">
+
+<h3>[root@node1 ~]# cat /var/named/com.zone</h3>
+
 <div class="org-src-container">
 <pre class="src src-sh">[root@node1 ~]# cat /var/named/com.zone 
 $<span style="color: #4eee94;">TTL</span> 86400
@@ -182,12 +174,9 @@ dns1            A       192.168.56.101
 dns2            A       192.168.56.102
 </pre>
 </div>
-</div>
-</div>
-</div>
-<div id="outline-container-org68910bd" class="outline-2">
-<h2 id="org68910bd">albert.com授权DNS server - node2.k8s(192.168.56.102)</h2>
-<div class="outline-text-2" id="text-org68910bd">
+
+<h2>albert.com授权DNS server - node2.k8s(192.168.56.102)</h2>
+
 <p>
 使用bind作为子域的授权服务器。
 </p>
@@ -197,11 +186,10 @@ dns2            A       192.168.56.102
 dig www.albert.com @192.168.56.102
 </pre>
 </div>
-</div>
 
-<div id="outline-container-orgaec0f2b" class="outline-3">
-<h3 id="orgaec0f2b">[root@node2 named]# cat /etc/named.conf</h3>
-<div class="outline-text-3" id="text-orgaec0f2b">
+
+<h3>[root@node2 named]# cat /etc/named.conf</h3>
+
 <p>
 在全局配置文件/etc/named.conf中修改
 </p>
@@ -220,12 +208,10 @@ dig www.albert.com @192.168.56.102
         dnssec-validation yes;  // &#21487;&#20197;&#25913;&#20026;no
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-org7d58324" class="outline-3">
-<h3 id="org7d58324">[root@node2 named]# cat /etc/named.rfc1912.zones</h3>
-<div class="outline-text-3" id="text-org7d58324">
+
+<h3>[root@node2 named]# cat /etc/named.rfc1912.zones</h3>
+
 <p>
 在/etc/named.rfc1912.zones文件最后,新增下面的配置
 </p>
@@ -236,27 +222,25 @@ dig www.albert.com @192.168.56.102
 };
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-org1281859" class="outline-3">
-<h3 id="org1281859">[root@node2 named]# cat albert.com.zone</h3>
-<div class="outline-text-3" id="text-org1281859">
+
+<h3>[root@node2 named]# cat albert.com.zone</h3>
+
 <p>
 创建albert.com.zone，内容如下:
 </p>
 <div class="org-src-container">
 <pre class="src src-conf">$TTL 1D 
 @      IN SOA  dns1 mail.albert.com. (
-          2018112302       <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">serial</span>
-          1D      <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">refresh</span>
-          1H      <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">retry</span>
-          1W      <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">expire</span>
-          3H)    <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">minimum</span>
+          2018112302       ; serial
+          1D      ; refresh
+          1H      ; retry
+          1W      ; expire
+          3H)    ; minimum
        NS      dns1
 dns1       A  172.16.9.103
 www        A  172.16.9.100
-static     A  172.16.9.102  <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">&#36755;&#20837;&#23376;&#22495;&#21517;&#65292;&#35299;&#26512;&#21040;&#30340;IP</span>
+static     A  172.16.9.102  ; &#36755;&#20837;&#23376;&#22495;&#21517;&#65292;&#35299;&#26512;&#21040;&#30340;IP
 img        A  172.16.9.103
 js         A  172.16.9.104
 log        A  172.16.9.101     
@@ -268,22 +252,18 @@ a.login    A  172.16.9.101
 <pre class="src src-sh">/usr/sbin/named-checkconf -z
 </pre>
 </div>
-</div>
-</div>
-</div>
 
-<div id="outline-container-org91c7ed7" class="outline-2">
-<h2 id="org91c7ed7">递归server/边缘cache DNS server - node3.k8s(192.168.56.103)</h2>
-<div class="outline-text-2" id="text-org91c7ed7">
+
+<h2>递归server/边缘cache DNS server - node3.k8s(192.168.56.103)</h2>
+
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2018-11-07 周三 11:20]</span></span>
+<span class="timestamp-wrapper"><span class="timestamp">[2018-11-07 Wed 11:20]</span></span>
 使用dnsmasq或者bind作为边缘dns都可以ok，检查一下TTL的设置。
 </p>
-</div>
 
-<div id="outline-container-orgeb523e3" class="outline-3">
-<h3 id="orgeb523e3">[root@node3 ~]# vim /etc/dnsmasq.conf</h3>
-<div class="outline-text-3" id="text-orgeb523e3">
+
+<h3>[root@node3 ~]# vim /etc/dnsmasq.conf</h3>
+
 <p>
 修改/etc/dnsmasq.conf，新增或去掉注释
 </p>
@@ -294,19 +274,15 @@ strict-order
 log-facility=/var/log/dnsmasq.log
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-org952eafd" class="outline-3">
-<h3 id="org952eafd">[root@node3 ~]# cat /etc/resolv.dnsmasq.conf</h3>
-<div class="outline-text-3" id="text-org952eafd">
+
+<h3>[root@node3 ~]# cat /etc/resolv.dnsmasq.conf</h3>
+
 <div class="org-src-container">
 <pre class="src src-sh">nameserver 192.168.56.100 <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#25351;&#21521;&#25105;&#33258;&#24049;&#30340;root dns server&#65292;&#26681;&#26381;&#21153;&#22120;</span>
 </pre>
 </div>
-</div>
-</div>
-</div>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

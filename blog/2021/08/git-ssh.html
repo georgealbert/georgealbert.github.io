@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2021-09-06 Mon 21:33 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ssh方式访问github</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="albert">
+</head>
+<body>
+<div id="content">
+<h1 class="title">ssh方式访问github</h1>
+<p>
+查看
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[albert@MacBookAir /Users/albert/.emacs.d]
+$<span style="color: #4eee94;">git</span> remote -v
+origin  https://github.com/georgealbert/.emacs.d.git (fetch)
+origin  https://github.com/georgealbert/.emacs.d.git (push)
+</pre>
+</div>
+
+<p>
+修改push的url，使用ssh方式。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">[albert@MacBookAir /Users/albert/.emacs.d]
+$<span style="color: #4eee94;">git</span> remote set-url --push origin git@github.com:georgealbert/.emacs.d.git 
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">[albert@MacBookAir /Users/albert/.emacs.d]
+$<span style="color: #4eee94;">git</span> remote -v                                                             
+origin  https://github.com/georgealbert/.emacs.d.git (fetch)
+origin  git@github.com:georgealbert/.emacs.d.git (push)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">[albert@MacBookAir /Users/albert/.emacs.d]
+$<span style="color: #4eee94;">git</span> push -v origin master
+Pushing to git@github.com:georgealbert/.emacs.d.git
+The authenticity of host <span style="color: #deb887;">'github.com (20.205.243.166)'</span> can<span style="color: #deb887;">'t be established.</span>
+<span style="color: #deb887;">RSA key fingerprint is SHA256:nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8.</span>
+<span style="color: #deb887;">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span>
+<span style="color: #deb887;">Warning: Permanently added '</span>github.com,20.205.243.166<span style="color: #deb887;">' (RSA) to the list of known hosts.</span>
+<span style="color: #deb887;">Enumerating objects: 39, done.</span>
+<span style="color: #deb887;">Counting objects: 100% (39/39), done.</span>
+<span style="color: #deb887;">Delta compression using up to 8 threads</span>
+<span style="color: #deb887;">Compressing objects: 100% (34/34), done.</span>
+<span style="color: #deb887;">Writing objects: 100% (34/34), 8.66 KiB | 1.73 MiB/s, done.</span>
+<span style="color: #deb887;">Total 34 (delta 22), reused 0 (delta 0)</span>
+<span style="color: #deb887;">remote: Resolving deltas: 100% (22/22), completed with 5 local objects.</span>
+<span style="color: #deb887;">To github.com:georgealbert/.emacs.d.git</span>
+<span style="color: #deb887;">   1ba5121..3a78277  master -&gt; master</span>
+<span style="color: #deb887;">updating local tracking ref '</span>refs/remotes/origin/master<span style="color: #deb887;">'</span>
+</pre>
+</div>
+</div>
+</body>
+</html>

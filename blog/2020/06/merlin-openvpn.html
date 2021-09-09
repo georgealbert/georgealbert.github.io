@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
 <head>
-<!-- 2020-06-26 周五 21:38 -->
+<!-- 2021-09-06 Mon 21:33 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>配置多个openvpn client连接到同一个openvpn server</title>
 <meta name="generator" content="Org mode">
+<meta name="author" content="albert">
 <link rel="stylesheet" type="text/css" href="/main.css" />
 </head>
 <body>
@@ -28,9 +29,9 @@ openvpn server通过客户端证书中的common name(CN)来区分不同的openvp
 梅林中导入ca.crt/server.crt/server.key/dh1024.pem都可以。</li>
 </ol>
 
-<div id="outline-container-orga191fa6" class="outline-2">
-<h2 id="orga191fa6">在华硕官方固件上制作新的客户端证书</h2>
-<div class="outline-text-2" id="text-orga191fa6">
+
+<h2>在华硕官方固件上制作新的客户端证书</h2>
+
 <p>
 因为固件中 <code>/tmp/etc/openvpn/server1</code> 已经有ca.key/ca.crt和server.key/server.crt等文件了，不用再生成ca和server证书，只需要生成新的客户端证书即可。生成客户端证书需要ca.key和ca.crt。 <code>/tmp/etc/openvpn/server1</code> 中的文件具体如下：
 </p>
@@ -87,7 +88,7 @@ cp -r /rom/easy-rsa /tmp/mnt/Albert/cert/
 执行vars文件，让变量生效。
 </p>
 <div class="org-src-container">
-<pre class="src src-sh">source ./vars
+<pre class="src src-sh"><span style="color: #f08080;">source</span> ./vars
 </pre>
 </div>
 
@@ -184,7 +185,7 @@ Data Base Updated
 <p>
 修改client.ovpn中的如下内容：
 </p>
-<pre class="example">
+<pre class="example" id="org3885310">
 &lt;cert&gt;
 -----BEGIN CERTIFICATE-----
 pc.crt的内容
@@ -208,11 +209,10 @@ pc.key的内容
 vpn -&gt; VPN客户端 -&gt; 导入.ovpn文件 -&gt; 点击“浏览”按钮 -&gt; 上传client.ovpn -&gt; 点击“上传”按钮 -&gt; 几秒钟后文件上传成功
 -&gt; Start with WAN 选择“是” ，确保openvpn client在路由器重启后能自动启动 -&gt; 增加用户名/密码 -&gt; 点击“应用本页配置”
 </p>
-</div>
 
-<div id="outline-container-org0b72938" class="outline-3">
-<h3 id="org0b72938">openvpn server配置</h3>
-<div class="outline-text-3" id="text-org0b72938">
+
+<h3>openvpn server配置</h3>
+
 <ol class="org-ol">
 <li><p>
 修改“服务器通信端口”
@@ -252,6 +252,9 @@ Allowed Clients 增加：
 
 <p>
 CN：pc1，子网：192.168.2.0，Mask：255.255.255.0，推送：否。点击“加号”
+</p>
+
+<p>
 CN：pc2，子网：192.168.3.0，Mask：255.255.255.0，推送：否。点击“加号”
 </p>
 
@@ -265,6 +268,9 @@ CN：pc2，子网：192.168.3.0，Mask：255.255.255.0，推送：否。点击�
 
 <p>
 “push "route 192.168.2.0 255.255.255.0"”
+</p>
+
+<p>
 “push "route 192.168.3.0 255.255.255.0"”
 </p>
 
@@ -272,9 +278,6 @@ CN：pc2，子网：192.168.3.0，Mask：255.255.255.0，推送：否。点击�
 把2个openvpn client的内网网段推送给每个客户端，这样客户端就有了到其他客户端的路由。
 </p></li>
 </ol>
-</div>
-</div>
-</div>
 </div>
 </body>
 </html>

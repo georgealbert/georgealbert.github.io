@@ -1,16 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2019-10-16 周三 11:49 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>emacs python和go的lsp配置</title>
-<meta name="generator" content="Org mode">
-<link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">emacs python和go的lsp配置</h1>
+  <div class="post-date">2019年08月09日</div>
+  <h1>emacs python和go的lsp配置</h1>
 <p>
 微软在2017年提出lsp后，让emacs和vim之类纯文本编辑器可以摆脱tag的方式，可以直接对语言进行语法、语义分析、代码检查、重构、intelliSense、查看定义、跳转。emacs和vim的神器啊。
 </p>
@@ -27,17 +30,21 @@ python的lsp比以前常用的 <b>elpy</b> 稍微好用点。
 </p>
 
 <p>
-lsp有python的和微软的。推荐使用微软的 <b>mspyls</b> 。
+<span class="underline">lsp有python的和微软的。推荐使用微软的 <b>mspyls</b> 。</span>
+</p>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2021-09-07 Tue 00:28] </span></span> updated: 在用 <code>pyright</code> 了。
 </p>
 
 
 <h3>mspyls on windows</h3>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-07-04 周四 09:58]</span></span>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-07-04 Thu 09:58]</span></span>
 </p>
 
-<dl class="org-dl">
+<dl>
 <dt>下载地址</dt><dd><a href="https://github.com/Microsoft/python-language-server">https://github.com/Microsoft/python-language-server</a></dd>
 
 <dt>.NET Core RID 目录</dt><dd><a href="https://docs.microsoft.com/zh-cn/dotnet/core/rid-catalog">https://docs.microsoft.com/zh-cn/dotnet/core/rid-catalog</a></dd>
@@ -59,7 +66,7 @@ linux的rid使用 <b>linux-x64</b> 。
 </p>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-08-07 周三 09:21]</span></span>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-08-07 Wed 09:21]</span></span>
 </p>
 <div class="org-src-container">
 <pre class="src src-sh">[albert@master.k8s /home/albert/mspyls/python-language-server]
@@ -121,10 +128,10 @@ golsp和bingo在windows上体验很差，看代码一会就emacs就会报错，�
 </p>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-07-04 周四 16:09]</span></span>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-07-04 Thu 16:09]</span></span>
 </p>
 
-<ul class="org-ul">
+<ul>
 <li><p>
 go在windows中的环境变量
 </p>
@@ -150,7 +157,7 @@ go在linux中的环境变量
 
 <h3>Install gopls</h3>
 
-<dl class="org-dl">
+<dl>
 <dt>gopls安装目录</dt><dd>~/go/bin</dd>
 </dl>
 
@@ -180,7 +187,7 @@ bingo is a go module project, so you need install Go 1.11 or above, to install t
 <a href="https://github.com/saibing/bingo/wiki/Install">https://github.com/saibing/bingo/wiki/Install</a>
 </p>
 
-<ul class="org-ul">
+<ul>
 <li><p>
 处理install bingo被墙的问题
 </p>
@@ -218,7 +225,7 @@ go get -v github.com/saibing/bingo
 <h3>lsp-mode</h3>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-06-14 周五 21:30]</span></span>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-06-14 Fri 21:30]</span></span>
 </p>
 
 <p>
@@ -244,79 +251,79 @@ seagle0128 18年11月
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">Emacs client for the Language Server Protocol</span>
 <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">https://github.com/emacs-lsp/lsp-mode#supported-languages</span>
-<span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">use-package</span> <span style="color: #a2cd5a;">lsp-mode</span>
+(<span style="color: #00bfff;">use-package</span> <span style="color: #a2cd5a;">lsp-mode</span>
   <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">:diminish lsp-mode</span>
   <span style="color: #f08080;">:defer</span> t
   <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">:hook (prog-mode . lsp)</span>
-  <span style="color: #f08080;">:hook</span> <span style="color: #ffe4b5;">(</span>python-mode . lsp-deferred<span style="color: #ffe4b5;">)</span>
-        <span style="color: #ffe4b5;">(</span>go-mode . lsp-deferred<span style="color: #ffe4b5;">)</span>
-  <span style="color: #f08080;">:bind</span> <span style="color: #ffe4b5;">(</span><span style="color: #f08080;">:map</span> lsp-mode-map
-              <span style="color: #ffe4b5;">(</span><span style="color: #deb887;">"C-c C-d"</span> . lsp-describe-thing-at-point<span style="color: #ffe4b5;">))</span>
+  <span style="color: #f08080;">:hook</span> (python-mode . lsp-deferred)
+        (go-mode . lsp-deferred)
+  <span style="color: #f08080;">:bind</span> (<span style="color: #f08080;">:map</span> lsp-mode-map
+              (<span style="color: #deb887;">"C-c C-d"</span> . lsp-describe-thing-at-point))
   <span style="color: #f08080;">:init</span>
-  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">setq</span> lsp-auto-guess-root t<span style="color: #ffe4b5;">)</span>       <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">Detect project root</span>
+  (<span style="color: #00bfff;">setq</span> lsp-auto-guess-root t)       <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">Detect project root</span>
   <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">disable Yasnippet</span>
-  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">setq</span> lsp-enable-snippet nil<span style="color: #ffe4b5;">)</span>
-  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">setq</span> lsp-prefer-flymake nil<span style="color: #ffe4b5;">)</span>      <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">Use lsp-ui and flycheck</span>
-  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">setq</span> flymake-fringe-indicator-position 'right-fringe<span style="color: #ffe4b5;">)</span>
-<span style="color: #ffe4b5;">)</span>
+  (<span style="color: #00bfff;">setq</span> lsp-enable-snippet nil)
+  (<span style="color: #00bfff;">setq</span> lsp-prefer-flymake nil)      <span style="color: #B0BED8;">; </span><span style="color: #B0BED8;">Use lsp-ui and flycheck</span>
+  (<span style="color: #00bfff;">setq</span> flymake-fringe-indicator-position 'right-fringe)
+)
 
-<span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">use-package</span> <span style="color: #a2cd5a;">lsp-ui</span>
+(<span style="color: #00bfff;">use-package</span> <span style="color: #a2cd5a;">lsp-ui</span>
   <span style="color: #f08080;">:defer</span> t
   <span style="color: #f08080;">:custom-face</span>
-  <span style="color: #ffe4b5;">(</span>lsp-ui-doc-background <span style="color: #ffe4b5;">((</span>t <span style="color: #ffe4b5;">(</span><span style="color: #f08080;">:background</span> nil<span style="color: #ffe4b5;">))))</span>
-  <span style="color: #f08080;">:bind</span> <span style="color: #ffe4b5;">(</span><span style="color: #f08080;">:map</span> lsp-ui-mode-map
-              <span style="color: #ffe4b5;">([</span>remap xref-find-definitions<span style="color: #ffe4b5;">]</span> . lsp-ui-peek-find-definitions<span style="color: #ffe4b5;">)</span>
-              <span style="color: #ffe4b5;">([</span>remap xref-find-references<span style="color: #ffe4b5;">]</span> . lsp-ui-peek-find-references<span style="color: #ffe4b5;">)</span>
-              <span style="color: #ffe4b5;">(</span><span style="color: #deb887;">"C-c u"</span> . lsp-ui-imenu<span style="color: #ffe4b5;">))</span>
-  <span style="color: #f08080;">:init</span> <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">setq</span> lsp-ui-doc-enable t
+  (lsp-ui-doc-background ((t (<span style="color: #f08080;">:background</span> nil))))
+  <span style="color: #f08080;">:bind</span> (<span style="color: #f08080;">:map</span> lsp-ui-mode-map
+              ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+              ([remap xref-find-references] . lsp-ui-peek-find-references)
+              (<span style="color: #deb887;">"C-c u"</span> . lsp-ui-imenu))
+  <span style="color: #f08080;">:init</span> (<span style="color: #00bfff;">setq</span> lsp-ui-doc-enable t
               lsp-ui-doc-use-webkit t
               lsp-ui-doc-include-signature t
               lsp-ui-doc-position 'top
-              lsp-ui-doc-border <span style="color: #ffe4b5;">(</span>face-foreground 'default<span style="color: #ffe4b5;">)</span>
+              lsp-ui-doc-border (face-foreground 'default)
 
               <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">lsp-enable-snippet nil</span>
               lsp-ui-sideline-enable nil
               <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">emacs26.2 &#32463;&#24120;&#38519;&#20837;&#21345;&#39039;, set it to nil.</span>
               lsp-use-native-json nil
-              lsp-ui-sideline-ignore-duplicate t<span style="color: #ffe4b5;">)</span>
+              lsp-ui-sideline-ignore-duplicate t)
   <span style="color: #f08080;">:config</span>
   <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">WORKAROUND Hide mode-line of the lsp-ui-imenu buffer</span>
   <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">https://github.com/emacs-lsp/lsp-ui/issues/243</span>
-  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">defadvice</span> <span style="color: #daa520;">lsp-ui-imenu</span> <span style="color: #ffe4b5;">(</span>after hide-lsp-ui-imenu-mode-line activate<span style="color: #ffe4b5;">)</span>
-    <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">setq</span> mode-line-format nil<span style="color: #ffe4b5;">)))</span>
+  (<span style="color: #00bfff;">defadvice</span> <span style="color: #daa520;">lsp-ui-imenu</span> (after hide-lsp-ui-imenu-mode-line activate)
+    (<span style="color: #00bfff;">setq</span> mode-line-format nil)))
 
-<span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">use-package</span> <span style="color: #a2cd5a;">company-lsp</span>
+(<span style="color: #00bfff;">use-package</span> <span style="color: #a2cd5a;">company-lsp</span>
   <span style="color: #f08080;">:defer</span> t
-  <span style="color: #f08080;">:init</span> <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">setq</span> company-lsp-cache-candidates 'auto<span style="color: #ffe4b5;">))</span>
+  <span style="color: #f08080;">:init</span> (<span style="color: #00bfff;">setq</span> company-lsp-cache-candidates 'auto))
 
-<span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">use-package</span> <span style="color: #a2cd5a;">lsp-treemacs</span>
+(<span style="color: #00bfff;">use-package</span> <span style="color: #a2cd5a;">lsp-treemacs</span>
   <span style="color: #f08080;">:defer</span> t
-  <span style="color: #f08080;">:bind</span> <span style="color: #ffe4b5;">(</span><span style="color: #f08080;">:map</span> lsp-mode-map
-  <span style="color: #ffe4b5;">(</span><span style="color: #deb887;">"M-9"</span> . lsp-treemacs-errors-list<span style="color: #ffe4b5;">)))</span>
+  <span style="color: #f08080;">:bind</span> (<span style="color: #f08080;">:map</span> lsp-mode-map
+  (<span style="color: #deb887;">"M-9"</span> . lsp-treemacs-errors-list)))
 </pre>
 </div>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-06-15 周六 22:19] </span></span> 为什么用了mspyls后就找不到其他的package，而用pyls就可以找到？
+<span class="timestamp-wrapper"><span class="timestamp">[2019-06-15 Sat 22:19] </span></span> 为什么用了mspyls后就找不到其他的package，而用pyls就可以找到？
 pyls比mspyls会多起不少python进程，可能是jedi起来的，很讨厌。
 </p>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-06-15 周六 23:57]</span></span>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-06-15 Sat 23:57]</span></span>
 </p>
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">use-package</span> <span style="color: #a2cd5a;">lsp-python-ms</span>
+<pre class="src src-emacs-lisp">(<span style="color: #00bfff;">use-package</span> <span style="color: #a2cd5a;">lsp-python-ms</span>
   <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">:ensure nil</span>
   <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">:defer t</span>
   <span style="color: #f08080;">:demand</span>
   <span style="color: #f08080;">:after</span> lsp-mode
-  <span style="color: #f08080;">:hook</span> <span style="color: #ffe4b5;">(</span>python-mode . lsp<span style="color: #ffe4b5;">)</span>
+  <span style="color: #f08080;">:hook</span> (python-mode . lsp)
   <span style="color: #f08080;">:config</span>
-  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">setq</span> lsp-python-ms-dir
-        <span style="color: #ffe4b5;">(</span>expand-file-name <span style="color: #deb887;">"e:/workspace/python-language-server/output/bin/Release/"</span><span style="color: #ffe4b5;">))</span>
+  (<span style="color: #00bfff;">setq</span> lsp-python-ms-dir
+        (expand-file-name <span style="color: #deb887;">"e:/workspace/python-language-server/output/bin/Release/"</span>))
   <span style="color: #B0BED8;">;; </span><span style="color: #B0BED8;">for executable of language server, if it's not symlinked on your PATH</span>
-  <span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">setq</span> lsp-python-ms-executable
-        <span style="color: #deb887;">"e:/workspace/python-language-server/output/bin/Release/Microsoft.Python.LanguageServer.exe"</span><span style="color: #ffe4b5;">))</span>
+  (<span style="color: #00bfff;">setq</span> lsp-python-ms-executable
+        <span style="color: #deb887;">"e:/workspace/python-language-server/output/bin/Release/Microsoft.Python.LanguageServer.exe"</span>))
 </pre>
 </div>
 
@@ -326,24 +333,25 @@ pyls比mspyls会多起不少python进程，可能是jedi起来的，很讨厌。
 列号是从0开始的。
 </p>
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #ffe4b5;">(</span>column-number-mode t<span style="color: #ffe4b5;">)</span>
+<pre class="src src-emacs-lisp">(column-number-mode t)
 </pre>
 </div>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-05-15 周三 15:33] </span></span> emacs 26.2可以用，显示速度比linum快很多。
+<span class="timestamp-wrapper"><span class="timestamp">[2019-05-15 Wed 15:33] </span></span> emacs 26.2可以用，显示速度比linum快很多。
 </p>
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><span style="color: #ffe4b5;">(</span><span style="color: #00bfff;">setq</span> display-line-numbers-width-start 5<span style="color: #ffe4b5;">)</span>
+<pre class="src src-emacs-lisp">(<span style="color: #00bfff;">setq</span> display-line-numbers-width-start 5)
 
-<span style="color: #ffe4b5;">(</span>add-hook 'org-mode-hook 'display-line-numbers-mode<span style="color: #ffe4b5;">)</span>
-<span style="color: #ffe4b5;">(</span>add-hook 'python-mode-hook 'display-line-numbers-mode<span style="color: #ffe4b5;">)</span>
-<span style="color: #ffe4b5;">(</span>add-hook 'c-mode-common-hook 'display-line-numbers-mode<span style="color: #ffe4b5;">)</span>
-<span style="color: #ffe4b5;">(</span>add-hook 'emacs-lisp-mode-hook 'display-line-numbers-mode<span style="color: #ffe4b5;">)</span>
-<span style="color: #ffe4b5;">(</span>add-hook 'sh-mode-hook 'display-line-numbers-mode<span style="color: #ffe4b5;">)</span>
-<span style="color: #ffe4b5;">(</span>add-hook 'go-mode-hook 'display-line-numbers-mode<span style="color: #ffe4b5;">)</span>
+(add-hook 'org-mode-hook 'display-line-numbers-mode)
+(add-hook 'python-mode-hook 'display-line-numbers-mode)
+(add-hook 'c-mode-common-hook 'display-line-numbers-mode)
+(add-hook 'emacs-lisp-mode-hook 'display-line-numbers-mode)
+(add-hook 'sh-mode-hook 'display-line-numbers-mode)
+(add-hook 'go-mode-hook 'display-line-numbers-mode)
 </pre>
 </div>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<!-- 2021-09-06 Mon 21:33 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VirtualBox中使用raw physical partition和disk</title>
+<meta name="generator" content="Org mode">
+<meta name="author" content="albert">
+</head>
+<body>
+<div id="content">
+<h1 class="title">VirtualBox中使用raw physical partition和disk</h1>
+<p>
+参考VirtualBox docs, Chapter 9.9.1.1, <a href="https://www.virtualbox.org/manual/ch09.html#rawdisk">https://www.virtualbox.org/manual/ch09.html#rawdisk</a> will Mac OS X allow raw disk access for VMs.
+</p>
+
+
+<h2>步骤</h2>
+
+<div class="org-src-container">
+<pre class="src src-sh">sudo VBoxManage internalcommands createrawvmdk -filename /Users/me/VirtualBoxVMs/Xub_raw_disk.vmdk -rawdisk /dev/disk0
+RAW host disk access VMDK file /Users/me/VirtualBoxVMs/Xub_raw_disk.vmdk created successfully.
+</pre>
+</div>
+
+<p>
+make me the owner:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">sudo chown me /Users/me/VirtualBoxVMs/Xub_raw_disk.vmdk
+</pre>
+</div>
+
+<p>
+see if VirtualBox can see anything on the Xub_raw_disk.vmdk file:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">VBoxManage internalcommands listpartitions -rawdisk /Users/me/VirtualBoxVMs/Xub_raw_disk.vmdk
+Number  Type   StartCHS       EndCHS      Size (MiB)  Start (Sect)
+</pre>
+</div>
+
+<p>
+Since nothing shows up here for sectors or partitions, this must be a symptom of the problem&#x2026;
+</p>
+
+<p>
+Problem is when I try to add the .vmdk file from the GUI or with the command below, I get an error:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">$ VBoxManage storageattach <span style="color: #deb887;">"Xub_raw_testing"</span> --storagectl <span style="color: #deb887;">"SATA"</span> --port 0 --type hdd --medium /Users/me/VirtualBoxVMs/Xub_raw_disk.vmdk 
+VBoxManage: error: Could not find file for the medium <span style="color: #deb887;">'/Users/me/VirtualBoxVMs/Xub_raw_disk.vmdk'</span> (VERR_FILE_NOT_FOUND)
+VBoxManage: error: Details: code VBOX_E_FILE_ERROR (0x80bb0004), component Medium, interface IMedium, callee nsISupports
+VBoxManage: error: Context: <span style="color: #deb887;">"OpenMedium(Bstr(pszFilenameOrUuid).raw(), enmDevType, enmAccessMode, fForceNewUuidOnOpen, pMedium.asOutParam())"</span> at line 178 of file VBoxManageDisk.cpp
+VBoxManage: error: Invalid UUID or filename <span style="color: #deb887;">"/Users/me/VirtualBoxVMs/Xub_raw_disk.vmdk"</span>
+</pre>
+</div>
+
+<p>
+UPDATE: Here, disk0 is the dedicated linux drive. disk1 (not used) is for Mac OS X. Making myself the owner of the /dev/disk0 and /dev/disk0s2 with
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">chown $<span style="color: #4eee94;">USER</span> /dev/disk0
+chown $<span style="color: #4eee94;">USER</span> /dev/disk0s2
+</pre>
+</div>
+
+<p>
+per the Froggard howto made it so I could add the image to a VM. Also, /dev/disk0 is now readable from VBoxManage:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">$ VBoxManage internalcommands listpartitions -rawdisk /dev/disk0
+Number  Type   StartCHS       EndCHS      Size (MiB)  Start (Sect)
+1       0x00  0   /0  /0   0   /0  /0            976         2048
+2       0x00  0   /0  /0   0   /0  /0         227959      2000896
+</pre>
+</div>
+
+<p>
+Now, when I start the linux guest OS, I get the FATAL: No bootable medium found! System halted. message. Any ideas what's wrong?
+</p>
+
+<p>
+Find the Device Number
+</p>
+
+<p>
+<code>diskutil list</code> e.g. 2, as in /dev/disk2 Assuming 2 for the rest of the instructions.
+</p>
+
+
+<h2>Create the Virtual Machine VMDK</h2>
+
+<div class="org-src-container">
+<pre class="src src-sh">VBoxManage internalcommands createrawvmdk -filename <span style="color: #deb887;">"$HOME/dev-disk2.vmdk"</span> -rawdisk /dev/disk2
+</pre>
+</div>
+
+<p>
+Eject the device before this step, otherwise you will get an error: VERR_RESOURCE_BUSY. You may want to add an entry in fstab with the added parameters <b>noauto</b> to prevent the OS from remounting the drive.
+</p>
+
+<p>
+I use <code>rdisk-disk2.vmdk</code> for the name, because this virtual machine is just a pointer to this device. After reboot, the situation could change e.g. a device might be assigned a different number especially if you unplug things and move things around.
+Start Virtual Box Manager with Root Privileges
+</p>
+
+<p>
+这个应该不是必要的，root权限会把HOME目录的文件属组搞乱。
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">sudo /Applications/VirtualBox.app/Contents/MacOS/VirtualBox
+</pre>
+</div>
+
+<p>
+Because devices are all owned by root, you need to start VirtualBox with root privileges. This has consequences. Your home context (home folder and preferences) will be changed to root. Your other virtual machines will not be visible. If you open a file browser, you will see the root's home folder by default.
+</p>
+
+<p>
+Another option is to change the permissions of the device (not recommended) as you have done.
+</p>
+
+<p>
+To confirm permissions of devices, you can run <code>ls -l /dev/disk*</code>
+</p>
+
+<p>
+Add New Machine, provide name: /dev/disk2, type: linux, version: arch linux (64-bit)
+Give it some memory (whatever you can)
+Select existing drive using VMDK created above. (IMPORTANT ensure the drive has not been remounted, otherwise you will get VERR_RESOURCE_BUSY, NS_ERROR_FAILURE)
+</p>
+
+
+<h2>Install a Fresh System</h2>
+
+<p>
+Add an optical disk file (e.g. a bootable linux ISO of your liking) and turn on the Live CD/DVD optional so that you boot from it.
+Make System Bootable in VirtualBox
+</p>
+
+<p>
+This is not so obvious, especially if you use an EFI setup. If using grub-mkconfig, the name of the efi file is grubx64.efi (assuming 64 bits). VirtualBox is finicky about where it looks for a boot file. The default will not do.
+</p>
+
+<p>
+Rename grubx64.efi to bootx64.efi
+</p>
+
+<p>
+/boot/EFI/BOOT/bootx64.efi
+</p>
+
+
+<h2>Notes</h2>
+
+<p>
+tip: get yourself iterm 2
+This is super useful for Macbooks when installing Arch Linux, because the default ISO does not load the wlan card drivers.
+</p>
+
+
+<p>
+I still get VERR_NOT_SUPPORTED and VERR_ACCESS_DENIED when doing this, even with the disk permissions set to 777 and with VirtualBox running as root. – user260616 Sep 5 '19 at 14:00
+</p>
+
+<p>
+@BeanstheWizard May I suggest you verify that your disk is indeed not mounted? It might be worth setting up /etc/fstab to block mounts. – Jonathan Komar Sep 5 '19 at 14:01
+</p>
+
+<p>
+I am sure; wouldn't it give a different error anyways? – user260616 Sep 5 '19 at 14:05
+</p>
+
+<p>
+One might expect that. No, the error feedback is rubbish. That is why it induces headaches. And thats why I posted this answer. – Jonathan Komar Sep 5 '19 at 14:15
+</p>
+
+<p>
+Enabling <code>"Use Host I/O Cache"</code> fixed it, for some reason. – user260616 Sep 12 '19 at 0:51
+</p>
+
+
+<h2>I have made a small script for fixing the permission and that creates a new raw image with the correct UUID:</h2>
+
+<div class="org-src-container">
+<pre class="src src-sh">
+<span style="color: #B0BED8;">#</span><span style="color: #B0BED8;">!/bin/bash</span>
+<span style="color: #4eee94;">UUID</span>=<span style="color: #deb887;">"BDA52A9B-E398-4245-AF6B-6C274F54D4BD"</span>
+<span style="color: #4eee94;">VBOXFILE</span>=Linux.vmdk
+
+<span style="color: #4eee94;">DEVICE_IDENTIFIERIDENTIFIER</span>=$(diskutil info $<span style="color: #4eee94;">UUID</span> | grep <span style="color: #deb887;">"Device Identifier:"</span> - | grep -o <span style="color: #deb887;">"disk."</span> - )
+<span style="color: #4eee94;">DISK</span>=<span style="color: #deb887;">"/dev/$DEVICE_IDENTIFIERIDENTIFIER"</span>
+
+<span style="color: #f08080;">echo</span> <span style="color: #deb887;">"using $DISK"</span>
+
+<span style="color: #00bfff;">if</span> test -f <span style="color: #deb887;">"$VBOXFILE"</span>; <span style="color: #00bfff;">then</span>
+    rm $<span style="color: #4eee94;">VBOXFILE</span>
+<span style="color: #00bfff;">fi</span>
+
+sudo chown $<span style="color: #4eee94;">USER</span> $<span style="color: #4eee94;">DISK</span>
+sudo VBoxManage internalcommands createrawvmdk -filename $<span style="color: #4eee94;">VBOXFILE</span> -rawdisk $<span style="color: #4eee94;">DISK</span>
+sudo chown $<span style="color: #4eee94;">USER</span> $<span style="color: #4eee94;">VBOXFILE</span>
+
+VBoxManage internalcommands sethduuid Linux.vmdk <span style="color: #deb887;">"$UUID"</span>
+</pre>
+</div>
+
+
+<h2>I did more or less what you want: to access the disk in raw mode as Linux boot.</h2>
+
+<div class="org-src-container">
+<pre class="src src-sh">diskutil list
+</pre>
+</div>
+
+<p>
+Identify the disk to access with VirtualBox. Here it is <code>/dev/disk1</code>, containing two partitions <code>/dev/disk1s1</code> and <code>/dev/disk1s2</code> (one Windows and one Linux).
+</p>
+
+<p>
+Unmount:
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">diskutil unmountDisk /dev/disk1 
+</pre>
+</div>
+
+<p>
+Change permissions:
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">sudo chown myself /dev/disk1*
+</pre>
+</div>
+
+<p>
+Create raw virtual machine disk :
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">VBoxManage internalcommands createrawvmdk -filename /Users/myself/VirtualBox<span style="color: #deb887;">\ </span>VMs/link.vmdk -rawdisk /dev/disk
+</pre>
+</div>
+
+<p>
+Open VirtualBox:
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">open -a VirtualBox
+</pre>
+</div>
+
+<p>
+Create a virtual machine using "an existing virtual hard disk file", actually choose the one just created. Click on Add&#x2026; Create&#x2026;
+</p>
+
+<p>
+Often an error occurs "could not open the medium VERR_RESOURCE_BUSY", because the Mac has automatically remounted (check the desktop), so unmount and try again (use shell history or write a script or <code>sudo vifs /etc/fstab</code> &#x2013; and look elsewhere how to fill it).
+</p>
+
+<p>
+The virtual machine is shown [Running] so probably it has accessed the disk. (However, the boot process hangs but this is another question.)
+</p>
+
+<p>
+Hopefully you will be able to adapt this recipe to your need.
+</p>
+
+
+<h2>参考</h2>
+
+<ul class="org-ul">
+<li><a href="https://apple.stackexchange.com/questions/192292/how-to-do-raw-device-access-with-virtualbox">https://apple.stackexchange.com/questions/192292/how-to-do-raw-device-access-with-virtualbox</a></li>
+</ul>
+</div>
+</body>
+</html>

@@ -1,18 +1,21 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh">
 <head>
-<!-- 2019-10-29 周二 10:39 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 <title>emacs 和 X11</title>
-<meta name="generator" content="Org mode">
-<link rel="stylesheet" type="text/css" href="/main.css"/>
-</head>
+<meta name="author" content="Albert Zhou">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<link href= "/main.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="/favicon.ico"></head>
 <body>
+<div id="preamble" class="status"></div>
 <div id="content">
-<h1 class="title">emacs 和 X11</h1>
+  <div class="post-date">2019年01月16日</div>
+  <h1>emacs 和 X11</h1>
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-08-09 周五 15:57] </span></span> 几个月前，在尝试不同的x server时，发现 <code>XMing 6.9</code> 不需要修改key binding。而且XMing支持ttf字体，字体配置比mobaXterm方便。但是高版本的XMing和VCXSrv都有问题。
+<span class="timestamp-wrapper"><span class="timestamp">[2019-08-09 Fri 15:57] </span></span> 几个月前，在尝试不同的x server时，发现 <code>XMing 6.9</code> 不需要修改key binding。而且XMing支持ttf字体，字体配置比mobaXterm方便。但是高版本的XMing和VCXSrv都有问题。
 </p>
 
 <p>
@@ -30,7 +33,7 @@
 <p>
 字符界面的问题：
 </p>
-<ol class="org-ol">
+<ol>
 <li>&lt;esc&gt;键按下去后有时候感觉响应比较慢，后续的按键容易出错</li>
 <li><code>gdb debug</code> 时能看的内容有点少。字符都是一个大小，显示不如gui那么好看。</li>
 <li>显示行号后，copy时总是把行号给copy下来。</li>
@@ -43,7 +46,7 @@
 我的emacs 25.3是用源代码编译安装的。centos默认只有字符界面，需要安装X11相关的rpm包，尤其是开发包才能重新编译emacs，让emacs支持gui。
 </p>
 
-<ol class="org-ol">
+<ol>
 <li><p>
 安装X Window相关的rpm包
 </p>
@@ -123,7 +126,7 @@ mobaXterm貌似只能用点阵字体（pcf格式），ttf一类的怎么设置�
 字体目录除了点阵字体（pcf格式，不知道xserver是否支持其他格式，true type报错）需要 <code>fonts.dir</code> 和 <code>fonts.alias(不一定需要，有别名的话写配置比较方便)</code> 文件，否则 xset fp 会报错。
 </p>
 
-<ul class="org-ul">
+<ul>
 <li>中英文等宽字体
 找不到ubuntu mono点阵字体，如果用点阵字体，需要转换一下，先用文泉驿中文字体顶替一下，文泉驿字体不是中英文等宽的，还需要找个等宽的英文字体，mobaxterm自带的等宽字体不如ubuntu mono和consolas好看。</li>
 </ul>
@@ -155,13 +158,13 @@ Font Path:
 </pre>
 </div>
 
-<ul class="org-ul">
+<ul>
 <li>fonts.alias
 是否存在都不影响，mobaXterm自带的是有fonts.alias的，在emacs中执行 <code>M-x menu-set-font</code> menu选择时看着会比较短。</li>
 </ul>
 
 
-<h3>wqy-unibit等宽点阵字体 <span class="timestamp-wrapper"><span class="timestamp">[2019-01-17 周四 22:40]</span></span></h3>
+<h3>wqy-unibit等宽点阵字体 <span class="timestamp-wrapper"><span class="timestamp">[2019-01-17 Thu 22:40]</span></span></h3>
 
 <p>
 文泉驿的等宽点阵字体很漂亮。
@@ -172,7 +175,7 @@ Font Path:
 </div>
 
 
-<h3>consolas with yahei ttf <span class="timestamp-wrapper"><span class="timestamp">[2019-01-30 周三 12:45]</span></span></h3>
+<h3>consolas with yahei ttf <span class="timestamp-wrapper"><span class="timestamp">[2019-01-30 Wed 12:45]</span></span></h3>
 
 <div class="org-src-container">
 <pre class="src src-sh">xset +fp <span style="color: #deb887;">"E:\backup\emacs_font\Consolas-with-Yahei"</span> &amp;&amp; xset q &amp;&amp; xset fp rehash &amp;&amp; xlsfonts |grep Yahei
@@ -197,7 +200,7 @@ Font Path:
 <p>
 遗留了几个问题：
 </p>
-<ol class="org-ol">
+<ol>
 <li>中英文切换
 如何在输入法中想其他输入法一下按 shift 快速切换输入法，总是按 C-\ 切换输入法太麻烦了。M-j效果很好</li>
 <li>字库
@@ -214,7 +217,7 @@ mobaXterm的xserver坑最深的就是键盘。我的要求很简单，就是把 
 </p>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-02-10 周日 15:59] </span></span> Ctrl-[ 可以输入 Escape ，就是不习惯，不好用。
+<span class="timestamp-wrapper"><span class="timestamp">[2019-02-10 Sun 15:59] </span></span> Ctrl-[ 可以输入 Escape ，就是不习惯，不好用。
 </p>
 
 <h3>用xmodmap改变键盘映射</h3>
@@ -233,8 +236,8 @@ xmodmap -pm
 
 xmodmap -e <span style="color: #deb887;">"keycode 8 ="</span>
 [albert@master ~]$ xmodmap -pke
-keycode   8 = Mode_switch NoSymbol Mode_switch
-keycode   9 = Escape NoSymbol Escape
+keycode   <span style="color: #4eee94;">8</span> = Mode_switch NoSymbol Mode_switch
+keycode   <span style="color: #4eee94;">9</span> = Escape NoSymbol Escape
 </pre>
 </div>
 
@@ -243,8 +246,8 @@ ALT_R 基本是不用的，把escape改到alt_r上。不爽的是win和linux x w
 </p>
 <div class="org-src-container">
 <pre class="src src-sh">vi ~/.Xmodmap
-keycode 8 =
-keycode 113 = Escape
+keycode <span style="color: #4eee94;">8</span> =
+keycode <span style="color: #4eee94;">113</span> = Escape
 
 <span style="color: #B0BED8;"># </span><span style="color: #B0BED8;">&#20462;&#25913;key mapping&#21518;&#65292;&#20351;&#20043;&#29983;&#25928;</span>
 xmodmap ~/.Xmodmap
@@ -270,7 +273,7 @@ pc 104和 pc105的layout是不是应该用pc104的layout
 </p>
 
 <p>
-<span class="timestamp-wrapper"><span class="timestamp">[2019-01-30 周三 10:40] </span></span> 好像不需要配置，按鼠标中键粘贴即可。为什么呢？我安装了epel源后，装上了xsel和xclip？
+<span class="timestamp-wrapper"><span class="timestamp">[2019-01-30 Wed 10:40] </span></span> 好像不需要配置，按鼠标中键粘贴即可。为什么呢？我安装了epel源后，装上了xsel和xclip？
 </p>
 
 <p>
@@ -300,8 +303,8 @@ This works on Linux and Windows, I guess on Mac it's the same.
 在evil中无效啊。
 </p>
 <div class="org-src-container">
-<pre class="src src-lisp"><span style="color: #ffe4b5;">(</span>global-set-key  <span style="color: #ffe4b5;">[(</span>shift insert<span style="color: #ffe4b5;">)]</span> 'clipboard-yank<span style="color: #ffe4b5;">)</span>
-<span style="color: #ffe4b5;">(</span>global-set-key <span style="color: #ffe4b5;">(</span>kbd <span style="color: #deb887;">"S-&lt;insert&gt;"</span><span style="color: #ffe4b5;">)</span> 'clipboard-yank<span style="color: #ffe4b5;">)</span>
+<pre class="src src-lisp">(global-set-key  [(shift insert)] 'clipboard-yank)
+(global-set-key (kbd <span style="color: #deb887;">"S-&lt;insert&gt;"</span>) 'clipboard-yank)
 </pre>
 </div>
 
@@ -330,6 +333,7 @@ This works on Linux and Windows, I guess on Mac it's the same.
 <p>
 感觉mobaXterm的xserver中的emacs在打开配置文件时有点卡，可以试试修改渲染方式为 direct draw ? 打开opengl的硬件加速后还是卡，我的集显有问题？需要用nv的独显？2D显示用不了nv的独显进行加速。
 </p>
-</div>
+<div class="taglist"></div></div>
+<div id="postamble" class="status"></div>
 </body>
 </html>
