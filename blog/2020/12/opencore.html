@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>修改opencore，在引导windows时不修改ACPI</title>
+<title>修改OpenCore，在引导windows时不修改ACPI</title>
 <meta name="author" content="Albert Zhou">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -13,19 +13,19 @@
 <div id="preamble" class="status"></div>
 <div id="content">
   <div class="post-date">2020年12月20日</div>
-  <h1>修改opencore，在引导windows时不修改ACPI</h1>
+  <h1>修改OpenCore，在引导windows时不修改ACPI</h1>
 <p>
-opencore不需要在引导除macos以外的操作系统会按config.plist中的配置修改ACPI、nvram。黑苹果的BIOS本来就是适配windows、linux的，按macos的标准改了以后反而适得其反，出现各种问题。如oc会修改system-id，会导致windows的license失效。或者windows启动在不停转圈、蓝屏。
+<code>OpenCore</code> 不需要在引导除macos以外的操作系统会按 <code>config.plist</code> 中的配置修改ACPI、nvram。黑苹果的BIOS本来就是适配windows、linux的，按macos的标准改了以后反而适得其反，出现各种问题。如oc会修改 <code>system-id</code> ，会导致windows的license失效。或者windows启动在不停转圈、蓝屏。
 </p>
 
 <p>
-在oc0.2的版本是有一个Quirk，在引导windows时不修改ACPI的，但是后续的版本取消了这个Quirk。只能通过修改源代码来解决了。
+在 <code>OpenCore 0.2</code> 的版本是有一个 <code>Quirk</code> ，在引导windows时不修改ACPI的，但是后续的版本取消了这个Quirk。只能通过修改源代码来解决了。
 </p>
 
 <p>
-代码基于oc 0.6.5版本，主要是在引导其他操作系统时，不修改ACPI，具体如下：
+代码基于 <code>OpenCore 0.6.5</code> 版本，主要是在引导其他操作系统时，不修改ACPI，具体如下：
 </p>
-<pre class="example" id="orgf98e2cc">
+<pre class="example" id="orgdee4254">
 $git diff 5c8f
 diff --git a/Include/Acidanthera/Library/OcConfigurationLib.h b/Include/Acidanthera/Library/OcConfigurationLib.h
 index f2a71123..91385265 100644
