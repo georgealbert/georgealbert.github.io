@@ -10,7 +10,6 @@
 <link href= "/main.css" rel="stylesheet" type="text/css" />
 <link rel="icon" href="/favicon.ico"></head>
 <body>
-<div id="preamble" class="status"></div>
 <div id="content">
   <div class="post-date">2020年12月20日</div>
   <h1>修改OpenCore，在引导windows时不修改ACPI</h1>
@@ -25,14 +24,14 @@
 <p>
 代码基于 <code>OpenCore 0.6.5</code> 版本，主要是在引导其他操作系统时，不修改ACPI，具体如下：
 </p>
-<pre class="example" id="orgdee4254">
-$git diff 5c8f
+<div class="org-src-container">
+<pre class="src src-c">$git diff 5c8f
 diff --git a/Include/Acidanthera/Library/OcConfigurationLib.h b/Include/Acidanthera/Library/OcConfigurationLib.h
 index f2a71123..91385265 100644
 --- a/Include/Acidanthera/Library/OcConfigurationLib.h
 +++ b/Include/Acidanthera/Library/OcConfigurationLib.h
 @@ -80,6 +80,7 @@
- #define OC_ACPI_QUIRKS_FIELDS(_, __) \
+<span style="color: #ffd700;"> #define</span> <span style="color: #daa520;">OC_ACPI_QUIRKS_FIELDS</span>(<span style="color: #4eee94;">_</span>, <span style="color: #4eee94;">__</span>) \
    _(BOOLEAN                     , FadtEnableReset     ,     , FALSE  , ()) \
    _(BOOLEAN                     , NormalizeHeaders    ,     , FALSE  , ()) \
 +  _(BOOLEAN                     , OnlyForMacOS        ,     , FALSE  , ()) \
@@ -45,12 +44,12 @@ index 001197d7..99fcb16c 100644
 +++ b/Library/OcConfigurationLib/OcConfigurationLib.c
 @@ -141,6 +141,7 @@ OC_SCHEMA
  mAcpiQuirksSchema[] = {
-   OC_SCHEMA_BOOLEAN_IN ("FadtEnableReset",  OC_GLOBAL_CONFIG, Acpi.Quirks.FadtEnableReset),
-   OC_SCHEMA_BOOLEAN_IN ("NormalizeHeaders", OC_GLOBAL_CONFIG, Acpi.Quirks.NormalizeHeaders),
-+  OC_SCHEMA_BOOLEAN_IN ("OnlyForMacOS",     OC_GLOBAL_CONFIG, Acpi.Quirks.OnlyForMacOS),
-   OC_SCHEMA_BOOLEAN_IN ("RebaseRegions",    OC_GLOBAL_CONFIG, Acpi.Quirks.RebaseRegions),
-   OC_SCHEMA_BOOLEAN_IN ("ResetHwSig",       OC_GLOBAL_CONFIG, Acpi.Quirks.ResetHwSig),
-   OC_SCHEMA_BOOLEAN_IN ("ResetLogoStatus",  OC_GLOBAL_CONFIG, Acpi.Quirks.ResetLogoStatus),
+   OC_SCHEMA_BOOLEAN_IN (<span style="color: #deb887;">"FadtEnableReset"</span>,  OC_GLOBAL_CONFIG, Acpi.Quirks.FadtEnableReset),
+   OC_SCHEMA_BOOLEAN_IN (<span style="color: #deb887;">"NormalizeHeaders"</span>, OC_GLOBAL_CONFIG, Acpi.Quirks.NormalizeHeaders),
++  OC_SCHEMA_BOOLEAN_IN (<span style="color: #deb887;">"OnlyForMacOS"</span>,     OC_GLOBAL_CONFIG, Acpi.Quirks.OnlyForMacOS),
+   OC_SCHEMA_BOOLEAN_IN (<span style="color: #deb887;">"RebaseRegions"</span>,    OC_GLOBAL_CONFIG, Acpi.Quirks.RebaseRegions),
+   OC_SCHEMA_BOOLEAN_IN (<span style="color: #deb887;">"ResetHwSig"</span>,       OC_GLOBAL_CONFIG, Acpi.Quirks.ResetHwSig),
+   OC_SCHEMA_BOOLEAN_IN (<span style="color: #deb887;">"ResetLogoStatus"</span>,  OC_GLOBAL_CONFIG, Acpi.Quirks.ResetLogoStatus),
 diff --git a/Platform/OpenCore/OpenCore.c b/Platform/OpenCore/OpenCore.c
 index 9f992ba4..eb716c42 100644
 --- a/Platform/OpenCore/OpenCore.c
@@ -58,22 +57,22 @@ index 9f992ba4..eb716c42 100644
 @@ -90,6 +90,23 @@ OcStartImage (
      LaunchInText ? EfiConsoleControlScreenText : EfiConsoleControlScreenGraphics
      );
- 
-+  if((Chosen-&gt;Type &amp; OC_BOOT_APPLE_ANY) &amp;&amp; mOpenCoreConfiguration.Acpi.Quirks.OnlyForMacOS){
-+    DEBUG ((DEBUG_INFO, "OC: OcLoadAcpiSupport only for macOS...\n"));
+
++  <span style="color: #00bfff;">if</span>((Chosen-&gt;Type &amp; OC_BOOT_APPLE_ANY) &amp;&amp; mOpenCoreConfiguration.Acpi.Quirks.OnlyForMacOS){
++    DEBUG ((DEBUG_INFO, <span style="color: #deb887;">"OC: OcLoadAcpiSupport only for macOS...\n"</span>));
 +    OcLoadAcpiSupport (&amp;mOpenCoreStorage, &amp;mOpenCoreConfiguration);
 +
-+    DEBUG ((DEBUG_INFO, "OC: OcLoadPlatformSupport...\n"));
++    DEBUG ((DEBUG_INFO, <span style="color: #deb887;">"OC: OcLoadPlatformSupport...\n"</span>));
 +    OcLoadPlatformSupport (&amp;mOpenCoreConfiguration, &amp;mOpenCoreCpuInfo);
 +
-+    DEBUG ((DEBUG_INFO, "OC: OcLoadDevPropsSupport...\n"));
++    DEBUG ((DEBUG_INFO, <span style="color: #deb887;">"OC: OcLoadDevPropsSupport...\n"</span>));
 +    OcLoadDevPropsSupport (&amp;mOpenCoreConfiguration);
 +
-+    /* DEBUG ((DEBUG_INFO, "OC: OcMiscLateInit...\n")); */
-+    /* OcMiscLateInit (Storage, &amp;mOpenCoreConfiguration); */
++    <span style="color: #B0BED8;">/* </span><span style="color: #B0BED8;">DEBUG ((DEBUG_INFO, "OC: OcMiscLateInit...\n"));</span><span style="color: #B0BED8;"> */</span>
++    <span style="color: #B0BED8;">/* </span><span style="color: #B0BED8;">OcMiscLateInit (Storage, &amp;mOpenCoreConfiguration);</span><span style="color: #B0BED8;"> */</span>
 +
-+    /* DEBUG ((DEBUG_INFO, "OC: OcLoadKernelSupport...\n")); */
-+    /* OcLoadKernelSupport (&amp;mOpenCoreStorage, &amp;mOpenCoreConfiguration, &amp;mOpenCoreCpuInfo); */
++    <span style="color: #B0BED8;">/* </span><span style="color: #B0BED8;">DEBUG ((DEBUG_INFO, "OC: OcLoadKernelSupport...\n"));</span><span style="color: #B0BED8;"> */</span>
++    <span style="color: #B0BED8;">/* </span><span style="color: #B0BED8;">OcLoadKernelSupport (&amp;mOpenCoreStorage, &amp;mOpenCoreConfiguration, &amp;mOpenCoreCpuInfo);</span><span style="color: #B0BED8;"> */</span>
 +  }
 +
    Status = gBS-&gt;StartImage (
@@ -81,32 +80,33 @@ index 9f992ba4..eb716c42 100644
      ExitDataSize,
 @@ -134,14 +151,21 @@ OcMain (
    OcMiscMiddleInit (Storage, &amp;mOpenCoreConfiguration, mStorageRoot, LoadPath, mStorageHandle);
-   DEBUG ((DEBUG_INFO, "OC: OcLoadUefiSupport...\n"));
+   DEBUG ((DEBUG_INFO, <span style="color: #deb887;">"OC: OcLoadUefiSupport...\n"</span>));
    OcLoadUefiSupport (Storage, &amp;mOpenCoreConfiguration, &amp;mOpenCoreCpuInfo);
--  DEBUG ((DEBUG_INFO, "OC: OcLoadAcpiSupport...\n"));
+-  DEBUG ((DEBUG_INFO, <span style="color: #deb887;">"OC: OcLoadAcpiSupport...\n"</span>));
 -  OcLoadAcpiSupport (&amp;mOpenCoreStorage, &amp;mOpenCoreConfiguration);
--  DEBUG ((DEBUG_INFO, "OC: OcLoadPlatformSupport...\n"));
+-  DEBUG ((DEBUG_INFO, <span style="color: #deb887;">"OC: OcLoadPlatformSupport...\n"</span>));
 -  OcLoadPlatformSupport (&amp;mOpenCoreConfiguration, &amp;mOpenCoreCpuInfo);
--  DEBUG ((DEBUG_INFO, "OC: OcLoadDevPropsSupport...\n"));
+-  DEBUG ((DEBUG_INFO, <span style="color: #deb887;">"OC: OcLoadDevPropsSupport...\n"</span>));
 -  OcLoadDevPropsSupport (&amp;mOpenCoreConfiguration);
 +
-+  if(!mOpenCoreConfiguration.Acpi.Quirks.OnlyForMacOS){
-+    DEBUG ((DEBUG_INFO, "OC: OcLoadAcpiSupport of any OS...\n"));
++  <span style="color: #00bfff;">if</span>(<span style="color: #ffd700;">!</span>mOpenCoreConfiguration.Acpi.Quirks.OnlyForMacOS){
++    DEBUG ((DEBUG_INFO, <span style="color: #deb887;">"OC: OcLoadAcpiSupport of any OS...\n"</span>));
 +    OcLoadAcpiSupport (&amp;mOpenCoreStorage, &amp;mOpenCoreConfiguration);
 +
-+    DEBUG ((DEBUG_INFO, "OC: OcLoadPlatformSupport...\n"));
++    DEBUG ((DEBUG_INFO, <span style="color: #deb887;">"OC: OcLoadPlatformSupport...\n"</span>));
 +    OcLoadPlatformSupport (&amp;mOpenCoreConfiguration, &amp;mOpenCoreCpuInfo);
 +
-+    DEBUG ((DEBUG_INFO, "OC: OcLoadDevPropsSupport...\n"));
++    DEBUG ((DEBUG_INFO, <span style="color: #deb887;">"OC: OcLoadDevPropsSupport...\n"</span>));
 +    OcLoadDevPropsSupport (&amp;mOpenCoreConfiguration);
 +  }
 +
-   DEBUG ((DEBUG_INFO, "OC: OcMiscLateInit...\n"));
+   DEBUG ((DEBUG_INFO, <span style="color: #deb887;">"OC: OcMiscLateInit...\n"</span>));
    OcMiscLateInit (Storage, &amp;mOpenCoreConfiguration);
 +
-   DEBUG ((DEBUG_INFO, "OC: OcLoadKernelSupport...\n"));
+   DEBUG ((DEBUG_INFO, <span style="color: #deb887;">"OC: OcLoadKernelSupport...\n"</span>));
    OcLoadKernelSupport (&amp;mOpenCoreStorage, &amp;mOpenCoreConfiguration, &amp;mOpenCoreCpuInfo);
 </pre>
+</div>
 
 
 <h2>参考</h2>
@@ -116,6 +116,5 @@ index 9f992ba4..eb716c42 100644
 <li><a href="https://github.com/acidanthera/OpenCorePkg/pull/147">https://github.com/acidanthera/OpenCorePkg/pull/147</a> 里面有相关讨论和oc的配置，有时间再试试。</li>
 </ul>
 <div class="taglist"></div></div>
-<div id="postamble" class="status"></div>
 </body>
 </html>
